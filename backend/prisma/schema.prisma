@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  username     String   @unique
+  password     String
+  nama_lengkap String
+  avatar       String?
+  createdAt    DateTime @default(now())
+  citras       Citra[]
+}
+
+model Citra {
+  id             Int              @id @default(autoincrement())
+  userId         Int
+  user           User             @relation(fields: [userId], references: [id])
+  namaFile       String
+  ukuranFile     Int
+  tanggalUnggah  DateTime         @default(now())
+  hasilPrediksi  HasilPrediksi?
+}
+
+model HasilPrediksi {
+  id             Int            @id @default(autoincrement())
+  citraId        Int            @unique
+  citra          Citra          @relation(fields: [citraId], references: [id])
+  labelPenyakit  LabelPenyakit
+  nilaiAkurasi   Float
+  allProbs       Json?
+  waktuProses    Float
+  createdAt      DateTime       @default(now())
+}
+
+enum LabelPenyakit {
+  HEALTHY
+  COCCIDIOSIS
+  NEWCASTLE
+  SALMONELLA
+}
