@@ -80,9 +80,20 @@ const PrintReport: React.FC<PrintReportProps> = ({ detail }) => {
               {detail.hasilPrediksi?.labelPenyakit}
             </h2>
             <div className="bg-white p-4 rounded-xl border border-gray-200">
-              <p className="text-sm text-gray-700 m-0 leading-relaxed font-medium">
-                {getLabelDescription(detail.hasilPrediksi?.labelPenyakit || '')}
-              </p>
+              {detail.hasilPrediksi?.saranAI ? (
+                <>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 mb-1 flex items-center gap-1">
+                    ✨ SARAN AI DOCTOR
+                  </span>
+                  <p className="text-sm text-gray-800 m-0 leading-relaxed font-medium">
+                    {detail.hasilPrediksi.saranAI}
+                  </p>
+                </>
+              ) : (
+                <p className="text-sm text-gray-700 m-0 leading-relaxed font-medium">
+                  {getLabelDescription(detail.hasilPrediksi?.labelPenyakit || '')}
+                </p>
+              )}
             </div>
           </div>
 

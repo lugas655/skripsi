@@ -18,6 +18,7 @@ export interface HasilPrediksi {
   labelPenyakit: LabelPenyakit;
   nilaiAkurasi: number;
   allProbs?: Record<string, number>;
+  saranAI?: string;
   waktuProses: number;
   createdAt: string;
 }

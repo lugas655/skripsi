@@ -150,11 +150,22 @@ const HistoryDetailPage: React.FC = () => {
                 </div>
               </div>
               
-              <div className="p-8 print:p-4">
-                <div className="bg-slate-50 p-6 rounded-2xl border-1 border-slate-100 mb-8 print:bg-white print:p-0 print:border-none print:mb-4">
-                  <p className="text-slate-600 m-0 text-lg leading-relaxed font-medium print:text-sm">
-                    {getLabelDescription(detail.hasilPrediksi?.labelPenyakit || '')}
-                  </p>
+              <div className="p-8 print:p-6">
+                <div className="bg-slate-50 p-6 rounded-2xl border-1 border-slate-100 mb-8 print:bg-white print:mb-6">
+                  {detail.hasilPrediksi?.saranAI ? (
+                    <div>
+                      <span className="text-xs font-black uppercase tracking-widest text-blue-600 mb-2 flex items-center gap-2">
+                        <i className="pi pi-sparkles"></i> Saran AI Doctor
+                      </span>
+                      <p className="text-slate-700 m-0 text-lg leading-relaxed font-medium print:text-base">
+                        {detail.hasilPrediksi.saranAI}
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="text-slate-600 m-0 text-lg leading-relaxed font-medium print:text-base">
+                      {getLabelDescription(detail.hasilPrediksi?.labelPenyakit || '')}
+                    </p>
+                  )}
                 </div>
 
                 <div className="flex flex-col gap-4 print:gap-2">

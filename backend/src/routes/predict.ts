@@ -3,6 +3,7 @@ import { PrismaClient, LabelPenyakit } from '@prisma/client';
 import { authMiddleware } from '../middlewares/authMiddleware';
 import { uploadMiddleware } from '../middlewares/uploadMiddleware';
 import { predictImage } from '../services/mlService';
+import { generateAdvice } from '../services/geminiService';
 import fs from 'fs';
 
 const router = Router();
@@ -27,6 +28,10 @@ router.post('/', authMiddleware, uploadMiddleware.single('image'), async (req: A
 
     // Call ML Service
     const mlResponse = await predictImage(req.file.path);
+    const label = mlResponse.label.toUpperCase() as LabelPenyakit;
+    
+    // Generate AI Advice
+    const aiAdvice = await generateAdvice(label, mlResponse.confidence);
 
     // Start database transaction
     const result = await prisma.$transaction(async (tx) => {
@@ -40,15 +45,13 @@ router.post('/', authMiddleware, uploadMiddleware.single('image'), async (req: A
       });
 
       // 2. Save HasilPrediksi
-      // mlResponse fields: label, confidence, all_probs, process_time_ms
-      const label = mlResponse.label.toUpperCase() as LabelPenyakit;
-      
       const prediksi = await tx.hasilPrediksi.create({
         data: {
           citraId: citra.id,
           labelPenyakit: label,
           nilaiAkurasi: mlResponse.confidence,
           allProbs: mlResponse.all_probs,
+          saranAI: aiAdvice,
           waktuProses: mlResponse.process_time_ms / 1000, 
         },
       });
