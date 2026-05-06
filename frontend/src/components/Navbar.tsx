@@ -7,6 +7,8 @@ import { TieredMenu } from 'primereact/tieredmenu';
 import { Sidebar } from 'primereact/sidebar';
 import { User } from '../types';
 
+// Navbar updated for redesigned UI
+
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -57,9 +59,9 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-[1000] shadow-sm">
-      <div className="w-full px-4 md:px-8">
-        <div className="flex items-center justify-between h-20">
+    <nav className="bg-white border-b border-slate-100 sticky top-0 z-[1000] shadow-sm">
+      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
           
           {/* Mobile Menu Button & Logo */}
           <div className="flex items-center gap-2 md:gap-3 overflow-hidden">
@@ -69,9 +71,12 @@ const Navbar: React.FC = () => {
               onClick={() => setVisible(true)} 
             />
             <Link to="/" className="no-underline flex items-center gap-2 group shrink-0">
-              <div className="w-10 h-10 min-w-[40px] bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-blue-200 shadow-lg group-hover:scale-105 transition-transform">
-                <i className="pi pi-bolt"></i>
-              </div>
+              <span
+                className="bg-blue-600 text-white shadow-blue-200 shadow-lg group-hover:scale-105 transition-transform"
+                style={{ width: 40, height: 40, minWidth: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, borderRadius: 12 }}
+              >
+                <i className="pi pi-bolt" />
+              </span>
               <span className="text-lg md:text-xl font-black text-slate-900 tracking-tight">
                 AyamSehat<span className="text-blue-600 hidden sm:inline">.AI</span>
               </span>
@@ -79,15 +84,15 @@ const Navbar: React.FC = () => {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-1">
             {navItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`no-underline font-bold text-sm tracking-wide transition-all px-3 py-2 rounded-xl flex items-center gap-2 ${
-                  location.pathname === item.path 
-                    ? 'text-blue-600 bg-blue-50' 
-                    : 'text-slate-500 hover:text-blue-600 hover:bg-slate-50'
+                className={`no-underline font-semibold text-sm transition-all px-4 py-2 rounded-lg flex items-center gap-2 ${
+                  location.pathname === item.path
+                    ? 'text-blue-600 bg-blue-50'
+                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
                 }`}
               >
                 <i className={`${item.icon} text-xs`}></i>
@@ -97,24 +102,24 @@ const Navbar: React.FC = () => {
           </div>
 
           {/* User Profile */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             {user && (
-              <div 
-                className="flex items-center gap-3 cursor-pointer p-1.5 md:p-2 rounded-2xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100"
+              <div
+                className="flex items-center gap-2.5 cursor-pointer pl-3 pr-2 py-1.5 rounded-xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100"
                 onClick={(e) => menu.current?.toggle(e)}
               >
                 <div className="text-right hidden sm:block">
-                  <p className="m-0 font-black text-slate-900 text-xs">{user.nama_lengkap}</p>
-                  <p className="m-0 text-slate-400 text-[10px] uppercase font-bold tracking-tighter">Peternak Modern</p>
+                  <p className="m-0 font-semibold text-slate-900 text-[13px] leading-tight">{user.nama_lengkap}</p>
+                  <p className="m-0 text-slate-400 text-[10px] font-medium">Pengguna</p>
                 </div>
-                <Avatar 
+                <Avatar
                   image={user.avatar ? `${IMAGE_BASE_URL}/${user.avatar}` : undefined}
-                  label={(!user.avatar && user.nama_lengkap) ? getInitials(user.nama_lengkap) : undefined} 
-                  shape="circle" 
-                  className={!user.avatar ? "bg-blue-100 text-blue-600 font-bold" : "shadow-sm border-2 border-white overflow-hidden"} 
-                  style={{ width: '2.5rem', height: '2.5rem' }}
+                  label={(!user.avatar && user.nama_lengkap) ? getInitials(user.nama_lengkap) : undefined}
+                  shape="circle"
+                  className={!user.avatar ? 'bg-blue-100 text-blue-600 !text-sm font-bold' : 'shadow-sm border-2 border-white overflow-hidden'}
+                  style={{ width: '2rem', height: '2rem' }}
                 />
-                <i className="pi pi-chevron-down text-slate-400 text-[10px]"></i>
+                <i className="pi pi-chevron-down text-slate-300 text-[10px]"></i>
                 <TieredMenu model={menuItems} popup ref={menu} />
               </div>
             )}

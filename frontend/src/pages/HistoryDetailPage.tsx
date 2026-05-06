@@ -6,6 +6,7 @@ import { Button } from 'primereact/button';
 import { ProgressBar } from 'primereact/progressbar';
 import { Card } from 'primereact/card';
 import Navbar from '../components/Navbar';
+import PrintReport from '../components/PrintReport';
 import api from '../api/axios';
 import { Citra } from '../types';
 
@@ -68,15 +69,22 @@ const HistoryDetailPage: React.FC = () => {
   const theme = getTheme(detail.hasilPrediksi?.labelPenyakit || '');
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-12">
-      <Navbar />
-      
-      <div className="w-full px-4 md:px-8 py-8">
+    <>
+      {/* --- PRINT ONLY UI --- */}
+      <div className="print-only">
+        <PrintReport detail={detail} />
+      </div>
+
+      {/* --- WEB UI --- */}
+      <div className="web-only min-h-screen bg-slate-50 pb-12">
+        <Navbar />
+        
+        <div className="w-full px-4 md:px-8 py-8">
         {/* Back Header */}
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex items-center gap-4 mb-8 print:mb-4">
           <Button 
             icon="pi pi-arrow-left" 
-            className="p-button-rounded p-button-text text-slate-900 hover:bg-slate-200" 
+            className="p-button-rounded p-button-text text-slate-900 hover:bg-slate-200 print:hidden" 
             onClick={() => navigate('/history')} 
           />
           <div>
@@ -88,12 +96,12 @@ const HistoryDetailPage: React.FC = () => {
         </div>
 
         {/* 2-Column Balanced Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 print:flex print:flex-row print:gap-6 print:items-start">
           
           {/* Left Side: Image Preview (5/12) */}
-          <div className="lg:col-span-5">
-            <div className="bg-white p-4 rounded-[2.5rem] shadow-sm border-1 border-slate-200">
-              <div className="rounded-[2rem] overflow-hidden shadow-lg border-4 border-white aspect-square relative">
+          <div className="lg:col-span-5 print:w-[35%] print:mb-0">
+            <div className="bg-white p-4 rounded-[2.5rem] shadow-sm border-1 border-slate-200 print:shadow-none print:border-none print:p-0">
+              <div className="rounded-[2rem] overflow-hidden shadow-lg border-4 border-white aspect-square relative print:shadow-none print:border-slate-300 print:border-2">
                 <img 
                   src={`${IMAGE_BASE_URL}/${detail.namaFile}`} 
                   alt="Citra Diagnosis" 
@@ -106,8 +114,8 @@ const HistoryDetailPage: React.FC = () => {
                   </span>
                 </div>
               </div>
-              <div className="p-6 mt-2">
-                <h4 className="text-slate-400 font-bold uppercase tracking-widest text-xs mb-4">Informasi Berkas</h4>
+              <div className="p-6 mt-2 print:p-2 print:mt-2">
+                <h4 className="text-slate-400 font-bold uppercase tracking-widest text-xs mb-4 print:mb-2">Informasi Berkas</h4>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-slate-50 p-4 rounded-2xl">
                     <span className="block text-slate-400 text-[10px] uppercase font-bold mb-1">Nama File</span>
@@ -125,34 +133,34 @@ const HistoryDetailPage: React.FC = () => {
           </div>
 
           {/* Right Side: Analysis Detail (7/12) */}
-          <div className="lg:col-span-7 flex flex-col gap-8">
+          <div className="lg:col-span-7 flex flex-col gap-8 print:w-[65%] print:gap-4 print:mt-0">
             {/* Analysis Result Card */}
-            <div className="bg-white rounded-[2.5rem] shadow-lg overflow-hidden border-1 border-slate-200">
-              <div className={`p-8 flex items-center justify-between ${theme.bg}`}>
+            <div className="bg-white rounded-[2.5rem] shadow-lg overflow-hidden border-1 border-slate-200 print:shadow-none print:border-slate-300 print:border print:rounded-2xl">
+              <div className={`p-8 flex items-center justify-between ${theme.bg} print:bg-white print:border-b print:border-slate-200 print:p-4`}>
                 <div>
-                  <span className={`inline-block px-4 py-1 rounded-full text-xs font-black uppercase tracking-widest bg-white shadow-sm mb-4 ${theme.text}`}>
+                  <span className={`inline-block px-4 py-1 rounded-full text-xs font-black uppercase tracking-widest bg-white shadow-sm mb-4 print:mb-2 print:border print:border-slate-200 ${theme.text}`}>
                     LAPORAN ANALISIS AI
                   </span>
-                  <h2 className={`text-5xl font-black m-0 ${theme.text}`}>
+                  <h2 className={`text-5xl font-black m-0 print:text-3xl ${theme.text}`}>
                     {detail.hasilPrediksi?.labelPenyakit}
                   </h2>
                 </div>
-                <div className="w-20 h-20 rounded-3xl bg-white shadow-xl flex items-center justify-center">
-                  <i className={`pi ${theme.icon} text-4xl`} style={{ color: theme.color }}></i>
+                <div className="w-20 h-20 rounded-3xl bg-white shadow-xl flex items-center justify-center print:w-12 print:h-12 print:shadow-none print:border print:border-slate-200">
+                  <i className={`pi ${theme.icon} text-4xl print:text-2xl`} style={{ color: theme.color }}></i>
                 </div>
               </div>
               
-              <div className="p-8">
-                <div className="bg-slate-50 p-6 rounded-2xl border-1 border-slate-100 mb-8">
-                  <p className="text-slate-600 m-0 text-lg leading-relaxed font-medium">
+              <div className="p-8 print:p-4">
+                <div className="bg-slate-50 p-6 rounded-2xl border-1 border-slate-100 mb-8 print:bg-white print:p-0 print:border-none print:mb-4">
+                  <p className="text-slate-600 m-0 text-lg leading-relaxed font-medium print:text-sm">
                     {getLabelDescription(detail.hasilPrediksi?.labelPenyakit || '')}
                   </p>
                 </div>
 
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-4 print:gap-2">
                   <div className="flex justify-between items-end">
-                    <span className="text-slate-400 font-bold uppercase tracking-widest text-xs">Skor Keyakinan</span>
-                    <span className="text-3xl font-black text-blue-600">
+                    <span className="text-slate-400 font-bold uppercase tracking-widest text-xs print:text-[10px]">Skor Keyakinan</span>
+                    <span className="text-3xl font-black text-blue-600 print:text-xl">
                       {(detail.hasilPrediksi?.nilaiAkurasi ? detail.hasilPrediksi.nilaiAkurasi * 100 : 0).toFixed(1)}%
                     </span>
                   </div>
@@ -168,11 +176,11 @@ const HistoryDetailPage: React.FC = () => {
             </div>
 
             {/* Probability Breakdown */}
-            <Card className="shadow-sm border-round-[2.5rem] border-none surface-card p-4">
-              <h3 className="m-0 text-xl font-black text-slate-900 mb-8 flex items-center gap-3">
+            <div className="bg-white shadow-sm rounded-[2.5rem] border-none p-4 print:shadow-none print:p-4 print:border print:border-slate-300 print:rounded-2xl">
+              <h3 className="m-0 text-xl font-black text-slate-900 mb-8 print:mb-4 print:text-base flex items-center gap-3">
                 <i className="pi pi-chart-bar text-blue-600"></i> Detail Probabilitas
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 print:gap-y-3 print:gap-x-8">
                 {detail.hasilPrediksi?.allProbs && Object.entries(detail.hasilPrediksi.allProbs).map(([label, prob]) => (
                   <div key={label}>
                     <div className="flex justify-between items-center mb-2">
@@ -189,28 +197,28 @@ const HistoryDetailPage: React.FC = () => {
                   </div>
                 ))}
               </div>
-            </Card>
+            </div>
 
             {/* Action Footer */}
-            <div className="flex gap-4">
+            <div className="flex gap-4 print:hidden">
               <Button 
                 label="Cetak Laporan" 
                 icon="pi pi-print" 
-                outlined 
-                className="flex-1 rounded-2xl py-4 font-bold border-slate-300 text-slate-700"
+                className="flex-1 justify-center gap-3 rounded-2xl py-4 font-bold border-2 border-slate-300 bg-white text-slate-800 hover:bg-slate-50 shadow-sm transition-all [&>.p-button-label]:flex-none [&>.p-button-icon]:mr-0"
                 onClick={() => window.print()}
               />
               <Button 
                 label="Diagnosa Baru" 
                 icon="pi pi-plus" 
-                className="flex-1 p-button-primary rounded-2xl py-4 font-bold shadow-lg"
+                className="flex-1 justify-center gap-3 bg-slate-900 border-none hover:bg-slate-800 text-white rounded-2xl py-4 font-bold shadow-lg [&>.p-button-label]:flex-none [&>.p-button-icon]:mr-0"
                 onClick={() => navigate('/predict')}
               />
             </div>
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 
