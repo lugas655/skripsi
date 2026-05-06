@@ -83,8 +83,8 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
 
         {/* Form Container */}
         <div className="w-full max-w-md mt-12 lg:mt-0 animate-fade-in-up">
-          <div className="mb-8 text-center sm:text-left">
-            <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-2">
+          <div className="mb-3 text-center sm:text-left">
+            <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-1">
               {title}
             </h1>
             <p className="text-slate-500 font-medium">

@@ -14,7 +14,7 @@ const Navbar: React.FC = () => {
   const location = useLocation();
   const menu = useRef<TieredMenu>(null);
   const [visible, setVisible] = useState(false);
-  
+
   const userStr = localStorage.getItem('user');
   const user: User | null = userStr ? JSON.parse(userStr) : null;
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
@@ -62,21 +62,18 @@ const Navbar: React.FC = () => {
     <nav className="bg-white border-b border-slate-100 sticky top-0 z-[1000] shadow-sm">
       <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          
+
           {/* Mobile Menu Button & Logo */}
           <div className="flex items-center gap-2 md:gap-3 overflow-hidden">
-            <Button 
-              icon="pi pi-bars" 
-              className="p-button-text p-button-rounded text-slate-700 md:hidden p-0 w-8 h-8" 
-              onClick={() => setVisible(true)} 
+            <Button
+              icon="pi pi-bars"
+              className="p-button-text p-button-rounded text-slate-700 md:hidden p-0 w-8 h-8"
+              onClick={() => setVisible(true)}
             />
             <Link to="/" className="no-underline flex items-center gap-2 group shrink-0">
-              <span
-                className="bg-blue-600 text-white shadow-blue-200 shadow-lg group-hover:scale-105 transition-transform"
-                style={{ width: 40, height: 40, minWidth: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, borderRadius: 12 }}
-              >
-                <i className="pi pi-bolt" />
-              </span>
+              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform">
+                <i className="pi pi-bolt text-xs"></i>
+              </div>
               <span className="text-lg md:text-xl font-black text-slate-900 tracking-tight">
                 AyamSehat<span className="text-blue-600 hidden sm:inline">.AI</span>
               </span>
@@ -89,11 +86,10 @@ const Navbar: React.FC = () => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`no-underline font-semibold text-sm transition-all px-4 py-2 rounded-lg flex items-center gap-2 ${
-                  location.pathname === item.path
+                className={`no-underline font-semibold text-sm transition-all px-4 py-2 rounded-lg flex items-center gap-2 ${location.pathname === item.path
                     ? 'text-blue-600 bg-blue-50'
                     : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
-                }`}
+                  }`}
               >
                 <i className={`${item.icon} text-xs`}></i>
                 {item.label}
@@ -128,8 +124,8 @@ const Navbar: React.FC = () => {
       </div>
 
       {/* Mobile Sidebar Navigation */}
-      <Sidebar 
-        visible={visible} 
+      <Sidebar
+        visible={visible}
         onHide={() => setVisible(false)}
         className="w-[280px] p-0"
         header={
@@ -144,9 +140,9 @@ const Navbar: React.FC = () => {
         <div className="flex flex-col gap-2 p-4">
           <div className="bg-slate-50 p-4 rounded-2xl mb-4 border border-slate-100">
             <div className="flex items-center gap-3">
-              <Avatar 
+              <Avatar
                 image={user?.avatar ? `${IMAGE_BASE_URL}/${user.avatar}` : undefined}
-                label={(!user?.avatar && user?.nama_lengkap) ? getInitials(user.nama_lengkap) : undefined} 
+                label={(!user?.avatar && user?.nama_lengkap) ? getInitials(user.nama_lengkap) : undefined}
                 shape="circle"
                 className="bg-blue-100 text-blue-600 font-bold"
               />
@@ -156,18 +152,17 @@ const Navbar: React.FC = () => {
               </div>
             </div>
           </div>
-          
+
           <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest px-2 mb-2">Utama</p>
           {navItems.map((item) => (
             <Link
               key={item.path}
               to={item.path}
               onClick={() => setVisible(false)}
-              className={`no-underline font-bold text-sm flex items-center gap-4 px-4 py-4 rounded-2xl transition-all ${
-                location.pathname === item.path 
-                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' 
+              className={`no-underline font-bold text-sm flex items-center gap-4 px-4 py-4 rounded-2xl transition-all ${location.pathname === item.path
+                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
                   : 'text-slate-600 hover:bg-slate-100'
-              }`}
+                }`}
             >
               <i className={item.icon}></i>
               {item.label}
