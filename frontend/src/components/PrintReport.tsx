@@ -1,12 +1,13 @@
 import React from 'react';
 import { Citra } from '../types';
+import { IMAGE_BASE_URL } from '../api/api';
 
 interface PrintReportProps {
   detail: Citra;
 }
 
 const PrintReport: React.FC<PrintReportProps> = ({ detail }) => {
-  const IMAGE_BASE_URL = import.meta.env.VITE_API_URL.replace('/api', '/uploads');
+
 
   const getLabelDescription = (label: string) => {
     switch (label?.toUpperCase()) {

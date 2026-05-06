@@ -4,7 +4,7 @@ import { Password } from 'primereact/password';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import { useNavigate, Link } from 'react-router-dom';
-import api from '../api/axios';
+import { authService } from '../services/authService';
 import AuthLayout from '../components/AuthLayout';
 
 const RegisterPage: React.FC = () => {
@@ -42,7 +42,7 @@ const RegisterPage: React.FC = () => {
     setLoading(true);
 
     try {
-      await api.post('/auth/register', {
+      await authService.register({
         nama_lengkap: formData.nama_lengkap,
         username: formData.username,
         password: formData.password

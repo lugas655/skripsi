@@ -1,7 +1,28 @@
 import axios from 'axios';
 
+export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+export const IMAGE_BASE_URL = API_URL.replace('/api', '/uploads');
+
+export const API_ENDPOINTS = {
+  // Auth
+  LOGIN: `${API_URL}/auth/login`,
+  REGISTER: `${API_URL}/auth/register`,
+  PROFILE: `${API_URL}/auth/profile`,
+
+  // Prediction
+  PREDICT: `${API_URL}/predict`,
+
+  // History
+  HISTORY: `${API_URL}/history`,
+  HISTORY_STATS: `${API_URL}/history/stats`,
+  HISTORY_BY_ID: (id: string | number) => `${API_URL}/history/${id}`,
+};
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
 api.interceptors.request.use(

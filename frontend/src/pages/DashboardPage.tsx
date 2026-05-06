@@ -4,17 +4,11 @@ import { Button } from 'primereact/button';
 import { Chart } from 'primereact/chart';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
-import api from '../api/axios';
+import { historyService, Stats } from '../services/historyService';
+import { IMAGE_BASE_URL } from '../api/api';
 import { User } from '../types';
 
-interface Stats {
-  totalDiagnoses: number;
-  labelCounts: Record<string, number>;
-  recentChecks: any[];
-}
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
-const IMAGE_BASE_URL = API_URL.replace('/api', '/uploads');
+// Removed redundant interface Stats as it's now imported from service
 
 // ────────────────────────────────────────
 // Sub-components
@@ -84,8 +78,8 @@ const DashboardPage: React.FC = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await api.get<Stats>('/history/stats');
-        setStats(response.data);
+        const data = await historyService.getStats();
+        setStats(data);
       } catch (error) {
         console.error('Error fetching stats:', error);
       } finally {
