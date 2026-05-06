@@ -4,7 +4,7 @@ import { Password } from 'primereact/password';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import { useNavigate, Link } from 'react-router-dom';
-import api from '../api/axios';
+import { authService } from '../services/authService';
 import { AuthResponse } from '../types';
 import AuthLayout from '../components/AuthLayout';
 
@@ -27,9 +27,9 @@ const LoginPage: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await api.post<AuthResponse>('/auth/login', { username, password });
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+      const data = await authService.login({ username, password });
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
       
       toast.current?.show({ severity: 'success', summary: 'Berhasil', detail: 'Login sukses, mengalihkan...', life: 2000 });
       setTimeout(() => navigate('/dashboard'), 1000);

@@ -7,7 +7,8 @@ import { ProgressBar } from 'primereact/progressbar';
 import { Card } from 'primereact/card';
 import Navbar from '../components/Navbar';
 import PrintReport from '../components/PrintReport';
-import api from '../api/axios';
+import { historyService } from '../services/historyService';
+import { IMAGE_BASE_URL } from '../api/api';
 import { Citra } from '../types';
 
 const HistoryDetailPage: React.FC = () => {
@@ -17,12 +18,12 @@ const HistoryDetailPage: React.FC = () => {
   const { data: detail, isLoading } = useQuery<Citra>({
     queryKey: ['history', id],
     queryFn: async () => {
-      const response = await api.get(`/history/${id}`);
-      return response.data;
+      if (!id) throw new Error('ID is required');
+      return await historyService.getHistoryById(id);
     },
   });
 
-  const IMAGE_BASE_URL = import.meta.env.VITE_API_URL.replace('/api', '/uploads');
+
 
   const getTheme = (label: string) => {
     const l = label?.toUpperCase();

@@ -9,14 +9,13 @@ import { Dropdown } from 'primereact/dropdown';
 import { Toast } from 'primereact/toast';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
-import api from '../api/axios';
+import { historyService } from '../services/historyService';
+import { IMAGE_BASE_URL } from '../api/api';
 import { Citra } from '../types';
 
 // ────────────────────────────────────────
 // Helpers
 // ────────────────────────────────────────
-
-const IMAGE_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3000/api').replace('/api', '/uploads');
 
 interface BadgeConfig { bg: string; text: string; dot: string; label: string; }
 
@@ -104,8 +103,7 @@ const HistoryPage: React.FC = () => {
   const { data: history, isLoading } = useQuery<Citra[]>({
     queryKey: ['history'],
     queryFn: async () => {
-      const response = await api.get('/history');
-      return response.data;
+      return await historyService.getAllHistory();
     },
   });
 

@@ -5,6 +5,7 @@ import { Avatar } from 'primereact/avatar';
 import { Button } from 'primereact/button';
 import { TieredMenu } from 'primereact/tieredmenu';
 import { Sidebar } from 'primereact/sidebar';
+import { IMAGE_BASE_URL } from '../api/api';
 import { User } from '../types';
 
 // Navbar updated for redesigned UI
@@ -17,8 +18,7 @@ const Navbar: React.FC = () => {
 
   const userStr = localStorage.getItem('user');
   const user: User | null = userStr ? JSON.parse(userStr) : null;
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
-  const IMAGE_BASE_URL = API_URL.replace('/api', '/uploads');
+
 
   const handleLogout = () => {
     localStorage.removeItem('token');

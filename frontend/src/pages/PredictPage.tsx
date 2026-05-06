@@ -5,7 +5,7 @@ import { FileUpload, FileUploadHandlerEvent } from 'primereact/fileupload';
 import { ProgressBar } from 'primereact/progressbar';
 import { Toast } from 'primereact/toast';
 import Navbar from '../components/Navbar';
-import api from '../api/axios';
+import { predictService } from '../services/predictService';
 import { PredictResponse } from '../types';
 
 // ────────────────────────────────────────
@@ -236,10 +236,8 @@ const PredictPage: React.FC = () => {
     setPrediction(null);
 
     try {
-      const response = await api.post<PredictResponse>('/predict', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      setPrediction(response.data.data);
+      const data = await predictService.predict(formData);
+      setPrediction(data.data);
       toast.current?.show({
         severity: 'success',
         summary: 'Analisis Selesai',

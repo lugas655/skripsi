@@ -6,7 +6,8 @@ import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import { Avatar } from 'primereact/avatar';
 import Navbar from '../components/Navbar';
-import api from '../api/axios';
+import { authService } from '../services/authService';
+import { IMAGE_BASE_URL } from '../api/api';
 import { User } from '../types';
 
 const ProfilePage: React.FC = () => {
@@ -18,8 +19,7 @@ const ProfilePage: React.FC = () => {
   
   const userStr = localStorage.getItem('user');
   const user: User | null = userStr ? JSON.parse(userStr) : null;
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
-  const IMAGE_BASE_URL = API_URL.replace('/api', '/uploads');
+
 
   useEffect(() => {
     if (user) {
@@ -51,16 +51,14 @@ const ProfilePage: React.FC = () => {
     }
 
     try {
-      const response = await api.put<{ message: string, user: User }>('/auth/profile', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const data = await authService.updateProfile(formData);
       
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+      localStorage.setItem('user', JSON.stringify(data.user));
       toast.current?.show({ severity: 'success', summary: 'Berhasil', detail: 'Profil berhasil diperbarui' });
       
       // Update preview with new server URL
-      if (response.data.user.avatar) {
-        setAvatarPreview(`${IMAGE_BASE_URL}/${response.data.user.avatar}`);
+      if (data.user.avatar) {
+        setAvatarPreview(`${IMAGE_BASE_URL}/${data.user.avatar}`);
       }
     } catch (error: any) {
       toast.current?.show({ 
