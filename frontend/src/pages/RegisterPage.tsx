@@ -1,25 +1,24 @@
 import React, { useState, useRef } from 'react';
-import { Card } from 'primereact/card';
 import { InputText } from 'primereact/inputtext';
 import { Password } from 'primereact/password';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
-import { IconField } from 'primereact/iconfield';
-import { InputIcon } from 'primereact/inputicon';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
+import AuthLayout from '../components/AuthLayout';
 
 const RegisterPage: React.FC = () => {
   const [formData, setFormData] = useState({
     nama_lengkap: '',
     username: '',
     password: '',
+    confirm_password: '',
   });
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
   const toast = useRef<Toast>(null);
   const navigate = useNavigate();
 
-  // Redirect if already logged in
   React.useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -29,17 +28,32 @@ const RegisterPage: React.FC = () => {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (formData.password !== formData.confirm_password) {
+      toast.current?.show({ severity: 'error', summary: 'Validasi Gagal', detail: 'Password dan Konfirmasi Password tidak cocok!', life: 3000 });
+      return;
+    }
+
+    if (!termsAccepted) {
+      toast.current?.show({ severity: 'error', summary: 'Validasi Gagal', detail: 'Anda harus menyetujui Syarat dan Ketentuan.', life: 3000 });
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await api.post('/auth/register', formData);
-      toast.current?.show({ severity: 'success', summary: 'Success', detail: 'Registration successful', life: 3000 });
-      setTimeout(() => navigate('/dashboard'), 1000);
+      await api.post('/auth/register', {
+        nama_lengkap: formData.nama_lengkap,
+        username: formData.username,
+        password: formData.password
+      });
+      toast.current?.show({ severity: 'success', summary: 'Berhasil', detail: 'Pendaftaran sukses! Mengalihkan ke halaman login...', life: 2000 });
+      setTimeout(() => navigate('/login'), 1500);
     } catch (error: any) {
       toast.current?.show({ 
         severity: 'error', 
-        summary: 'Error', 
-        detail: error.response?.data?.message || 'Registration failed', 
+        summary: 'Gagal', 
+        detail: error.response?.data?.message || 'Pendaftaran gagal', 
         life: 3000 
       });
     } finally {
@@ -48,111 +62,116 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-screen">
+    <AuthLayout 
+      title="Buat Akun Baru" 
+      subtitle="Mulai lindungi peternakan Anda dengan bantuan AI."
+      quote="Pencegahan wabah dimulai dari identifikasi dini yang cepat dan akurat. Jangan tunggu sampai terlambat."
+    >
       <Toast ref={toast} />
       
-      {/* Left Side: Branding/Image (Hidden on mobile) */}
-      <div className="hidden lg:flex lg:col-6 bg-blue-600 align-items-center justify-content-center relative overflow-hidden">
-        <div className="z-1 text-center p-6">
-          <div className="flex align-items-center justify-content-center gap-3 mb-4">
-            <i className="pi pi-user-plus text-5xl text-white"></i>
-            <h1 className="text-5xl font-bold text-white m-0">Bergabunglah</h1>
-          </div>
-          <p className="text-xl text-blue-100 max-w-25rem mx-auto line-height-3">
-            Mulai lindungi peternakan Anda dengan bantuan AI. Pantau kesehatan ayam dengan lebih cerdas.
-          </p>
-        </div>
+      <form onSubmit={handleRegister} className="flex flex-col gap-5">
         
-        {/* Decorative Circles */}
-        <div className="absolute top-0 right-0 w-25rem h-25rem bg-blue-500 border-circle opacity-20 -mr-10rem -mt-10rem"></div>
-        <div className="absolute bottom-0 left-0 w-20rem h-20rem bg-blue-700 border-circle opacity-20 -ml-10rem -mb-10rem"></div>
-      </div>
-
-      {/* Right Side: Form */}
-      <div className="col-12 lg:col-6 flex align-items-center justify-content-center bg-gray-50 px-4">
-        <div className="w-full max-w-30rem">
-          <div className="text-center mb-6">
-            <h2 className="text-3xl font-bold text-900 mb-2">Buat Akun Baru</h2>
-            <p className="text-700">Lengkapi data di bawah ini untuk mendaftar</p>
-          </div>
-
-          <Card className="shadow-4 border-round-xl border-none">
-            <form onSubmit={handleRegister} className="flex flex-column gap-4">
-              <div className="flex flex-column gap-2">
-                <label htmlFor="nama_lengkap" className="font-semibold text-800">Nama Lengkap</label>
-                <div className="relative">
-                  <i className="pi pi-id-card absolute left-0 text-600 z-2" style={{ top: '50%', transform: 'translateY(-50%)', marginLeft: '1rem', fontSize: '1.1rem' }}></i>
-                  <InputText 
-                    id="nama_lengkap" 
-                    value={formData.nama_lengkap} 
-                    onChange={(e) => setFormData({ ...formData, nama_lengkap: e.target.value })} 
-                    className="w-full border-round-lg"
-                    style={{ paddingLeft: '3rem', paddingTop: '0.75rem', paddingBottom: '0.75rem' }}
-                    placeholder="Masukkan nama lengkap"
-                    required 
-                  />
-                </div>
-              </div>
-
-              <div className="flex flex-column gap-2">
-                <label htmlFor="username" className="font-semibold text-800">Username</label>
-                <div className="relative">
-                  <i className="pi pi-user absolute left-0 text-600 z-2" style={{ top: '50%', transform: 'translateY(-50%)', marginLeft: '1rem', fontSize: '1.1rem' }}></i>
-                  <InputText 
-                    id="username" 
-                    value={formData.username} 
-                    onChange={(e) => setFormData({ ...formData, username: e.target.value })} 
-                    className="w-full border-round-lg"
-                    style={{ paddingLeft: '3rem', paddingTop: '0.75rem', paddingBottom: '0.75rem' }}
-                    placeholder="Pilih username unik"
-                    required 
-                  />
-                </div>
-              </div>
-
-              <div className="flex flex-column gap-2">
-                <label htmlFor="password" className="font-semibold text-800">Password</label>
-                <div className="relative">
-                  <i className="pi pi-lock absolute left-0 text-600 z-2" style={{ top: '50%', transform: 'translateY(-50%)', marginLeft: '1rem', fontSize: '1.1rem' }}></i>
-                  <Password 
-                    id="password" 
-                    value={formData.password} 
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })} 
-                    toggleMask 
-                    className="w-full"
-                    inputClassName="w-full border-round-lg"
-                    inputStyle={{ paddingLeft: '3rem', paddingTop: '0.75rem', paddingBottom: '0.75rem' }}
-                    placeholder="Buat password kuat"
-                    required 
-                  />
-                </div>
-              </div>
-
-
-              <Button 
-                label="Daftar Akun Sekarang" 
-                icon="pi pi-user-plus" 
-                loading={loading} 
-                className="w-full p-3 font-bold border-round-lg shadow-2 mt-2" 
-              />
-              
-              <div className="text-center mt-3">
-                <p className="text-700">
-                  Sudah punya akun? <Link to="/login" className="text-blue-600 no-underline font-bold hover:underline">Login Sekarang</Link>
-                </p>
-              </div>
-            </form>
-          </Card>
-
-          <div className="mt-6 text-center text-500 text-sm">
-            <Link to="/" className="text-500 no-underline hover:text-blue-600 transition-colors">
-              <i className="pi pi-arrow-left mr-2"></i>
-              Kembali ke Beranda
-            </Link>
+        {/* Full Name Field */}
+        <div className="flex flex-col gap-2">
+          <label htmlFor="nama_lengkap" className="text-sm font-bold text-slate-700">Nama Lengkap</label>
+          <div className="relative">
+            <i className="pi pi-id-card text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 z-10 text-lg"></i>
+            <InputText 
+              id="nama_lengkap" 
+              value={formData.nama_lengkap} 
+              onChange={(e) => setFormData({ ...formData, nama_lengkap: e.target.value })} 
+              className="w-full bg-slate-50 border-slate-200 hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl py-3 pr-4 pl-11 transition-all font-medium"
+              placeholder="Masukkan nama lengkap"
+              required 
+            />
           </div>
         </div>
-      </div>
-    </div>
+
+        {/* Username Field */}
+        <div className="flex flex-col gap-2">
+          <label htmlFor="username" className="text-sm font-bold text-slate-700">Username</label>
+          <div className="relative">
+            <i className="pi pi-user text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 z-10 text-lg"></i>
+            <InputText 
+              id="username" 
+              value={formData.username} 
+              onChange={(e) => setFormData({ ...formData, username: e.target.value })} 
+              className="w-full bg-slate-50 border-slate-200 hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl py-3 pr-4 pl-11 transition-all font-medium"
+              placeholder="Pilih username unik"
+              required 
+            />
+          </div>
+        </div>
+
+        {/* Password Group */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          {/* Password Field */}
+          <div className="flex flex-col gap-2">
+            <label htmlFor="password" className="text-sm font-bold text-slate-700">Password</label>
+            <div className="relative">
+              <i className="pi pi-lock text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 z-10 text-lg"></i>
+              <Password 
+                id="password" 
+                value={formData.password} 
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })} 
+                toggleMask 
+                className="w-full"
+                inputClassName="w-full bg-slate-50 border-slate-200 hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl py-3 pr-4 pl-11 transition-all font-medium"
+                placeholder="Buat password"
+                required 
+              />
+            </div>
+          </div>
+
+          {/* Confirm Password Field */}
+          <div className="flex flex-col gap-2">
+            <label htmlFor="confirm_password" className="text-sm font-bold text-slate-700">Konfirmasi Password</label>
+            <div className="relative">
+              <i className="pi pi-lock text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 z-10 text-lg"></i>
+              <Password 
+                id="confirm_password" 
+                value={formData.confirm_password} 
+                onChange={(e) => setFormData({ ...formData, confirm_password: e.target.value })} 
+                toggleMask 
+                feedback={false}
+                className="w-full"
+                inputClassName="w-full bg-slate-50 border-slate-200 hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl py-3 pr-4 pl-11 transition-all font-medium"
+                placeholder="Ulangi password"
+                required 
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Terms and Conditions */}
+        <div className="flex items-start gap-3 mt-2">
+          <input 
+            type="checkbox" 
+            id="terms" 
+            checked={termsAccepted}
+            onChange={(e) => setTermsAccepted(e.target.checked)}
+            className="w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer mt-0.5 transition-all" 
+          />
+          <label htmlFor="terms" className="text-sm text-slate-600 font-medium cursor-pointer select-none leading-relaxed">
+            Saya menyetujui <span className="text-blue-600 hover:underline">Syarat & Ketentuan</span> dan <span className="text-blue-600 hover:underline">Kebijakan Privasi</span> yang berlaku.
+          </label>
+        </div>
+
+        {/* Submit Button */}
+        <Button 
+          loading={loading} 
+          className="w-full bg-blue-600 border-none hover:bg-blue-700 text-white rounded-xl py-3.5 shadow-lg shadow-blue-200 mt-2 transition-all hover:-translate-y-0.5 flex justify-center items-center gap-3" 
+        >
+          <i className="pi pi-user-plus text-lg"></i>
+          <span className="font-bold">Daftar Akun Sekarang</span>
+        </Button>
+        
+        {/* Login Link */}
+        <p className="text-center text-slate-600 font-medium mt-4 mb-0 text-sm">
+          Sudah punya akun? <Link to="/login" className="text-blue-600 no-underline font-bold hover:text-blue-700 transition-colors">Login Sekarang</Link>
+        </p>
+      </form>
+    </AuthLayout>
   );
 };
 
