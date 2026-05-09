@@ -2,11 +2,12 @@
 import React, { useState, useRef } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Toast } from 'primereact/toast';
+import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { historyService } from '../services/historyService';
@@ -98,6 +99,7 @@ const HistoryPage: React.FC = () => {
   const [globalFilter, setGlobalFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const toast = useRef<Toast>(null);
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   const { data: history, isLoading } = useQuery<Citra[]>({
@@ -106,6 +108,40 @@ const HistoryPage: React.FC = () => {
       return await historyService.getAllHistory();
     },
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => historyService.deleteHistory(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['history'] });
+      toast.current?.show({
+        severity: 'success',
+        summary: 'Berhasil',
+        detail: 'Riwayat diagnosa telah dihapus',
+        life: 3000,
+      });
+    },
+    onError: () => {
+      toast.current?.show({
+        severity: 'error',
+        summary: 'Gagal',
+        detail: 'Gagal menghapus riwayat',
+        life: 3000,
+      });
+    },
+  });
+
+  const confirmDelete = (id: number) => {
+    confirmDialog({
+      message: 'Apakah Anda yakin ingin menghapus riwayat diagnosa ini?',
+      header: 'Konfirmasi Hapus',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Hapus',
+      rejectLabel: 'Batal',
+      acceptClassName: 'p-button-danger !rounded-lg !px-4',
+      rejectClassName: 'p-button-text !text-slate-500 !rounded-lg !mr-3 !px-4',
+      accept: () => deleteMutation.mutate(id),
+    });
+  };
 
   // Client-side filtering
   const filteredHistory = history?.filter(item => {
@@ -129,19 +165,30 @@ const HistoryPage: React.FC = () => {
   };
 
   const ActionTemplate = (rowData: Citra) => (
-    <Button
-      icon="pi pi-arrow-right"
-      className="p-button-rounded p-button-text !text-slate-400 hover:!text-blue-600 hover:!bg-blue-50 !w-9 !h-9 transition-all"
-      onClick={() => navigate(`/history/${rowData.id}`)}
-      tooltip="Lihat Detail"
-      tooltipOptions={{ position: 'left' }}
-    />
+    <div className="flex items-center gap-1">
+      <Button
+        icon="pi pi-eye"
+        className="p-button-rounded p-button-text !text-slate-400 hover:!text-blue-600 hover:!bg-blue-50 !w-9 !h-9 transition-all"
+        onClick={() => navigate(`/history/${rowData.id}`)}
+        tooltip="Lihat Detail"
+        tooltipOptions={{ position: 'bottom' }}
+      />
+      <Button
+        icon="pi pi-trash"
+        className="p-button-rounded p-button-text !text-slate-400 hover:!text-red-500 hover:!bg-red-50 !w-9 !h-9 transition-all"
+        onClick={() => confirmDelete(rowData.id)}
+        tooltip="Hapus"
+        tooltipOptions={{ position: 'bottom' }}
+        loading={deleteMutation.isPending && deleteMutation.variables === rowData.id}
+      />
+    </div>
   );
 
   return (
     <div className="min-h-screen bg-slate-50">
       <Navbar />
       <Toast ref={toast} />
+      <ConfirmDialog />
 
       <main className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-16">
 

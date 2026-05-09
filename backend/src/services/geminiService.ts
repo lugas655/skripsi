@@ -9,7 +9,7 @@ export const generateAdvice = async (label: string, confidence: number): Promise
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
     let labelIndo = label;
     if (label.toUpperCase() === 'HEALTHY') labelIndo = 'Sehat';
@@ -17,9 +17,13 @@ export const generateAdvice = async (label: string, confidence: number): Promise
 
     const prompt = `Kamu adalah dokter hewan ahli unggas yang profesional. Sistem mendeteksi kondisi feses ayam adalah "${labelIndo}" dengan keyakinan ${(confidence * 100).toFixed(1)}%. Berikan saran penanganan atau pencegahan yang singkat, praktis, dan profesional dalam bahasa Indonesia. Maksimal 3 kalimat saja. Jangan gunakan salam pembuka/penutup.`;
 
+    console.log(`[DEBUG] Sending prompt to Gemini: ${labelIndo}`);
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    return response.text().trim();
+    const text = response.text().trim();
+    
+    console.log(`[DEBUG] Gemini AI Response: ${text}`);
+    return text;
   } catch (error) {
     console.error("Gemini AI Error:", error);
     return getDefaultAdvice(label);
