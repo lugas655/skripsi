@@ -34,4 +34,15 @@ Layanan inferensi menggunakan Vision Transformer (ViT) untuk klasifikasi feses a
   - Response: Label, Confidence, All Probabilities, Process Time.
 
 ## Catatan Model
-Layanan ini menggunakan model pretrained `google/vit-base-patch16-224` sebagai placeholder. Untuk akurasi skripsi, pastikan Anda mengganti model loader di `app/model.py` dengan model yang sudah Anda fine-tune.
+Layanan ini menggunakan arsitektur `google/vit-base-patch16-224`. 
+
+### Cara Menggunakan Model Anda:
+1. Simpan file hasil training Anda (`.pth`) ke dalam direktori `app/weights/`.
+2. Ubah nama filenya menjadi `model.pth`.
+3. Restart layanan. Sistem akan otomatis mendeteksi dan memuat weight kustom tersebut.
+4. Pastikan urutan label di `app/model.py` (baris 12) sesuai dengan urutan label saat training:
+   `["Healthy", "Coccidiosis", "Newcastle", "Salmonella"]`
+
+
+   .\venv\Scripts\activate
+
