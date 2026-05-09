@@ -1,10 +1,11 @@
 /// <reference types="vite/client" />
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from 'primereact/button';
 import { ProgressBar } from 'primereact/progressbar';
 import { Card } from 'primereact/card';
+import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import Navbar from '../components/Navbar';
 import PrintReport from '../components/PrintReport';
 import { historyService } from '../services/historyService';
@@ -12,6 +13,7 @@ import { IMAGE_BASE_URL } from '../api/api';
 import { Citra } from '../types';
 
 const HistoryDetailPage: React.FC = () => {
+  const queryClient = useQueryClient();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -22,6 +24,27 @@ const HistoryDetailPage: React.FC = () => {
       return await historyService.getHistoryById(id);
     },
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => historyService.deleteHistory(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['history'] });
+      navigate('/history');
+    },
+  });
+
+  const confirmDelete = () => {
+    confirmDialog({
+      message: 'Apakah Anda yakin ingin menghapus riwayat diagnosa ini?',
+      header: 'Konfirmasi Hapus',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Hapus',
+      rejectLabel: 'Batal',
+      acceptClassName: 'p-button-danger !rounded-lg !px-4',
+      rejectClassName: 'p-button-text !text-slate-500 !rounded-lg !mr-3 !px-4',
+      accept: () => detail && deleteMutation.mutate(detail.id),
+    });
+  };
 
 
 
@@ -71,6 +94,7 @@ const HistoryDetailPage: React.FC = () => {
 
   return (
     <>
+      <ConfirmDialog />
       {/* --- PRINT ONLY UI --- */}
       <div className="print-only">
         <PrintReport detail={detail} />
@@ -212,17 +236,24 @@ const HistoryDetailPage: React.FC = () => {
             </div>
 
             {/* Action Footer */}
-            <div className="flex gap-4 print:hidden">
+            <div className="flex flex-wrap gap-4 print:hidden">
               <Button 
                 label="Cetak Laporan" 
                 icon="pi pi-print" 
-                className="flex-1 justify-center gap-3 rounded-2xl py-4 font-bold border-2 border-slate-300 bg-white text-slate-800 hover:bg-slate-50 shadow-sm transition-all [&>.p-button-label]:flex-none [&>.p-button-icon]:mr-0"
+                className="flex-1 min-w-[140px] justify-center gap-3 rounded-2xl py-4 font-bold border-2 border-slate-300 bg-white text-slate-800 hover:bg-slate-50 shadow-sm transition-all [&>.p-button-label]:flex-none [&>.p-button-icon]:mr-0"
                 onClick={() => window.print()}
+              />
+              <Button 
+                label="Hapus" 
+                icon="pi pi-trash" 
+                className="flex-1 min-w-[140px] justify-center gap-3 rounded-2xl py-4 font-bold border-2 border-red-100 bg-red-50 text-red-600 hover:bg-red-100 shadow-sm transition-all [&>.p-button-label]:flex-none [&>.p-button-icon]:mr-0"
+                onClick={confirmDelete}
+                loading={deleteMutation.isPending}
               />
               <Button 
                 label="Diagnosa Baru" 
                 icon="pi pi-plus" 
-                className="flex-1 justify-center gap-3 bg-slate-900 border-none hover:bg-slate-800 text-white rounded-2xl py-4 font-bold shadow-lg [&>.p-button-label]:flex-none [&>.p-button-icon]:mr-0"
+                className="flex-1 min-w-[140px] justify-center gap-3 bg-slate-900 border-none hover:bg-slate-800 text-white rounded-2xl py-4 font-bold shadow-lg [&>.p-button-label]:flex-none [&>.p-button-icon]:mr-0"
                 onClick={() => navigate('/predict')}
               />
             </div>

@@ -127,11 +127,23 @@ const ResultCard: React.FC<ResultCardProps> = ({ prediction, onReset }) => {
         </div>
 
         <div className="p-6">
-          {/* Description */}
-          <div className={`${theme.bg} rounded-xl p-4 border ${theme.border} mb-6`}>
-            <p className={`text-sm leading-relaxed ${theme.text} m-0`}>
-              {theme.desc}
-            </p>
+          {/* Description / AI Advice */}
+          <div className={`${theme.bg} rounded-xl p-5 border ${theme.border} mb-6 shadow-inner`}>
+            {prediction.prediksi.saranAI ? (
+              <div>
+                <span className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.2em] ${theme.text} mb-3 bg-white/50 px-2 py-0.5 rounded`}>
+                  <i className="pi pi-sparkles" style={{ fontSize: 10 }} />
+                  Saran AI Doctor
+                </span>
+                <p className={`text-sm leading-relaxed ${theme.text} m-0 font-medium italic`}>
+                  "{prediction.prediksi.saranAI}"
+                </p>
+              </div>
+            ) : (
+              <p className={`text-sm leading-relaxed ${theme.text} m-0`}>
+                {theme.desc}
+              </p>
+            )}
           </div>
 
           {/* Accuracy */}

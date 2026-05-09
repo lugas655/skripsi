@@ -22,4 +22,9 @@ export const historyService = {
     const response = await api.get<Citra>(API_ENDPOINTS.HISTORY_BY_ID(id));
     return response.data;
   },
+
+  deleteHistory: async (id: number) => {
+    const response = await api.delete(API_ENDPOINTS.HISTORY_BY_ID(id.toString()));
+    return response.data;
+  },
 };
