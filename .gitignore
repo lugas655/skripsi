@@ -46,3 +46,7 @@ prisma/migrations/
 models/*.pt
 models/*.h5
 models/*.bin
+
+# Project Specific
+ml-service/app/weights/*.pth
+backend/uploads/
