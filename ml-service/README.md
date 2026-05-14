@@ -43,6 +43,5 @@ Layanan ini menggunakan arsitektur `google/vit-base-patch16-224`.
 4. Pastikan urutan label di `app/model.py` (baris 12) sesuai dengan urutan label saat training:
    `["Healthy", "Coccidiosis", "Newcastle", "Salmonella"]`
 
-
-   .\venv\Scripts\activate
+.\venv\Scripts\activate
 
