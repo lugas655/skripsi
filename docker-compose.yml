@@ -19,6 +19,8 @@ services:
       - "8000:8000"
     environment:
       - PORT=8000
+    volumes:
+      - ./ml-service/app/weights:/app/app/weights
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
