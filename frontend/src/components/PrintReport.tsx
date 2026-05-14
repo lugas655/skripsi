@@ -22,9 +22,9 @@ const PrintReport: React.FC<PrintReportProps> = ({ detail }) => {
   const isHealthy = detail.hasilPrediksi?.labelPenyakit === 'HEALTHY';
   
   return (
-    <div className="print-report font-sans max-w-4xl mx-auto p-6 pt-4 bg-white text-black">
+    <div className="print-report font-sans max-w-4xl mx-auto p-4 pt-2 bg-white text-black h-screen overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between border-b-2 border-black pb-4 mb-5">
+      <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-3">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 bg-black text-white rounded-xl flex items-center justify-center">
             <i className="pi pi-bolt text-2xl"></i>
@@ -46,7 +46,7 @@ const PrintReport: React.FC<PrintReportProps> = ({ detail }) => {
         {/* Left Col: Image & Info */}
         <div>
           <h3 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-2 border-b border-gray-200 pb-1">Citra Feses</h3>
-          <div className="w-5/6 mx-auto aspect-square bg-gray-100 rounded-2xl overflow-hidden mb-4 border-2 border-gray-200">
+          <div className="w-2/3 mx-auto aspect-square bg-gray-100 rounded-2xl overflow-hidden mb-3 border-2 border-gray-200">
             <img 
               src={`${IMAGE_BASE_URL}/${detail.namaFile}`} 
               alt="Citra Diagnosis" 
@@ -75,30 +75,30 @@ const PrintReport: React.FC<PrintReportProps> = ({ detail }) => {
         <div>
           <h3 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-2 border-b border-gray-200 pb-1">Hasil Analisis AI</h3>
           
-          <div className={`p-4 rounded-2xl border-2 mb-4 ${isHealthy ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+          <div className={`p-3 rounded-2xl border-2 mb-3 ${isHealthy ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
             <span className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1 block">Diagnosis Utama</span>
-            <h2 className={`text-3xl font-black m-0 mb-2 ${isHealthy ? 'text-green-700' : 'text-red-700'}`}>
+            <h2 className={`text-2xl font-black m-0 mb-2 ${isHealthy ? 'text-green-700' : 'text-red-700'}`}>
               {detail.hasilPrediksi?.labelPenyakit}
             </h2>
-            <div className="bg-white p-4 rounded-xl border border-gray-200">
+            <div className="bg-white p-3 rounded-xl border border-gray-200">
               {detail.hasilPrediksi?.saranAI ? (
                 <>
                   <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 mb-1 flex items-center gap-1">
                     ✨ SARAN AI DOCTOR
                   </span>
-                  <p className="text-sm text-gray-800 m-0 leading-relaxed font-medium">
+                  <p className="text-[11px] text-gray-800 m-0 leading-normal font-medium text-justify">
                     {detail.hasilPrediksi.saranAI}
                   </p>
                 </>
               ) : (
-                <p className="text-sm text-gray-700 m-0 leading-relaxed font-medium">
+                <p className="text-[11px] text-gray-700 m-0 leading-normal font-medium text-justify">
                   {getLabelDescription(detail.hasilPrediksi?.labelPenyakit || '')}
                 </p>
               )}
             </div>
           </div>
 
-          <div className="mb-5">
+          <div className="mb-3">
             <div className="flex justify-between items-end mb-1">
               <span className="text-sm font-bold text-gray-600">Akurasi Sistem (Confidence)</span>
               <span className="text-2xl font-black text-black">
@@ -135,8 +135,8 @@ const PrintReport: React.FC<PrintReportProps> = ({ detail }) => {
       </div>
 
       {/* Footer */}
-      <div className="mt-8 pt-4 border-t border-gray-200 text-center">
-        <p className="text-xs text-gray-400 font-medium m-0">Dokumen ini dicetak secara otomatis oleh Sistem AyamSehat.AI dan sah tanpa tanda tangan.</p>
+      <div className="mt-4 pt-2 border-t border-gray-200 text-center">
+        <p className="text-[10px] text-gray-400 font-medium m-0">Dokumen ini dicetak secara otomatis oleh Sistem AyamSehat.AI dan sah tanpa tanda tangan.</p>
         <p className="text-[10px] text-gray-300 m-0 mt-1">Dicetak pada {new Date().toLocaleString('id-ID')}</p>
       </div>
     </div>
