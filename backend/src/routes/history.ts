@@ -1,11 +1,11 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../prisma';
 import { authMiddleware } from '../middlewares/authMiddleware';
 import fs from 'fs';
 import path from 'path';
 
 const router = Router();
-const prisma = new PrismaClient();
+
 
 interface AuthRequest extends Request {
   user?: {
@@ -57,17 +57,32 @@ router.get('/stats', authMiddleware, async (req: AuthRequest, res: Response, nex
 // 2. GET ALL HISTORY
 router.get('/', authMiddleware, async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
+    // Pagination parameters (default page=1, limit=20)
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const skip = (page - 1) * limit;
+
     const history = await prisma.citra.findMany({
       where: { userId: req.user!.id },
-      include: {
-        hasilPrediksi: true,
+      select: {
+        id: true,
+        namaFile: true,
+        ukuranFile: true,
+        tanggalUnggah: true,
+        hasilPrediksi: {
+          select: {
+            labelPenyakit: true,
+            nilaiAkurasi: true,
+            saranAI: true,
+          },
+        },
       },
-      orderBy: {
-        tanggalUnggah: 'desc',
-      },
+      orderBy: { tanggalUnggah: 'desc' },
+      skip,
+      take: limit,
     });
 
-    res.json(history);
+    res.json({ page, limit, data: history });
   } catch (error) {
     next(error);
   }
@@ -111,35 +126,28 @@ router.delete('/:id', authMiddleware, async (req: AuthRequest, res: Response, ne
 
     // Find the record and verify ownership
     const citra = await prisma.citra.findFirst({
-      where: {
-        id: id,
-        userId: req.user!.id,
-      },
+      where: { id, userId: req.user!.id },
     });
 
     if (!citra) {
       return res.status(404).json({ message: 'History record not found' });
     }
 
-    // Delete the physical file
+    // Delete from database (Cascading logic manually)
+    await prisma.$transaction([
+      prisma.hasilPrediksi.deleteMany({ where: { citraId: id } }),
+      prisma.citra.delete({ where: { id } }),
+    ]);
+
+    // Async file deletion after DB commit
     const filePath = path.join(__dirname, '../../uploads', citra.namaFile);
-    if (fs.existsSync(filePath)) {
+    if (await fs.promises.access(filePath).then(() => true).catch(() => false)) {
       try {
-        fs.unlinkSync(filePath);
+        await fs.promises.unlink(filePath);
       } catch (err) {
         console.error(`[ERROR] Failed to delete file: ${filePath}`, err);
       }
     }
-
-    // Delete from database (Cascading logic manually)
-    await prisma.$transaction([
-      prisma.hasilPrediksi.deleteMany({
-        where: { citraId: id },
-      }),
-      prisma.citra.delete({
-        where: { id: id },
-      }),
-    ]);
 
     res.json({ message: 'History record and associated image deleted successfully' });
   } catch (error) {

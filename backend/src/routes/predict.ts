@@ -1,5 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { PrismaClient, LabelPenyakit } from '@prisma/client';
+import { LabelPenyakit } from '@prisma/client';
+import prisma from '../prisma';
 import { authMiddleware } from '../middlewares/authMiddleware';
 import { uploadMiddleware } from '../middlewares/uploadMiddleware';
 import { predictImage } from '../services/mlService';
@@ -7,7 +8,6 @@ import { generateAdvice } from '../services/geminiService';
 import fs from 'fs';
 
 const router = Router();
-const prisma = new PrismaClient();
 
 interface AuthRequest extends Request {
   user?: {
@@ -64,9 +64,13 @@ router.post('/', authMiddleware, uploadMiddleware.single('image'), async (req: A
       data: result,
     });
   } catch (error: any) {
-    // Clean up uploaded file if error occurs
+    // Async cleanup of uploaded file if error occurs
     if (req.file) {
-      fs.unlinkSync(req.file.path);
+      try {
+        await fs.promises.unlink(req.file.path);
+      } catch (e) {
+        console.error('Failed to cleanup file on error', e);
+      }
     }
     next(error);
   }
