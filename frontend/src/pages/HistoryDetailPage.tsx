@@ -6,6 +6,7 @@ import { Button } from 'primereact/button';
 import { ProgressBar } from 'primereact/progressbar';
 import { Card } from 'primereact/card';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
+import { Skeleton } from 'primereact/skeleton';
 import Navbar from '../components/Navbar';
 import PrintReport from '../components/PrintReport';
 import { historyService } from '../services/historyService';
@@ -71,8 +72,25 @@ const HistoryDetailPage: React.FC = () => {
     return (
       <div className="min-h-screen bg-slate-50">
         <Navbar />
-        <div className="flex items-center justify-center h-[calc(100vh-80px)]">
-          <i className="pi pi-spin pi-spinner text-4xl text-blue-600"></i>
+        <div className="w-full px-4 md:px-8 py-8 animate-pulse">
+          {/* Skeleton Header */}
+          <div className="flex items-center gap-4 mb-8">
+            <Skeleton shape="circle" size="3rem" className="mr-2" />
+            <div>
+              <Skeleton width="15rem" height="2.5rem" className="mb-2" />
+              <Skeleton width="10rem" height="1rem" />
+            </div>
+          </div>
+          {/* Skeleton 2-Column */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div className="lg:col-span-5">
+              <Skeleton width="100%" height="30rem" borderRadius="2.5rem" />
+            </div>
+            <div className="lg:col-span-7 flex flex-col gap-8">
+              <Skeleton width="100%" height="15rem" borderRadius="2.5rem" />
+              <Skeleton width="100%" height="12rem" borderRadius="2.5rem" />
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -104,7 +122,7 @@ const HistoryDetailPage: React.FC = () => {
       <div className="web-only min-h-screen bg-slate-50 pb-12">
         <Navbar />
         
-        <div className="w-full px-4 md:px-8 py-8">
+        <div className="w-full px-4 md:px-8 py-8 animate-fade-in">
         {/* Back Header */}
         <div className="flex items-center gap-4 mb-8 print:mb-4">
           <Button 
@@ -126,11 +144,11 @@ const HistoryDetailPage: React.FC = () => {
           {/* Left Side: Image Preview (5/12) */}
           <div className="lg:col-span-5 print:w-[35%] print:mb-0">
             <div className="bg-white p-4 rounded-[2.5rem] shadow-sm border-1 border-slate-200 print:shadow-none print:border-none print:p-0">
-              <div className="rounded-[2rem] overflow-hidden shadow-lg border-4 border-white aspect-square relative print:shadow-none print:border-slate-300 print:border-2">
+              <div className="group rounded-[2rem] overflow-hidden shadow-lg border-4 border-white aspect-square relative print:shadow-none print:border-slate-300 print:border-2">
                 <img 
                   src={`${IMAGE_BASE_URL}/${detail.namaFile}`} 
                   alt="Citra Diagnosis" 
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                 />
                 <div className="absolute top-4 left-4">
                   <span className="bg-white/90 backdrop-blur px-4 py-2 rounded-xl font-bold text-slate-900 shadow-lg flex items-center gap-2">
@@ -176,13 +194,13 @@ const HistoryDetailPage: React.FC = () => {
               </div>
               
               <div className="p-8 print:p-6">
-                <div className="bg-slate-50 p-6 rounded-2xl border-1 border-slate-100 mb-8 print:bg-white print:mb-6">
+                <div className="bg-gradient-to-br from-blue-50/80 to-indigo-50/80 shadow-inner p-6 rounded-2xl border-1 border-blue-100 mb-8 print:bg-white print:mb-6 print:border-slate-200 print:shadow-none transition-all hover:shadow-md">
                   {detail.hasilPrediksi?.saranAI ? (
                     <div>
-                      <span className="text-xs font-black uppercase tracking-widest text-blue-600 mb-2 flex items-center gap-2">
-                        <i className="pi pi-sparkles"></i> Saran AI Doctor
+                      <span className="text-xs font-black uppercase tracking-widest text-blue-600 mb-3 flex items-center gap-2">
+                        <i className="pi pi-sparkles animate-pulse"></i> Saran AI Doctor
                       </span>
-                      <p className="text-slate-700 m-0 text-lg leading-relaxed font-medium print:text-base">
+                      <p className="text-slate-800 m-0 text-lg leading-relaxed font-medium print:text-base">
                         {detail.hasilPrediksi.saranAI}
                       </p>
                     </div>
