@@ -10,7 +10,7 @@ import { Toast } from 'primereact/toast';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
-import { historyService } from '../services/historyService';
+import { historyService, PaginatedCitra } from '../services/historyService';
 import { IMAGE_BASE_URL } from '../api/api';
 import { Citra } from '../types';
 
@@ -102,12 +102,12 @@ const HistoryPage: React.FC = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  const { data: history, isLoading } = useQuery<Citra[]>({
+  const { data: historyPaginated, isLoading } = useQuery<PaginatedCitra>({
     queryKey: ['history'],
-    queryFn: async () => {
-      return await historyService.getAllHistory();
-    },
+    queryFn: async () => await historyService.getAllHistory(),
   });
+  // Extract the array of records
+  const history = historyPaginated?.data;
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => historyService.deleteHistory(id),
@@ -159,9 +159,9 @@ const HistoryPage: React.FC = () => {
 
   // Summary counts
   const counts = {
-    total:       history?.length || 0,
-    healthy:     history?.filter(h => h.hasilPrediksi?.labelPenyakit === 'HEALTHY').length || 0,
-    diseased:    history?.filter(h => h.hasilPrediksi?.labelPenyakit && h.hasilPrediksi.labelPenyakit !== 'HEALTHY').length || 0,
+    total: history?.length || 0,
+    healthy: history?.filter(h => h.hasilPrediksi?.labelPenyakit === 'HEALTHY').length || 0,
+    diseased: history?.filter(h => h.hasilPrediksi?.labelPenyakit && h.hasilPrediksi.labelPenyakit !== 'HEALTHY').length || 0,
   };
 
   const ActionTemplate = (rowData: Citra) => (

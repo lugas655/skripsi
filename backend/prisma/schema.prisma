@@ -18,6 +18,7 @@ model User {
 }
 
 model Citra {
+  @@index([userId])
   id             Int              @id @default(autoincrement())
   userId         Int
   user           User             @relation(fields: [userId], references: [id])
@@ -28,6 +29,7 @@ model Citra {
 }
 
 model HasilPrediksi {
+  @@index([labelPenyakit])
   id             Int            @id @default(autoincrement())
   citraId        Int            @unique
   citra          Citra          @relation(fields: [citraId], references: [id])

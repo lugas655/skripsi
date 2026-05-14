@@ -7,6 +7,12 @@ export interface Stats {
   recentChecks: any[];
 }
 
+export interface PaginatedCitra {
+  page: number;
+  limit: number;
+  data: Citra[];
+}
+
 export const historyService = {
   getStats: async () => {
     const response = await api.get<Stats>(API_ENDPOINTS.HISTORY_STATS);
@@ -14,7 +20,7 @@ export const historyService = {
   },
 
   getAllHistory: async () => {
-    const response = await api.get<Citra[]>(API_ENDPOINTS.HISTORY);
+    const response = await api.get<PaginatedCitra>(API_ENDPOINTS.HISTORY);
     return response.data;
   },
 
