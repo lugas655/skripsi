@@ -27,3 +27,6 @@ Built with React, TypeScript, Vite, PrimeReact, PrimeFlex, and Tailwind CSS.
 - `src/hooks`: Custom React hooks
 - `src/utils`: Helper functions
 - `src/assets`: Images, fonts, etc.
+
+
+VITE_API_URL=http://35.202.20.241:3000/api

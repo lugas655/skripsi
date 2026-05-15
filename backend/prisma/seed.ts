@@ -59,6 +59,35 @@ async function main() {
   }
 
   console.log('Successfully seeded 15 history records!');
+
+  // 3. Create Testimonials
+  const testimonials = [
+    {
+      name: 'Budi Santoso',
+      role: 'Pemilik Peternakan Jaya',
+      text: 'Sangat membantu mendeteksi Coccidiosis lebih awal. Aplikasi ini menyelamatkan ribuan ayam saya dari kematian massal.',
+      rating: 5
+    },
+    {
+      name: 'Drh. Ratna',
+      role: 'Dokter Hewan Spesialis',
+      text: 'Akurasi model AI-nya cukup mengejutkan. Sangat cocok digunakan sebagai opini kedua yang praktis di lapangan.',
+      rating: 5
+    },
+    {
+      name: 'Agus Pratama',
+      role: 'Peternak Ayam Broiler',
+      text: 'Desainnya sangat modern dan mudah digunakan bahkan lewat HP jadul. Hasilnya cepat dan sarannya sangat berguna.',
+      rating: 5
+    }
+  ];
+
+  await prisma.testimonial.deleteMany({}); // Clear existing
+  for (const testi of testimonials) {
+    await prisma.testimonial.create({ data: testi });
+  }
+
+  console.log('Successfully seeded testimonials!');
 }
 
 main()

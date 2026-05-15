@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from 'primereact/button';
+import { Skeleton } from 'primereact/skeleton';
 import 'primeicons/primeicons.css';
+import { getAllTestimonials, Testimonial } from '../services/testimonialService';
 
 // ==========================================
 // 1. NAVBAR SECTION
@@ -243,11 +245,34 @@ const StatisticSection = () => {
 // 6. TESTIMONIAL SECTION
 // ==========================================
 const TestimonialSection = () => {
-  const testimonials = [
-    { name: 'Budi Santoso', role: 'Pemilik Peternakan Jaya', text: 'Sangat membantu mendeteksi Coccidiosis lebih awal. Aplikasi ini menyelamatkan ribuan ayam saya dari kematian massal.' },
-    { name: 'Drh. Ratna', role: 'Dokter Hewan Spesialis', text: 'Akurasi model AI-nya cukup mengejutkan. Sangat cocok digunakan sebagai opini kedua yang praktis di lapangan.' },
-    { name: 'Agus Pratama', role: 'Peternak Ayam Broiler', text: 'Desainnya sangat modern dan mudah digunakan bahkan lewat HP jadul. Hasilnya cepat dan sarannya sangat berguna.' }
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fallbackTestimonials: Testimonial[] = [
+    { id: 1, name: 'Budi Santoso', role: 'Pemilik Peternakan Jaya', text: 'Sangat membantu mendeteksi Coccidiosis lebih awal. Aplikasi ini menyelamatkan ribuan ayam saya dari kematian massal.', rating: 5, createdAt: new Date().toISOString() },
+    { id: 2, name: 'Drh. Ratna', role: 'Dokter Hewan Spesialis', text: 'Akurasi model AI-nya cukup mengejutkan. Sangat cocok digunakan sebagai opini kedua yang praktis di lapangan.', rating: 5, createdAt: new Date().toISOString() },
+    { id: 3, name: 'Agus Pratama', role: 'Peternak Ayam Broiler', text: 'Desainnya sangat modern dan mudah digunakan bahkan lewat HP jadul. Hasilnya cepat dan sarannya sangat berguna.', rating: 5, createdAt: new Date().toISOString() }
   ];
+
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        const data = await getAllTestimonials();
+        if (data && data.length > 0) {
+          setTestimonials(data);
+        } else {
+          setTestimonials(fallbackTestimonials);
+        }
+      } catch (error) {
+        console.error('Failed to fetch testimonials:', error);
+        setTestimonials(fallbackTestimonials);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTestimonials();
+  }, []);
 
   return (
     <section id="testimonials" className="py-24 bg-slate-50">
@@ -258,23 +283,48 @@ const TestimonialSection = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {testimonials.map((testi, idx) => (
-            <div key={idx} className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
-              <div className="flex text-yellow-400 mb-6 gap-1">
-                {[...Array(5)].map((_, i) => <i key={i} className="pi pi-star-fill"></i>)}
-              </div>
-              <p className="text-slate-700 text-lg font-medium italic mb-8">"{testi.text}"</p>
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center text-slate-500 font-bold text-xl">
-                  {testi.name.charAt(0)}
+          {loading ? (
+            // Skeleton Loaders
+            [...Array(3)].map((_, idx) => (
+              <div key={idx} className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
+                <div className="flex gap-1 mb-6">
+                  {[...Array(5)].map((_, i) => <Skeleton key={i} shape="circle" size="1.2rem" />)}
                 </div>
-                <div>
-                  <h4 className="font-bold text-slate-900">{testi.name}</h4>
-                  <p className="text-sm text-slate-500">{testi.role}</p>
+                <Skeleton height="1.5rem" className="mb-2" />
+                <Skeleton height="1.5rem" className="mb-2" />
+                <Skeleton height="1.5rem" width="70%" className="mb-8" />
+                <div className="flex items-center gap-4">
+                  <Skeleton shape="circle" size="3rem" />
+                  <div className="flex-1">
+                    <Skeleton width="60%" className="mb-2" />
+                    <Skeleton width="40%" />
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            testimonials.map((testi) => (
+              <div key={testi.id} className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                <div className="flex text-yellow-400 mb-6 gap-1">
+                  {[...Array(testi.rating || 5)].map((_, i) => <i key={i} className="pi pi-star-fill"></i>)}
+                </div>
+                <p className="text-slate-700 text-lg font-medium italic mb-8">"{testi.text}"</p>
+                <div className="flex items-center gap-4">
+                  {testi.avatar ? (
+                    <img src={testi.avatar} alt={testi.name} className="w-12 h-12 rounded-full object-cover" />
+                  ) : (
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xl">
+                      {testi.name.charAt(0)}
+                    </div>
+                  )}
+                  <div>
+                    <h4 className="font-bold text-slate-900">{testi.name}</h4>
+                    <p className="text-sm text-slate-500">{testi.role}</p>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </section>
