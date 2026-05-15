@@ -16,6 +16,9 @@ export const API_ENDPOINTS = {
   HISTORY: `${API_URL}/history`,
   HISTORY_STATS: `${API_URL}/history/stats`,
   HISTORY_BY_ID: (id: string | number) => `${API_URL}/history/${id}`,
+
+  // Testimonials
+  TESTIMONIALS: `${API_URL}/testimonials`,
 };
 
 const api = axios.create({

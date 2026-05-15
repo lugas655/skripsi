@@ -47,3 +47,13 @@ enum LabelPenyakit {
   NEWCASTLE
   SALMONELLA
 }
+
+model Testimonial {
+  id        Int      @id @default(autoincrement())
+  name      String
+  role      String
+  text      String   @db.Text
+  rating    Int      @default(5)
+  avatar    String?
+  createdAt DateTime @default(now())
+}

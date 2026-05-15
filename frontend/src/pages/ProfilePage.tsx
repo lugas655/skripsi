@@ -5,8 +5,11 @@ import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import { Avatar } from 'primereact/avatar';
+import { Rating } from 'primereact/rating';
+import { InputTextarea } from 'primereact/inputtextarea';
 import Navbar from '../components/Navbar';
 import { authService } from '../services/authService';
+import { createTestimonial } from '../services/testimonialService';
 import { IMAGE_BASE_URL } from '../api/api';
 import { User } from '../types';
 
@@ -15,6 +18,9 @@ const ProfilePage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [reviewRating, setReviewRating] = useState<number>(5);
+  const [reviewText, setReviewText] = useState('');
+  const [submittingReview, setSubmittingReview] = useState(false);
   const toast = useRef<Toast>(null);
   
   const userStr = localStorage.getItem('user');
@@ -68,6 +74,41 @@ const ProfilePage: React.FC = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSubmitReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reviewText.trim()) {
+      toast.current?.show({ severity: 'warn', summary: 'Peringatan', detail: 'Silakan tulis ulasan Anda' });
+      return;
+    }
+
+    setSubmittingReview(true);
+    try {
+      await createTestimonial({
+        name: user?.nama_lengkap || 'User',
+        role: 'Pengguna AyamSehat.AI',
+        text: reviewText,
+        rating: reviewRating,
+        avatar: user?.avatar ? `${IMAGE_BASE_URL}/${user.avatar}` : undefined
+      });
+
+      toast.current?.show({ 
+        severity: 'success', 
+        summary: 'Berhasil', 
+        detail: 'Terima kasih atas ulasan Anda!' 
+      });
+      setReviewText('');
+      setReviewRating(5);
+    } catch (error: any) {
+      toast.current?.show({ 
+        severity: 'error', 
+        summary: 'Gagal', 
+        detail: 'Gagal mengirim ulasan' 
+      });
+    } finally {
+      setSubmittingReview(false);
     }
   };
 
@@ -153,6 +194,41 @@ const ProfilePage: React.FC = () => {
                 className="w-full p-3 font-bold border-round-xl mt-4 shadow-3"
               />
             </div>
+          </form>
+        </Card>
+
+        {/* Testimonial Form Section */}
+        <h2 className="text-2xl font-bold text-900 mt-8 mb-4">Beri Ulasan Aplikasi</h2>
+        <Card className="shadow-4 border-round-2xl border-none bg-blue-50">
+          <form onSubmit={handleSubmitReview} className="flex flex-column gap-4">
+            <div className="flex flex-column gap-2">
+              <label className="font-semibold text-800 text-sm uppercase tracking-wider">Rating Anda</label>
+              <Rating 
+                value={reviewRating} 
+                onChange={(e) => setReviewRating(e.value || 0)} 
+                cancel={false} 
+                className="text-blue-600"
+              />
+            </div>
+
+            <div className="flex flex-column gap-2">
+              <label htmlFor="review" className="font-semibold text-800 text-sm uppercase tracking-wider">Ulasan / Pengalaman</label>
+              <InputTextarea 
+                id="review"
+                value={reviewText}
+                onChange={(e) => setReviewText(e.target.value)}
+                rows={4}
+                className="w-full border-round-xl p-3 border-none shadow-1"
+                placeholder="Ceritakan pengalaman Anda menggunakan aplikasi ini..."
+              />
+            </div>
+
+            <Button 
+              label="Kirim Ulasan" 
+              icon="pi pi-send" 
+              loading={submittingReview}
+              className="p-button-primary border-round-xl p-3 font-bold shadow-2 w-full md:w-auto align-self-end"
+            />
           </form>
         </Card>
 
