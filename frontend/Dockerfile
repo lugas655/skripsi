@@ -1,12 +1,16 @@
 # Build stage
 FROM node:20-alpine AS build
 WORKDIR /app
+
+# Declare build arguments
+ARG VITE_API_URL
+
+# Set environment variable for build time
+ENV VITE_API_URL=$VITE_API_URL
+
 COPY package*.json ./
 RUN npm ci
 COPY . .
-# Set environment variables for production build
-# This depends on your .env configuration for production
-# ENV VITE_API_URL=http://your-domain/api
 RUN npm run build
 
 # Production stage
