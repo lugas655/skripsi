@@ -58,7 +58,7 @@ const Navbar: React.FC = () => {
             </button>
             <Link to="/dashboard" className="no-underline flex items-center group shrink-0">
               <img src="/logo.png" alt="Logo" className="w-10 h-10 object-contain shrink-0 group-hover:scale-105 transition-transform" />
-              <span className="-ml-5" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.125rem', color: 'var(--col-ink)' }}>
+              <span className="-ml-4 md:-ml-5" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.125rem', color: 'var(--col-ink)' }}>
                 AyamSehat<span style={{ color: 'var(--col-brand)' }} className="hidden sm:inline">.AI</span>
               </span>
             </Link>
