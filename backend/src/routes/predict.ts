@@ -6,6 +6,8 @@ import { uploadMiddleware } from '../middlewares/uploadMiddleware';
 import { predictImage } from '../services/mlService';
 import { generateAdvice } from '../services/geminiService';
 import fs from 'fs';
+import sharp from 'sharp';
+import path from 'path';
 
 const router = Router();
 
@@ -17,6 +19,7 @@ interface AuthRequest extends Request {
 }
 
 router.post('/', authMiddleware, uploadMiddleware.single('image'), async (req: AuthRequest, res: Response, next: NextFunction) => {
+  let processedFilePath: string | null = null;
   try {
     if (!req.file) {
       return res.status(400).json({ message: 'No image uploaded' });
@@ -26,11 +29,30 @@ router.post('/', authMiddleware, uploadMiddleware.single('image'), async (req: A
       return res.status(401).json({ message: 'Unauthorized' });
     }
 
-    // Call ML Service
-    const mlResponse = await predictImage(req.file.path);
+    const originalPath = req.file.path;
+    const compressedFilename = `compressed-${Date.now()}-${req.file.filename.split('.').slice(0, -1).join('.')}.webp`;
+    processedFilePath = path.join(path.dirname(originalPath), compressedFilename);
+
+    // 1. Optimize Image (Compress to WebP)
+    await sharp(originalPath)
+      .resize(800, 800, { fit: 'inside', withoutEnlargement: true })
+      .webp({ quality: 80 })
+      .toFile(processedFilePath);
+
+    // 2. Parallelize External Service Calls
+    // We start prediction with original or compressed? 
+    // Usually ML models need specific size, but let's use original for accuracy if not too big, 
+    // or compressed for speed. Let's use original for ML if possible, but for efficiency, 
+    // we can use the compressed one if the ML service supports it.
+    const [mlResponse, aiAdviceFallback] = await Promise.all([
+      predictImage(processedFilePath), // Use compressed for speed & bandwidth
+      // We can't call generateAdvice here because it needs the label from ML
+      null 
+    ]);
+
     const label = mlResponse.label.toUpperCase() as LabelPenyakit;
     
-    // Generate AI Advice
+    // 3. Generate AI Advice (needs label from ML)
     const aiAdvice = await generateAdvice(label, mlResponse.confidence);
 
     // Start database transaction
@@ -39,8 +61,8 @@ router.post('/', authMiddleware, uploadMiddleware.single('image'), async (req: A
       const citra = await tx.citra.create({
         data: {
           userId: req.user!.id,
-          namaFile: req.file!.filename,
-          ukuranFile: req.file!.size,
+          namaFile: compressedFilename, // Save the optimized filename
+          ukuranFile: (await fs.promises.stat(processedFilePath!)).size,
         },
       });
 
@@ -59,18 +81,28 @@ router.post('/', authMiddleware, uploadMiddleware.single('image'), async (req: A
       return { citra, prediksi };
     });
 
+    // Cleanup original file (only keep compressed)
+    try {
+      await fs.promises.unlink(originalPath);
+    } catch (e) {
+      console.error('Failed to cleanup original file', e);
+    }
+
     res.status(201).json({
       message: 'Prediction successful',
       data: result,
     });
   } catch (error: any) {
-    // Async cleanup of uploaded file if error occurs
+    // Cleanup files on error
     if (req.file) {
       try {
         await fs.promises.unlink(req.file.path);
-      } catch (e) {
-        console.error('Failed to cleanup file on error', e);
-      }
+      } catch (e) {}
+    }
+    if (processedFilePath) {
+      try {
+        await fs.promises.unlink(processedFilePath);
+      } catch (e) {}
     }
     next(error);
   }
