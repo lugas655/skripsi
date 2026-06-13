@@ -15,36 +15,36 @@ import LandingFooter from '../components/landing/Footer';
 const HeroSection = () => {
   const navigate = useNavigate();
   return (
-    <section id="home" className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden" style={{ background: 'var(--col-surface)' }}>
+    <section id="home" className="relative pt-24 pb-16 lg:pt-48 lg:pb-32 overflow-hidden" style={{ background: 'var(--col-surface)' }}>
       {/* Background decoration */}
       <div className="absolute top-0 right-0 w-1/2 h-full rounded-bl-[100px]" style={{ background: 'linear-gradient(to bottom left, var(--col-brand-pale), transparent)', zIndex: 0 }} />
       <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob" style={{ background: 'var(--col-brand-muted)' }} />
       <div className="absolute top-48 -left-24 w-72 h-72 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000" style={{ background: '#bbf7d0' }} />
 
-      <div className="max-w-6xl mx-auto px-5 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
+      <div className="max-w-6xl mx-auto px-5 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center relative z-10">
         {/* Left Content */}
-        <div className="flex flex-col items-start gap-6 animate-fade-up">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider" style={{ background: 'var(--col-healthy-pale)', color: 'var(--col-brand-dark)', border: '1px solid var(--col-border)' }}>
+        <div className="flex flex-col items-start gap-5 animate-fade-up">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider" style={{ background: 'var(--col-healthy-pale)', color: 'var(--col-brand-dark)', border: '1px solid var(--col-border)' }}>
             <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
             Akurasi Diagnosis 98.5%
           </div>
-          <h1 className="text-5xl md:text-6xl m-0 leading-[1.1] tracking-tight" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--col-ink)' }}>
+          <h1 className="text-4xl sm:text-5xl md:text-6xl m-0 leading-[1.15] sm:leading-[1.1] tracking-tight" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--col-ink)' }}>
             Diagnosis <span style={{ color: 'var(--col-brand)' }}>Lebih Cerdas</span> Dengan AI.
           </h1>
-          <p className="text-lg leading-relaxed max-w-lg m-0" style={{ color: 'var(--col-ink-3)' }}>
+          <p className="text-base sm:text-lg leading-relaxed max-w-lg m-0" style={{ color: 'var(--col-ink-3)' }}>
             Analisis kesehatan unggas Anda secara presisi hanya melalui citra feses. Deteksi dini untuk mencegah wabah sebelum terlambat.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto mt-2">
+          <div className="flex flex-col sm:flex-row gap-3.5 w-full sm:w-auto mt-2">
             <button
               onClick={() => navigate('/predict')}
-              className="flex items-center justify-center gap-2 px-8 py-4 rounded-xl text-base font-semibold text-white transition-all hover:-translate-y-0.5 cursor-pointer"
+              className="flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl text-sm sm:text-base font-semibold text-white transition-all hover:-translate-y-0.5 cursor-pointer"
               style={{ background: 'var(--col-brand)', border: 'none', boxShadow: '0 4px 14px rgba(21,128,61,0.3)', fontFamily: 'var(--font-display)' }}
             >
               <i className="pi pi-camera" style={{ fontSize: 14 }} /> Mulai Prediksi
             </button>
             <button
               onClick={() => { document.querySelector('#how-it-works')?.scrollIntoView({ behavior: 'smooth' }); }}
-              className="flex items-center justify-center gap-2 px-8 py-4 rounded-xl text-base font-semibold transition-all hover:-translate-y-0.5 cursor-pointer"
+              className="flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl text-sm sm:text-base font-semibold transition-all hover:-translate-y-0.5 cursor-pointer"
               style={{ background: 'var(--col-card)', border: '1px solid var(--col-border)', color: 'var(--col-ink-2)', fontFamily: 'var(--font-display)', boxShadow: 'var(--sh-sm)' }}
             >
               <i className="pi pi-play" style={{ fontSize: 14 }} /> Pelajari Sistem
@@ -53,9 +53,9 @@ const HeroSection = () => {
         </div>
 
         {/* Right Mockup */}
-        <div className="relative z-10 lg:pl-8 animate-fade-up delay-200">
-          <div className="relative rounded-[2rem] p-2 transform rotate-1 hover:rotate-0 transition-transform duration-500" style={{ background: 'var(--col-card)', border: '1px solid var(--col-border)', boxShadow: 'var(--sh-xl)' }}>
-            <div className="rounded-[1.5rem] overflow-hidden relative aspect-[4/3] bg-slate-100">
+        <div className="relative z-10 lg:pl-8 animate-fade-up delay-200 mt-8 lg:mt-0">
+          <div className="relative rounded-[1.5rem] sm:rounded-[2rem] p-1.5 sm:p-2 transform lg:rotate-1 lg:hover:rotate-0 transition-transform duration-500" style={{ background: 'var(--col-card)', border: '1px solid var(--col-border)', boxShadow: 'var(--sh-xl)' }}>
+            <div className="rounded-[1rem] sm:rounded-[1.5rem] overflow-hidden relative aspect-[4/3] bg-slate-100">
               <img src="https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?auto=format&fit=crop&q=80&w=800" alt="Dashboard" className="w-full h-full object-cover" />
               {/* Floating Badge */}
               <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-xl px-3.5 py-2 shadow-lg flex items-center gap-2 border border-white/50">
@@ -100,16 +100,16 @@ const FeaturesSection = () => {
   ];
 
   return (
-    <section id="features" className="py-24" style={{ background: 'var(--col-card)' }}>
+    <section id="features" className="py-20 sm:py-24" style={{ background: 'var(--col-card)' }}>
       <div className="max-w-6xl mx-auto px-5">
-        <div className="text-center max-w-2xl mx-auto mb-16">
+        <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
           <h2 className="diag-label mb-3" style={{ color: 'var(--col-brand)' }}>Keunggulan Sistem</h2>
-          <h3 className="text-3xl md:text-4xl m-0 tracking-tight" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--col-ink)' }}>Infrastruktur AI untuk Peternakan</h3>
+          <h3 className="text-2xl sm:text-3xl md:text-4xl m-0 tracking-tight" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--col-ink)' }}>Infrastruktur AI untuk Peternakan</h3>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
           {features.map((f, i) => (
-            <div key={i} className="card card-hover p-8 group">
+            <div key={i} className="card card-hover p-6 sm:p-8 group">
               <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-5 transition-transform group-hover:scale-110" style={{ background: f.bg, color: f.color }}>
                 <i className={`pi ${f.icon}`} style={{ fontSize: '1.25rem' }} />
               </div>
@@ -135,21 +135,21 @@ const HowItWorksSection = () => {
   ];
 
   return (
-    <section id="how-it-works" className="py-24" style={{ background: 'var(--col-ink)', color: 'white' }}>
+    <section id="how-it-works" className="py-20 sm:py-24" style={{ background: 'var(--col-ink)', color: 'white' }}>
       <div className="max-w-6xl mx-auto px-5">
-        <div className="text-center max-w-2xl mx-auto mb-16">
+        <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
           <h2 className="diag-label mb-3" style={{ color: 'var(--col-brand-light)' }}>Alur Sistem</h2>
-          <h3 className="text-3xl md:text-4xl m-0 tracking-tight" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: 'white' }}>Proses Diagnosis Otomatis</h3>
+          <h3 className="text-2xl sm:text-3xl md:text-4xl m-0 tracking-tight" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: 'white' }}>Proses Diagnosis Otomatis</h3>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 sm:gap-8 relative">
           {/* Connecting Line */}
           <div className="hidden md:block absolute top-10 left-[12%] right-[12%] h-px" style={{ background: 'var(--col-ink-2)' }} />
 
           {steps.map((step, idx) => (
             <div key={idx} className="relative z-10 flex flex-col items-center text-center">
-              <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6 shadow-xl" style={{ background: 'var(--col-ink-2)', border: '6px solid var(--col-ink)' }}>
-                <span className="diag-number text-2xl" style={{ color: 'var(--col-brand-light)' }}>{step.num}</span>
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mb-5 sm:mb-6 shadow-xl" style={{ background: 'var(--col-ink-2)', border: '5px solid var(--col-ink)' }}>
+                <span className="diag-number text-xl sm:text-2xl" style={{ color: 'var(--col-brand-light)' }}>{step.num}</span>
               </div>
               <h4 className="text-lg font-bold mb-2.5 m-0" style={{ fontFamily: 'var(--font-display)' }}>{step.title}</h4>
               <p className="text-sm leading-relaxed m-0" style={{ color: 'var(--col-ink-4)' }}>{step.desc}</p>
@@ -166,23 +166,23 @@ const HowItWorksSection = () => {
 // ==========================================
 const StatisticSection = () => {
   return (
-    <section className="py-20" style={{ background: 'var(--col-surface)' }}>
+    <section className="py-16 sm:py-20" style={{ background: 'var(--col-surface)' }}>
       <div className="max-w-6xl mx-auto px-5">
-        <div className="rounded-[2.5rem] p-12 shadow-xl relative overflow-hidden" style={{ background: 'linear-gradient(135deg, var(--col-brand-dark) 0%, var(--col-brand) 100%)' }}>
+        <div className="rounded-[2rem] sm:rounded-[2.5rem] p-8 sm:p-12 shadow-xl relative overflow-hidden" style={{ background: 'linear-gradient(135deg, var(--col-brand-dark) 0%, var(--col-brand) 100%)' }}>
           {/* Abstract circles */}
           <div className="absolute -top-24 -right-24 w-64 h-64 border-[30px] rounded-full" style={{ borderColor: 'rgba(255,255,255,0.05)' }} />
           <div className="absolute -bottom-24 -left-24 w-80 h-80 border-[40px] rounded-full" style={{ borderColor: 'rgba(255,255,255,0.05)' }} />
 
-          <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-8 text-center divide-x" style={{ borderColor: 'rgba(255,255,255,0.15)' }}>
+          <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-4 text-center sm:divide-x" style={{ borderColor: 'rgba(255,255,255,0.15)' }}>
             {[
               { value: '5,200', label: 'Peternak Aktif' },
               { value: '18,500', label: 'Total Prediksi' },
               { value: '98.5%', label: 'Tingkat Akurasi' },
               { value: '4', label: 'Penyakit Terlatih' }
             ].map((stat, idx) => (
-              <div key={idx} className="px-4">
-                <div className="diag-number text-4xl md:text-5xl mb-3 text-white">{stat.value}</div>
-                <div className="diag-label" style={{ color: 'var(--col-brand-pale)' }}>{stat.label}</div>
+              <div key={idx} className="px-2">
+                <div className="diag-number text-3xl sm:text-4xl md:text-5xl mb-2 sm:mb-3 text-white">{stat.value}</div>
+                <div className="diag-label text-[10px] sm:text-xs" style={{ color: 'var(--col-brand-pale)' }}>{stat.label}</div>
               </div>
             ))}
           </div>
@@ -213,11 +213,11 @@ const TestimonialSection = () => {
   }, []);
 
   return (
-    <section id="testimonials" className="py-24" style={{ background: 'var(--col-card)' }}>
+    <section id="testimonials" className="py-20 sm:py-24" style={{ background: 'var(--col-card)' }}>
       <div className="max-w-6xl mx-auto px-5">
-        <div className="text-center max-w-2xl mx-auto mb-16">
+        <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
           <h2 className="diag-label mb-3" style={{ color: 'var(--col-brand)' }}>Ulasan Pengguna</h2>
-          <h3 className="text-3xl md:text-4xl m-0 tracking-tight" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--col-ink)' }}>Testimoni Peternak</h3>
+          <h3 className="text-2xl sm:text-3xl md:text-4xl m-0 tracking-tight" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--col-ink)' }}>Testimoni Peternak</h3>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -227,24 +227,24 @@ const TestimonialSection = () => {
             ))
           ) : (
             testimonials.map((t) => (
-              <div key={t.id} className="card p-8 card-hover flex flex-col justify-between">
+              <div key={t.id} className="card p-6 sm:p-8 card-hover flex flex-col justify-between">
                 <div>
-                  <div className="flex gap-1 mb-5" style={{ color: 'var(--col-warn)' }}>
-                    {[...Array(t.rating || 5)].map((_, i) => <i key={i} className="pi pi-star-fill" style={{ fontSize: 14 }} />)}
+                  <div className="flex gap-1 mb-4 sm:mb-5" style={{ color: 'var(--col-warn)' }}>
+                    {[...Array(t.rating || 5)].map((_, i) => <i key={i} className="pi pi-star-fill" style={{ fontSize: 13 }} />)}
                   </div>
-                  <p className="text-sm leading-relaxed italic mb-8 m-0" style={{ color: 'var(--col-ink-2)' }}>"{t.text}"</p>
+                  <p className="text-sm leading-relaxed italic mb-6 sm:mb-8 m-0" style={{ color: 'var(--col-ink-2)' }}>"{t.text}"</p>
                 </div>
                 <div className="flex items-center gap-3 pt-4" style={{ borderTop: '1px solid var(--col-border-light)' }}>
                   {t.avatar ? (
-                    <img src={t.avatar} alt={t.name} className="w-10 h-10 rounded-full object-cover" />
+                    <img src={t.avatar} alt={t.name} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover" />
                   ) : (
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm" style={{ background: 'var(--col-brand-pale)', color: 'var(--col-brand-dark)', fontFamily: 'var(--font-display)' }}>
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-sm" style={{ background: 'var(--col-brand-pale)', color: 'var(--col-brand-dark)', fontFamily: 'var(--font-display)' }}>
                       {t.name.charAt(0)}
                     </div>
                   )}
                   <div>
                     <h4 className="m-0 text-sm font-bold" style={{ color: 'var(--col-ink)', fontFamily: 'var(--font-display)' }}>{t.name}</h4>
-                    <p className="m-0 text-xs" style={{ color: 'var(--col-ink-4)' }}>{t.role}</p>
+                    <p className="m-0 text-[11px] sm:text-xs" style={{ color: 'var(--col-ink-4)' }}>{t.role}</p>
                   </div>
                 </div>
               </div>
@@ -262,18 +262,18 @@ const TestimonialSection = () => {
 const CTASection = () => {
   const navigate = useNavigate();
   return (
-    <section className="py-24" style={{ background: 'var(--col-surface)' }}>
+    <section className="py-20 sm:py-24" style={{ background: 'var(--col-surface)' }}>
       <div className="max-w-4xl mx-auto px-5 text-center">
-        <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-5 m-0" style={{ fontFamily: 'var(--font-display)', color: 'var(--col-ink)' }}>
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-5 m-0" style={{ fontFamily: 'var(--font-display)', color: 'var(--col-ink)' }}>
           Siap Mengamankan Peternakan Anda?
         </h2>
-        <p className="text-base mb-10 max-w-2xl mx-auto m-0 leading-relaxed" style={{ color: 'var(--col-ink-3)' }}>
+        <p className="text-sm sm:text-base mb-8 sm:mb-10 max-w-2xl mx-auto m-0 leading-relaxed" style={{ color: 'var(--col-ink-3)' }}>
           Bergabunglah dengan peternak modern lainnya yang telah memanfaatkan presisi AI untuk mendiagnosis penyakit unggas dengan instan.
         </p>
         <div className="flex justify-center">
           <button
             onClick={() => navigate('/register')}
-            className="flex items-center gap-2 px-10 py-5 rounded-2xl text-lg font-semibold text-white transition-all hover:-translate-y-1 cursor-pointer"
+            className="flex items-center gap-2 px-8 py-4 sm:px-10 sm:py-5 rounded-2xl text-base sm:text-lg font-semibold text-white transition-all hover:-translate-y-1 cursor-pointer w-full sm:w-auto justify-center"
             style={{ background: 'var(--col-ink)', border: 'none', boxShadow: 'var(--sh-xl)', fontFamily: 'var(--font-display)' }}
           >
             Mulai Penggunaan Gratis <i className="pi pi-arrow-right ml-1" style={{ fontSize: 14 }} />

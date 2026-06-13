@@ -99,14 +99,14 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
 
       {/* ── Right Panel: Form ── */}
       <div
-        className="w-full lg:w-[48%] flex flex-col justify-center items-center p-6 sm:p-12 relative"
+        className="w-full lg:w-[48%] flex flex-col justify-center items-center p-5 sm:p-12 relative"
         style={{ background: 'var(--col-surface)' }}
       >
         {/* Mobile logo */}
-        <div className="lg:hidden absolute top-6 left-6">
+        <div className="lg:hidden absolute top-5 left-5">
           <Link to="/" className="no-underline inline-flex items-center">
-            <img src="/logo.png" alt="Logo" className="w-10 h-10 object-contain shrink-0 -ml-1" />
-            <span className="-ml-6" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.125rem', color: 'var(--col-ink)' }}>
+            <img src="/logo.png" alt="Logo" className="w-10 h-10 object-contain shrink-0" />
+            <span className="-ml-4" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.125rem', color: 'var(--col-ink)' }}>
               AyamSehat<span style={{ color: 'var(--col-brand)' }}>.AI</span>
             </span>
           </Link>
@@ -115,31 +115,31 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
         {/* Back link */}
         <Link
           to="/"
-          className="absolute top-7 right-7 no-underline flex items-center gap-1.5 text-sm font-medium transition-colors"
+          className="absolute top-6 right-6 no-underline flex items-center gap-1.5 text-xs sm:text-sm font-medium transition-colors"
           style={{ color: 'var(--col-ink-3)' }}
           onMouseEnter={e => (e.currentTarget.style.color = 'var(--col-ink)')}
           onMouseLeave={e => (e.currentTarget.style.color = 'var(--col-ink-3)')}
         >
-          <i className="pi pi-arrow-left" style={{ fontSize: 12 }} />
-          <span className="hidden sm:inline">Beranda</span>
+          <i className="pi pi-arrow-left" style={{ fontSize: 10 }} />
+          <span className="hidden xs:inline">Beranda</span>
         </Link>
 
         {/* Form container */}
-        <div className="w-full max-w-md mt-16 lg:mt-0 animate-fade-up">
+        <div className="w-full max-w-md mt-12 lg:mt-0 animate-fade-up">
           {/* Header */}
-          <div className="mb-7">
+          <div className="mb-6 px-1">
             <h1
-              className="mb-1"
-              style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.875rem', color: 'var(--col-ink)', margin: 0 }}
+              className="mb-1 leading-tight text-2xl sm:text-3xl"
+              style={{ fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--col-ink)', margin: 0 }}
             >
               {title}
             </h1>
-            <p style={{ color: 'var(--col-ink-3)', margin: '0.375rem 0 0', fontWeight: 500 }}>{subtitle}</p>
+            <p className="text-sm sm:text-base" style={{ color: 'var(--col-ink-3)', margin: '0.375rem 0 0', fontWeight: 500 }}>{subtitle}</p>
           </div>
 
           {/* Card */}
           <div
-            className="rounded-2xl p-7"
+            className="rounded-3xl p-6 sm:p-8"
             style={{ background: 'var(--col-card)', border: '1px solid var(--col-border)', boxShadow: 'var(--sh-md)' }}
           >
             {children}

@@ -31,15 +31,27 @@ const LandingNavbar: React.FC = () => {
       }}
     >
       <div className="max-w-6xl mx-auto px-5 flex items-center justify-between">
-        {/* Logo */}
-        <div
-          className="flex items-center cursor-pointer"
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        >
-          <img src="/logo.png" alt="Logo" className="w-10 h-10 object-contain shrink-0" />
-          <span className="-ml-5" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.2rem', color: 'var(--col-ink)' }}>
-            AyamSehat<span style={{ color: 'var(--col-brand)' }}>.AI</span>
-          </span>
+        {/* Left side: Mobile Toggle + Logo */}
+        <div className="flex items-center gap-3">
+          {/* Mobile toggle */}
+          <button
+            className="md:hidden flex items-center justify-center w-9 h-9 rounded-xl border-none cursor-pointer transition-all"
+            style={{ background: menuOpen ? 'var(--col-brand-pale)' : 'transparent', color: 'var(--col-ink)' }}
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
+            <i className={`pi ${menuOpen ? 'pi-times' : 'pi-bars'}`} style={{ fontSize: 16 }} />
+          </button>
+
+          {/* Logo */}
+          <div
+            className="flex items-center cursor-pointer"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          >
+            <img src="/logo.png" alt="Logo" className="w-10 h-10 object-contain shrink-0" />
+            <span className="-ml-3 md:-ml-5" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.2rem', color: 'var(--col-ink)' }}>
+              AyamSehat<span style={{ color: 'var(--col-brand)' }}>.AI</span>
+            </span>
+          </div>
         </div>
 
         {/* Desktop Menu */}
@@ -78,15 +90,6 @@ const LandingNavbar: React.FC = () => {
             <i className="pi pi-arrow-right" style={{ fontSize: 11 }} />
           </button>
         </div>
-
-        {/* Mobile toggle */}
-        <button
-          className="md:hidden flex items-center justify-center w-9 h-9 rounded-xl border-none cursor-pointer transition-all"
-          style={{ background: menuOpen ? 'var(--col-brand-pale)' : 'transparent', color: 'var(--col-ink)' }}
-          onClick={() => setMenuOpen(!menuOpen)}
-        >
-          <i className={`pi ${menuOpen ? 'pi-times' : 'pi-bars'}`} style={{ fontSize: 16 }} />
-        </button>
       </div>
 
       {/* Mobile dropdown */}
