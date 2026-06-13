@@ -13,8 +13,14 @@ model User {
   password     String
   nama_lengkap String
   avatar       String?
+  role         Role     @default(USER)
   createdAt    DateTime @default(now())
   citras       Citra[]
+}
+
+enum Role {
+  USER
+  ADMIN
 }
 
 model Citra {

@@ -10,6 +10,7 @@ interface AuthRequest extends Request {
   user?: {
     id: number;
     username: string;
+    role: string;
   };
 }
 
@@ -74,7 +75,7 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
     }
 
     const token = jwt.sign(
-      { id: user.id, username: user.username },
+      { id: user.id, username: user.username, role: user.role },
       process.env.JWT_SECRET || 'secret',
       { expiresIn: '1d' }
     );
@@ -86,7 +87,8 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
         id: user.id, 
         username: user.username, 
         nama_lengkap: user.nama_lengkap,
-        avatar: user.avatar 
+        avatar: user.avatar,
+        role: user.role
       },
     });
   } catch (error) {

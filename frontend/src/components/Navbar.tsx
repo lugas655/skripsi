@@ -34,6 +34,10 @@ const Navbar: React.FC = () => {
     { label: 'Riwayat', path: '/history', icon: 'pi pi-history' },
   ];
 
+  if (user?.role === 'ADMIN') {
+    navItems.push({ label: 'Admin', path: '/admin', icon: 'pi pi-shield' });
+  }
+
   const getInitials = (name: string) =>
     name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
 
@@ -105,7 +109,7 @@ const Navbar: React.FC = () => {
             >
               <div className="text-right hidden sm:block">
                 <p className="m-0 font-semibold text-[13px] leading-tight" style={{ color: 'var(--col-ink)' }}>{user.nama_lengkap}</p>
-                <p className="m-0 text-[10px] font-medium" style={{ color: 'var(--col-ink-4)' }}>Peternak</p>
+                <p className="m-0 text-[10px] font-medium" style={{ color: 'var(--col-ink-4)' }}>{user.role === 'ADMIN' ? 'Administrator' : 'Peternak'}</p>
               </div>
               <Avatar
                 image={user.avatar ? `${IMAGE_BASE_URL}/${user.avatar}` : undefined}

@@ -3,6 +3,7 @@ export interface User {
   username: string;
   nama_lengkap: string;
   avatar?: string | null;
+  role: 'USER' | 'ADMIN';
 }
 
 export enum LabelPenyakit {

@@ -9,6 +9,7 @@ import authRoutes from './routes/auth';
 import predictRoutes from './routes/predict';
 import historyRoutes from './routes/history';
 import testimonialRoutes from './routes/testimonial';
+import adminRoutes from './routes/admin';
 import { errorHandler } from './middlewares/errorHandler';
 
 dotenv.config();
@@ -54,6 +55,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/predict', predictRoutes);
 app.use('/api/history', historyRoutes);
 app.use('/api/testimonials', testimonialRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.get('/', (req: Request, res: Response) => {
   res.json({ message: 'Chicken Feces Classification API' });

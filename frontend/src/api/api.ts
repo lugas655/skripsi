@@ -19,6 +19,18 @@ export const API_ENDPOINTS = {
 
   // Testimonials
   TESTIMONIALS: `${API_URL}/testimonials`,
+
+  // Admin
+  ADMIN_STATS: `${API_URL}/admin/stats`,
+  ADMIN_USERS: `${API_URL}/admin/users`,
+  ADMIN_USER_PASSWORD: (id: string | number) => `${API_URL}/admin/users/${id}/password`,
+  ADMIN_USER_DELETE: (id: string | number) => `${API_URL}/admin/users/${id}`,
+  ADMIN_UPLOADS: `${API_URL}/admin/uploads`,
+  ADMIN_DOWNLOAD: (id: string | number) => `${API_URL}/admin/uploads/download/${id}`,
+  ADMIN_DOWNLOAD_ALL: `${API_URL}/admin/uploads/download-all`,
+  ADMIN_HEALTH: `${API_URL}/admin/health`,
+  ADMIN_TESTIMONIALS: `${API_URL}/admin/testimonials`,
+  ADMIN_TESTIMONIAL_DELETE: (id: string | number) => `${API_URL}/admin/testimonials/${id}`,
 };
 
 const api = axios.create({
