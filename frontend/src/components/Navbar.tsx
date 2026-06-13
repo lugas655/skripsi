@@ -132,15 +132,15 @@ const Navbar: React.FC = () => {
         onHide={() => setVisible(false)}
         className="w-[280px] p-0"
         header={
-          <div className="flex items-center pl-2">
+          <div className="flex items-center pl-0">
             <img src="/logo.png" alt="Logo" className="w-10 h-10 object-contain shrink-0" />
-            <span className="-ml-5" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1rem', color: 'var(--col-ink)' }}>
+            <span className="-ml-3" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1rem', color: 'var(--col-ink)' }}>
               AyamSehat<span style={{ color: 'var(--col-brand)' }}>.AI</span>
             </span>
           </div>
         }
-      >
-        <div className="flex flex-col gap-1.5 p-4">
+        >
+        <div className="flex flex-col gap-1.5 p-3 sm:p-4">
           {/* User card */}
           <div
             className="flex items-center gap-3 p-3.5 rounded-xl mb-4"

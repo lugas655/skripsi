@@ -15,7 +15,7 @@ import LandingFooter from '../components/landing/Footer';
 const HeroSection = () => {
   const navigate = useNavigate();
   return (
-    <section id="home" className="relative pt-24 pb-16 lg:pt-48 lg:pb-32 overflow-hidden" style={{ background: 'var(--col-surface)' }}>
+    <section id="beranda" className="relative pt-24 pb-16 lg:pt-48 lg:pb-32 overflow-hidden" style={{ background: 'var(--col-surface)' }}>
       {/* Background decoration */}
       <div className="absolute top-0 right-0 w-1/2 h-full rounded-bl-[100px]" style={{ background: 'linear-gradient(to bottom left, var(--col-brand-pale), transparent)', zIndex: 0 }} />
       <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob" style={{ background: 'var(--col-brand-muted)' }} />
@@ -43,7 +43,7 @@ const HeroSection = () => {
               <i className="pi pi-camera" style={{ fontSize: 14 }} /> Mulai Prediksi
             </button>
             <button
-              onClick={() => { document.querySelector('#how-it-works')?.scrollIntoView({ behavior: 'smooth' }); }}
+              onClick={() => { document.querySelector('#cara-kerja')?.scrollIntoView({ behavior: 'smooth' }); }}
               className="flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl text-sm sm:text-base font-semibold transition-all hover:-translate-y-0.5 cursor-pointer"
               style={{ background: 'var(--col-card)', border: '1px solid var(--col-border)', color: 'var(--col-ink-2)', fontFamily: 'var(--font-display)', boxShadow: 'var(--sh-sm)' }}
             >
@@ -100,7 +100,7 @@ const FeaturesSection = () => {
   ];
 
   return (
-    <section id="features" className="py-20 sm:py-24" style={{ background: 'var(--col-card)' }}>
+    <section id="fitur" className="py-20 sm:py-24" style={{ background: 'var(--col-card)' }}>
       <div className="max-w-6xl mx-auto px-5">
         <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
           <h2 className="diag-label mb-3" style={{ color: 'var(--col-brand)' }}>Keunggulan Sistem</h2>
@@ -135,7 +135,7 @@ const HowItWorksSection = () => {
   ];
 
   return (
-    <section id="how-it-works" className="py-20 sm:py-24" style={{ background: 'var(--col-ink)', color: 'white' }}>
+    <section id="cara-kerja" className="py-20 sm:py-24" style={{ background: 'var(--col-ink)', color: 'white' }}>
       <div className="max-w-6xl mx-auto px-5">
         <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
           <h2 className="diag-label mb-3" style={{ color: 'var(--col-brand-light)' }}>Alur Sistem</h2>
@@ -213,7 +213,7 @@ const TestimonialSection = () => {
   }, []);
 
   return (
-    <section id="testimonials" className="py-20 sm:py-24" style={{ background: 'var(--col-card)' }}>
+    <section id="tentang" className="py-20 sm:py-24" style={{ background: 'var(--col-card)' }}>
       <div className="max-w-6xl mx-auto px-5">
         <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
           <h2 className="diag-label mb-3" style={{ color: 'var(--col-brand)' }}>Ulasan Pengguna</h2>
