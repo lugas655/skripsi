@@ -22,22 +22,36 @@ const PrintReport: React.FC<PrintReportProps> = ({ detail }) => {
   const isHealthy = detail.hasilPrediksi?.labelPenyakit === 'HEALTHY';
   
   return (
-    <div className="print-report font-sans max-w-4xl mx-auto p-4 pt-2 bg-white text-black h-screen overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center justify-between border-b-2 border-black pb-2 mb-3">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-black text-white rounded-xl flex items-center justify-center">
-            <i className="pi pi-bolt text-2xl"></i>
+    <div className="print-report font-sans max-w-4xl mx-auto p-8 pt-4 bg-white text-black h-screen overflow-hidden">
+      
+      {/* Official Header */}
+      <div className="border-b-4 border-double border-black pb-4 mb-6 relative">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1">
+            <img src="/logo.png" alt="Logo" className="w-16 h-16 object-contain shrink-0" />
+            <div>
+              <h1 className="text-3xl font-black m-0 tracking-tighter" style={{ lineHeight: 1 }}>
+                AyamSehat<span className="text-gray-400">.AI</span>
+              </h1>
+              <p className="text-[10px] font-bold text-gray-400 m-0 uppercase tracking-[0.3em] mt-1">
+                Artificial Intelligence Poultry Diagnostics
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-black m-0 tracking-tight">AyamSehat<span className="text-gray-500">.AI</span></h1>
-            <p className="text-sm font-semibold text-gray-500 m-0 uppercase tracking-widest mt-1">Laporan Diagnosis Resmi</p>
+          
+          <div className="text-right flex flex-col items-end">
+            <div className="bg-black text-white px-3 py-1 text-[10px] font-black uppercase tracking-widest mb-3 rounded-sm">
+              Sertifikat Diagnosis Resmi
+            </div>
+            <div className="space-y-0.5">
+              <p className="text-[11px] font-black m-0 text-gray-800">NO. REFERENSI: <span className="text-base">#{detail.id.toString().padStart(6, '0')}</span></p>
+              <p className="text-[10px] font-bold text-gray-400 m-0">TANGGAL: {new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }).toUpperCase()}</p>
+            </div>
           </div>
         </div>
-        <div className="text-right">
-          <p className="text-sm font-bold text-gray-800 m-0">ID RIWAYAT: #{detail.id.toString().padStart(4, '0')}</p>
-          <p className="text-xs text-gray-500 m-0 mt-1">Tanggal Cetak: {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-        </div>
+        
+        {/* Subtle decorative line */}
+        <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-black/10" />
       </div>
 
       {/* Main Content */}

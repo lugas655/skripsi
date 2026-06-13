@@ -10,93 +10,143 @@ interface AuthLayoutProps {
   author?: string;
 }
 
-const AuthLayout: React.FC<AuthLayoutProps> = ({ 
-  children, 
-  title, 
-  subtitle, 
-  illustrationImage = "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?auto=format&fit=crop&q=80&w=800",
+const AuthLayout: React.FC<AuthLayoutProps> = ({
+  children,
+  title,
+  subtitle,
   quote = "Kesehatan unggas Anda adalah prioritas utama. Deteksi dini dengan AI menyelamatkan aset peternakan Anda.",
   author = "AyamSehat.AI Vision"
 }) => {
   return (
-    <div className="min-h-screen flex bg-slate-50 font-sans selection:bg-blue-200">
-      {/* Left Side: Branding & Illustration (Hidden on mobile) */}
-      <div className="hidden lg:flex lg:w-1/2 relative bg-slate-900 overflow-hidden flex-col justify-between p-12">
-        {/* Background Image with Overlay */}
-        <div className="absolute inset-0 z-0">
-          <img 
-            src={illustrationImage} 
-            alt="Auth Background" 
-            className="w-full h-full object-cover opacity-30 mix-blend-luminosity"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-slate-900/10"></div>
-          
-          {/* Decorative blur circles */}
-          <div className="absolute -top-24 -left-24 w-96 h-96 bg-blue-600 rounded-full mix-blend-multiply filter blur-[100px] opacity-40"></div>
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-600 rounded-full mix-blend-multiply filter blur-[100px] opacity-40"></div>
-        </div>
+    <div className="min-h-screen flex font-sans">
 
-        {/* Branding */}
-        <div className="relative z-10 flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
-            <i className="pi pi-bolt text-xl"></i>
-          </div>
-          <Link to="/" className="text-2xl font-black tracking-tight text-white no-underline">
-            AyamSehat<span className="text-blue-500">.AI</span>
+      {/* ── Left Panel: Deep Forest ── */}
+      <div
+        className="hidden lg:flex lg:w-[52%] relative flex-col justify-between p-14 overflow-hidden"
+        style={{ background: 'linear-gradient(160deg, #052e16 0%, #14532d 50%, #15803d 100%)' }}
+      >
+        {/* Grid pattern overlay */}
+        <div
+          className="absolute inset-0 opacity-[0.06]"
+          style={{
+            backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)',
+            backgroundSize: '40px 40px',
+          }}
+        />
+
+        {/* Glow circles */}
+        <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full opacity-20"
+          style={{ background: 'radial-gradient(circle, #22c55e 0%, transparent 70%)' }} />
+        <div className="absolute top-24 right-0 w-64 h-64 rounded-full opacity-10"
+          style={{ background: 'radial-gradient(circle, #86efac 0%, transparent 70%)' }} />
+
+        <div className="relative z-10">
+          <Link to="/" className="no-underline inline-flex items-center">
+            <img src="/logo.png" alt="Logo" className="w-12 h-12 object-contain shrink-0 -ml-1" />
+            <span className="text-2xl text-white -ml-6" style={{ fontFamily: 'var(--font-display)', fontWeight: 700 }}>
+              AyamSehat<span style={{ color: '#86efac' }}>.AI</span>
+            </span>
           </Link>
         </div>
 
-        {/* Motivational Text / Quote */}
-        <div className="relative z-10 max-w-lg mb-8">
-          <div className="p-8 rounded-3xl bg-white/10 backdrop-blur-md border border-white/10 shadow-2xl">
-            <i className="pi pi-quote-left text-blue-400 text-3xl mb-4 opacity-50"></i>
-            <p className="text-2xl text-slate-100 font-medium leading-relaxed mb-6">
-              "{quote}"
-            </p>
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">
-                <i className="pi pi-microchip-ai"></i>
-              </div>
-              <span className="font-bold text-slate-300">{author}</span>
+        {/* Quote card */}
+        <div className="relative z-10">
+          {/* Diagnostic readout box — signature element */}
+          <div
+            className="mb-8 rounded-2xl p-5 border"
+            style={{ background: 'rgba(255,255,255,0.05)', borderColor: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)' }}
+          >
+            <div className="flex items-center gap-2 mb-3">
+              <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+              <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-green-300">
+                Sistem Aktif — Real-time Monitoring
+              </span>
             </div>
+            <div className="grid grid-cols-3 gap-4">
+              {[
+                { label: 'Akurasi', val: '98.5%' },
+                { label: 'Penyakit', val: '4 Jenis' },
+                { label: 'Model', val: 'ViT Base' },
+              ].map((s) => (
+                <div key={s.label}>
+                  <div className="diag-label text-green-400 mb-1">{s.label}</div>
+                  <div
+                    className="text-white text-xl"
+                    style={{ fontFamily: 'var(--font-mono)', fontWeight: 700 }}
+                  >
+                    {s.val}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Quote */}
+          <p className="text-green-100 text-lg font-medium leading-relaxed mb-4" style={{ fontFamily: 'var(--font-display)' }}>
+            "{quote}"
+          </p>
+          <div className="flex items-center gap-3">
+            <div
+              className="w-8 h-8 rounded-full flex items-center justify-center text-white shrink-0"
+              style={{ background: 'rgba(134,239,172,0.2)' }}
+            >
+              <i className="pi pi-microchip text-green-300" style={{ fontSize: 14 }} />
+            </div>
+            <span className="text-green-300 text-sm font-semibold">{author}</span>
           </div>
         </div>
       </div>
 
-      {/* Right Side: Form Content */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-6 sm:p-12 relative">
-        {/* Mobile Logo */}
-        <div className="lg:hidden absolute top-8 left-8 flex items-center gap-2">
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center text-white shadow-md">
-            <i className="pi pi-bolt text-sm"></i>
-          </div>
-          <span className="text-xl font-black tracking-tight text-slate-900">
-            AyamSehat<span className="text-blue-600">.AI</span>
-          </span>
+      {/* ── Right Panel: Form ── */}
+      <div
+        className="w-full lg:w-[48%] flex flex-col justify-center items-center p-6 sm:p-12 relative"
+        style={{ background: 'var(--col-surface)' }}
+      >
+        {/* Mobile logo */}
+        <div className="lg:hidden absolute top-6 left-6">
+          <Link to="/" className="no-underline inline-flex items-center">
+            <img src="/logo.png" alt="Logo" className="w-10 h-10 object-contain shrink-0 -ml-1" />
+            <span className="-ml-6" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.125rem', color: 'var(--col-ink)' }}>
+              AyamSehat<span style={{ color: 'var(--col-brand)' }}>.AI</span>
+            </span>
+          </Link>
         </div>
 
-        {/* Back button */}
-        <Link to="/" className="absolute top-8 right-8 text-slate-400 hover:text-slate-800 transition-colors flex items-center gap-2 text-sm font-medium no-underline">
-          <i className="pi pi-arrow-left"></i>
-          <span className="hidden sm:inline">Kembali</span>
+        {/* Back link */}
+        <Link
+          to="/"
+          className="absolute top-7 right-7 no-underline flex items-center gap-1.5 text-sm font-medium transition-colors"
+          style={{ color: 'var(--col-ink-3)' }}
+          onMouseEnter={e => (e.currentTarget.style.color = 'var(--col-ink)')}
+          onMouseLeave={e => (e.currentTarget.style.color = 'var(--col-ink-3)')}
+        >
+          <i className="pi pi-arrow-left" style={{ fontSize: 12 }} />
+          <span className="hidden sm:inline">Beranda</span>
         </Link>
 
-        {/* Form Container */}
-        <div className="w-full max-w-md mt-12 lg:mt-0 animate-fade-in-up">
-          <div className="mb-3 text-center sm:text-left">
-            <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-1">
+        {/* Form container */}
+        <div className="w-full max-w-md mt-16 lg:mt-0 animate-fade-up">
+          {/* Header */}
+          <div className="mb-7">
+            <h1
+              className="mb-1"
+              style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.875rem', color: 'var(--col-ink)', margin: 0 }}
+            >
               {title}
             </h1>
-            <p className="text-slate-500 font-medium">
-              {subtitle}
-            </p>
+            <p style={{ color: 'var(--col-ink-3)', margin: '0.375rem 0 0', fontWeight: 500 }}>{subtitle}</p>
           </div>
 
-          <div className="bg-white rounded-3xl p-6 sm:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
+          {/* Card */}
+          <div
+            className="rounded-2xl p-7"
+            style={{ background: 'var(--col-card)', border: '1px solid var(--col-border)', boxShadow: 'var(--sh-md)' }}
+          >
             {children}
           </div>
         </div>
       </div>
+
     </div>
   );
 };

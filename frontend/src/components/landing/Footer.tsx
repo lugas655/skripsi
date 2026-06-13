@@ -1,63 +1,103 @@
 import React from 'react';
-import { Divider } from 'primereact/divider';
 import { NAVBAR_CONTENT, FOOTER_CONTENT } from '../../constants/landingContent';
 
-const Footer: React.FC = () => {
+const LandingFooter: React.FC = () => {
+  const scrollTo = (target: string) => {
+    document.querySelector(target)?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
-    <footer id="tentang" className="py-6 px-4 md:px-8 bg-gray-900 text-white">
-      <div className="container mx-auto max-w-7xl">
-        <div className="flex flex-wrap -mx-4">
-          <div className="col-12 md:col-4 px-4 mb-4 md:mb-0 text-left">
-            <div className="flex align-items-center gap-2 mb-3">
-              <i className="pi pi-shield text-blue-400 text-xl font-bold"></i>
-              <span className="text-xl font-bold text-white">{NAVBAR_CONTENT.logo}</span>
+    <footer style={{ background: 'var(--col-brand-deep)', color: 'white' }}>
+      {/* Main footer */}
+      <div className="max-w-6xl mx-auto px-5 py-14">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+
+          {/* Brand */}
+          <div>
+            <div className="flex items-center gap-1 mb-4">
+              <img src="/logo.png" alt="Logo" className="w-8 h-8 object-contain shrink-0" />
+              <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.125rem', color: 'white' }}>
+                AyamSehat<span style={{ color: 'var(--col-brand-light)' }}>.AI</span>
+              </span>
             </div>
-            <p className="text-gray-400 line-height-3 pr-4 text-sm">
+            <p className="text-sm leading-relaxed m-0 mb-5" style={{ color: 'rgba(255,255,255,0.5)' }}>
               {FOOTER_CONTENT.description}
             </p>
+            {/* Status badge */}
+            <div
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold"
+              style={{ background: 'rgba(134,239,172,0.12)', border: '1px solid rgba(134,239,172,0.2)', color: 'var(--col-brand-light)' }}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block animate-pulse" />
+              Sistem Aktif — Siap Digunakan
+            </div>
           </div>
-          
-          <div className="col-12 md:col-4 px-4 mb-4 md:mb-0 text-left">
-            <h4 className="text-lg font-bold mb-3 text-white">Tautan Cepat</h4>
-            <ul className="list-none p-0 m-0">
-              {NAVBAR_CONTENT.menu.map((item) => (
-                <li key={item.label} className="mb-1">
-                  <a 
-                    href={item.target} 
-                    className="text-gray-400 hover:text-white no-underline transition-colors block py-1 text-sm"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      document.querySelector(item.target)?.scrollIntoView({ behavior: 'smooth' });
-                    }}
+
+          {/* Quick Links */}
+          <div>
+            <h4 className="text-sm font-bold mb-4 m-0" style={{ fontFamily: 'var(--font-display)', color: 'rgba(255,255,255,0.9)', letterSpacing: '0.05em' }}>
+              Tautan Cepat
+            </h4>
+            <ul className="list-none p-0 m-0 flex flex-col gap-2">
+              {NAVBAR_CONTENT.menu.map(item => (
+                <li key={item.label}>
+                  <button
+                    onClick={() => scrollTo(item.target)}
+                    className="text-sm border-none bg-transparent cursor-pointer text-left p-0 transition-all"
+                    style={{ color: 'rgba(255,255,255,0.45)', fontFamily: 'var(--font-sans)' }}
+                    onMouseEnter={e => (e.currentTarget.style.color = 'var(--col-brand-light)')}
+                    onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.45)')}
                   >
                     {item.label}
-                  </a>
+                  </button>
                 </li>
               ))}
             </ul>
           </div>
 
-          <div className="col-12 md:col-4 px-4 text-left">
-            <h4 className="text-lg font-bold mb-3 text-white">Kontak & Informasi</h4>
-            <p className="text-gray-400 line-height-3 text-sm">
+          {/* Contact */}
+          <div>
+            <h4 className="text-sm font-bold mb-4 m-0" style={{ fontFamily: 'var(--font-display)', color: 'rgba(255,255,255,0.9)', letterSpacing: '0.05em' }}>
+              Kontak &amp; Informasi
+            </h4>
+            <p className="text-sm leading-relaxed m-0 mb-5" style={{ color: 'rgba(255,255,255,0.45)' }}>
               {FOOTER_CONTENT.university}
             </p>
-            <div className="flex gap-4 mt-3">
-              <i className="pi pi-facebook text-xl text-gray-400 hover:text-white cursor-pointer transition-colors"></i>
-              <i className="pi pi-instagram text-xl text-gray-400 hover:text-white cursor-pointer transition-colors"></i>
-              <i className="pi pi-github text-xl text-gray-400 hover:text-white cursor-pointer transition-colors"></i>
+            <div className="flex items-center gap-3">
+              {[
+                { icon: 'pi-facebook',  label: 'Facebook' },
+                { icon: 'pi-instagram', label: 'Instagram' },
+                { icon: 'pi-github',    label: 'GitHub' },
+              ].map(s => (
+                <button
+                  key={s.icon}
+                  title={s.label}
+                  className="w-9 h-9 flex items-center justify-center rounded-xl border-none cursor-pointer transition-all"
+                  style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.45)' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(134,239,172,0.15)'; e.currentTarget.style.color = 'var(--col-brand-light)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; e.currentTarget.style.color = 'rgba(255,255,255,0.45)'; }}
+                >
+                  <i className={`pi ${s.icon}`} style={{ fontSize: 15 }} />
+                </button>
+              ))}
             </div>
           </div>
         </div>
-        
-        <Divider className="bg-gray-700 my-4" />
-        
-        <div className="text-center text-gray-500 text-xs">
-          {FOOTER_CONTENT.copyright}
+      </div>
+
+      {/* Bottom bar */}
+      <div
+        className="max-w-6xl mx-auto px-5 py-4 flex flex-col sm:flex-row items-center justify-between gap-3"
+        style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
+      >
+        <p className="m-0 text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>{FOOTER_CONTENT.copyright}</p>
+        <div className="flex items-center gap-1.5 text-xs" style={{ color: 'rgba(255,255,255,0.3)', fontFamily: 'var(--font-mono)' }}>
+          <i className="pi pi-microchip" style={{ fontSize: 10, color: 'var(--col-brand-light)' }} />
+          Vision Transformer · ViT-Base-Patch16
         </div>
       </div>
     </footer>
   );
 };
 
-export default Footer;
+export default LandingFooter;

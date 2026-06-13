@@ -1,175 +1,178 @@
 import React, { useState, useRef } from 'react';
 import { InputText } from 'primereact/inputtext';
 import { Password } from 'primereact/password';
-import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../services/authService';
 import AuthLayout from '../components/AuthLayout';
 
+const FieldLabel: React.FC<{ htmlFor: string; children: React.ReactNode }> = ({ htmlFor, children }) => (
+  <label htmlFor={htmlFor} className="diag-label block" style={{ color: 'var(--col-ink-3)' }}>
+    {children}
+  </label>
+);
+
 const RegisterPage: React.FC = () => {
-  const [formData, setFormData] = useState({
-    nama_lengkap: '',
-    username: '',
-    password: '',
-    confirm_password: '',
-  });
+  const [formData, setFormData] = useState({ nama_lengkap: '', username: '', password: '', confirm_password: '' });
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
   const toast = useRef<Toast>(null);
   const navigate = useNavigate();
 
   React.useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      navigate('/dashboard');
-    }
+    if (localStorage.getItem('token')) navigate('/dashboard');
   }, [navigate]);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (formData.password !== formData.confirm_password) {
-      toast.current?.show({ severity: 'error', summary: 'Validasi Gagal', detail: 'Password dan Konfirmasi Password tidak cocok!', life: 3000 });
+      toast.current?.show({ severity: 'error', summary: 'Validasi gagal', detail: 'Password dan konfirmasi tidak cocok.', life: 3000 });
       return;
     }
-
     if (!termsAccepted) {
-      toast.current?.show({ severity: 'error', summary: 'Validasi Gagal', detail: 'Anda harus menyetujui Syarat dan Ketentuan.', life: 3000 });
+      toast.current?.show({ severity: 'error', summary: 'Validasi gagal', detail: 'Setujui syarat & ketentuan terlebih dahulu.', life: 3000 });
       return;
     }
-
     setLoading(true);
-
     try {
-      await authService.register({
-        nama_lengkap: formData.nama_lengkap,
-        username: formData.username,
-        password: formData.password
-      });
-      toast.current?.show({ severity: 'success', summary: 'Berhasil', detail: 'Pendaftaran sukses! Mengalihkan ke halaman login...', life: 2000 });
+      await authService.register({ nama_lengkap: formData.nama_lengkap, username: formData.username, password: formData.password });
+      toast.current?.show({ severity: 'success', summary: 'Akun dibuat!', detail: 'Mengalihkan ke halaman login...', life: 2000 });
       setTimeout(() => navigate('/login'), 1500);
     } catch (error: any) {
-      toast.current?.show({ 
-        severity: 'error', 
-        summary: 'Gagal', 
-        detail: error.response?.data?.message || 'Pendaftaran gagal', 
-        life: 3000 
-      });
+      toast.current?.show({ severity: 'error', summary: 'Pendaftaran gagal', detail: error.response?.data?.message || 'Gagal membuat akun.', life: 3000 });
     } finally {
       setLoading(false);
     }
   };
 
+  const set = (key: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
+    setFormData(prev => ({ ...prev, [key]: e.target.value }));
+
   return (
-    <AuthLayout 
-      title="Buat Akun Baru" 
-      subtitle="Mulai lindungi peternakan Anda dengan bantuan AI."
-      quote="Pencegahan wabah dimulai dari identifikasi dini yang cepat dan akurat. Jangan tunggu sampai terlambat."
+    <AuthLayout
+      title="Buat Akun Baru"
+      subtitle="Mulai lindungi peternakan Anda dengan AI."
+      quote="Pencegahan wabah dimulai dari identifikasi dini yang cepat dan akurat."
     >
       <Toast ref={toast} />
-      
-      <form onSubmit={handleRegister} className="flex flex-col gap-5">
-        
-        {/* Full Name Field */}
-        <div className="flex flex-col gap-2">
-          <label htmlFor="nama_lengkap" className="text-sm font-bold text-slate-700">Nama Lengkap</label>
-          <div className="relative">
-            <i className="pi pi-id-card text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 z-10 text-lg"></i>
-            <InputText 
-              id="nama_lengkap" 
-              value={formData.nama_lengkap} 
-              onChange={(e) => setFormData({ ...formData, nama_lengkap: e.target.value })} 
-              className="w-full bg-slate-50 border-slate-200 hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl py-3 pr-4 pl-11 transition-all font-medium"
-              placeholder="Masukkan nama lengkap"
-              required 
-            />
+      <form onSubmit={handleRegister} className="flex flex-col gap-4">
+
+        {/* Name & Username Row */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="flex flex-col gap-1">
+            <FieldLabel htmlFor="reg-nama">Nama Lengkap</FieldLabel>
+            <div className="relative flex items-center">
+              <i className="pi pi-id-card absolute left-3.5 z-10" style={{ fontSize: '0.8rem', color: 'var(--col-ink-4)' }} />
+              <InputText 
+                id="reg-nama" 
+                value={formData.nama_lengkap} 
+                onChange={set('nama_lengkap')} 
+                className="w-full !pl-10 !py-2.5 !bg-white !text-sm" 
+                placeholder="Nama lengkap" 
+                required 
+              />
+            </div>
+          </div>
+          <div className="flex flex-col gap-1">
+            <FieldLabel htmlFor="reg-user">Username</FieldLabel>
+            <div className="relative flex items-center">
+              <i className="pi pi-user absolute left-3.5 z-10" style={{ fontSize: '0.8rem', color: 'var(--col-ink-4)' }} />
+              <InputText 
+                id="reg-user" 
+                value={formData.username} 
+                onChange={set('username')} 
+                className="w-full !pl-10 !py-2.5 !bg-white !text-sm" 
+                placeholder="Username" 
+                required 
+              />
+            </div>
           </div>
         </div>
 
-        {/* Username Field */}
-        <div className="flex flex-col gap-2">
-          <label htmlFor="username" className="text-sm font-bold text-slate-700">Username</label>
-          <div className="relative">
-            <i className="pi pi-user text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 z-10 text-lg"></i>
-            <InputText 
-              id="username" 
-              value={formData.username} 
-              onChange={(e) => setFormData({ ...formData, username: e.target.value })} 
-              className="w-full bg-slate-50 border-slate-200 hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl py-3 pr-4 pl-11 transition-all font-medium"
-              placeholder="Pilih username unik"
-              required 
-            />
-          </div>
-        </div>
-
-        {/* Password Group */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          {/* Password Field */}
-          <div className="flex flex-col gap-2">
-            <label htmlFor="password" className="text-sm font-bold text-slate-700">Password</label>
-            <div className="relative">
-              <i className="pi pi-lock text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 z-10 text-lg"></i>
+        {/* Password pair Row */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="flex flex-col gap-1">
+            <FieldLabel htmlFor="reg-pass">Password</FieldLabel>
+            <div className="relative flex items-center">
+              <i className="pi pi-lock absolute left-3.5 z-10" style={{ fontSize: '0.8rem', color: 'var(--col-ink-4)' }} />
               <Password 
-                id="password" 
+                id="reg-pass" 
                 value={formData.password} 
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })} 
+                onChange={e => setFormData(p => ({ ...p, password: e.target.value }))} 
                 toggleMask 
-                className="w-full"
-                inputClassName="w-full bg-slate-50 border-slate-200 hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl py-3 pr-4 pl-11 transition-all font-medium"
-                placeholder="Buat password"
+                className="w-full" 
+                inputClassName="w-full !pl-10 !py-2.5 !bg-white !text-sm" 
+                placeholder="Password" 
                 required 
               />
             </div>
           </div>
-
-          {/* Confirm Password Field */}
-          <div className="flex flex-col gap-2">
-            <label htmlFor="confirm_password" className="text-sm font-bold text-slate-700">Konfirmasi Password</label>
-            <div className="relative">
-              <i className="pi pi-lock text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 z-10 text-lg"></i>
+          <div className="flex flex-col gap-1">
+            <FieldLabel htmlFor="reg-confirm">Konfirmasi</FieldLabel>
+            <div className="relative flex items-center">
+              <i className="pi pi-lock absolute left-3.5 z-10" style={{ fontSize: '0.8rem', color: 'var(--col-ink-4)' }} />
               <Password 
-                id="confirm_password" 
+                id="reg-confirm" 
                 value={formData.confirm_password} 
-                onChange={(e) => setFormData({ ...formData, confirm_password: e.target.value })} 
+                onChange={e => setFormData(p => ({ ...p, confirm_password: e.target.value }))} 
                 toggleMask 
-                feedback={false}
-                className="w-full"
-                inputClassName="w-full bg-slate-50 border-slate-200 hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl py-3 pr-4 pl-11 transition-all font-medium"
-                placeholder="Ulangi password"
+                feedback={false} 
+                className="w-full" 
+                inputClassName="w-full !pl-10 !py-2.5 !bg-white !text-sm" 
+                placeholder="Ulangi" 
                 required 
               />
             </div>
           </div>
         </div>
 
-        {/* Terms and Conditions */}
-        <div className="flex items-start gap-3 mt-2">
-          <input 
-            type="checkbox" 
-            id="terms" 
-            checked={termsAccepted}
-            onChange={(e) => setTermsAccepted(e.target.checked)}
-            className="w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer mt-0.5 transition-all" 
-          />
-          <label htmlFor="terms" className="text-sm text-slate-600 font-medium cursor-pointer select-none leading-relaxed">
-            Saya menyetujui <span className="text-blue-600 hover:underline">Syarat & Ketentuan</span> dan <span className="text-blue-600 hover:underline">Kebijakan Privasi</span> yang berlaku.
+        {/* Terms */}
+        <div className="px-1">
+          <label htmlFor="reg-terms" className="flex items-start gap-2.5 cursor-pointer select-none">
+            <input 
+              id="reg-terms" 
+              type="checkbox" 
+              checked={termsAccepted} 
+              onChange={e => setTermsAccepted(e.target.checked)} 
+              className="w-3.5 h-3.5 rounded mt-1 shrink-0 cursor-pointer" 
+              style={{ accentColor: 'var(--col-brand)' }} 
+            />
+            <span className="text-[12px] font-medium leading-tight" style={{ color: 'var(--col-ink-3)' }}>
+              Saya setuju <Link to="/terms" className="inline p-0 bg-transparent border-none font-bold cursor-pointer hover:underline text-[12px] no-underline" style={{ color: 'var(--col-brand)' }}>S&amp;K</Link> dan <Link to="/privacy" className="inline p-0 bg-transparent border-none font-bold cursor-pointer hover:underline text-[12px] no-underline" style={{ color: 'var(--col-brand)' }}>Kebijakan Privasi</Link>.
+            </span>
           </label>
         </div>
 
-        {/* Submit Button */}
-        <Button 
-          loading={loading} 
-          className="w-full bg-blue-600 border-none hover:bg-blue-700 text-white rounded-xl py-3.5 shadow-lg shadow-blue-200 mt-2 transition-all hover:-translate-y-0.5 flex justify-center items-center gap-3" 
-        >
-          <i className="pi pi-user-plus text-lg"></i>
-          <span className="font-bold">Daftar Akun Sekarang</span>
-        </Button>
-        
-        {/* Login Link */}
-        <p className="text-center text-slate-600 font-medium mt-4 mb-0 text-sm">
-          Sudah punya akun? <Link to="/login" className="text-blue-600 no-underline font-bold hover:text-blue-700 transition-colors">Login Sekarang</Link>
+        {/* Submit */}
+        <div className="pt-1">
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-2 rounded-xl py-3 font-bold text-white transition-all hover:brightness-105 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed shadow-sm"
+            style={{ 
+              background: loading ? 'var(--col-brand-mid)' : 'var(--col-brand)', 
+              border: 'none', 
+              cursor: 'pointer', 
+              fontFamily: 'var(--font-display)', 
+              fontSize: '0.9rem' 
+            }}
+          >
+            {loading ? (
+              <><span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin inline-block" /> Memproses...</>
+            ) : (
+              <><i className="pi pi-user-plus" style={{ fontSize: 14 }} /> Buat Akun</>
+            )}
+          </button>
+        </div>
+
+        {/* Login link */}
+        <p className="text-center text-xs font-medium mt-1" style={{ color: 'var(--col-ink-3)' }}>
+          Sudah punya akun?{' '}
+          <Link to="/login" className="font-bold no-underline hover:underline" style={{ color: 'var(--col-brand)' }}>
+            Login
+          </Link>
         </p>
+
       </form>
     </AuthLayout>
   );
