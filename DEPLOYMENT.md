@@ -34,7 +34,18 @@ After the containers are running, you need to push the Prisma schema to the data
 docker compose exec backend npx prisma db push
 ```
 
-## 4. Monitoring & Logs
+## 4. Frontend Environment Variables
+Since the frontend (React) is compiled as static HTML/JS via Vite, it bakes the environment variables during the build process. Before building the image on your VPS, make sure the `frontend/.env` file points to your public VPS IP address or domain:
+```env
+VITE_API_URL=http://<YOUR_VPS_IP>:3000/api
+VITE_ML_SERVICE_URL=http://<YOUR_VPS_IP>:8000
+```
+Then, rebuild the frontend if you make changes to these URLs:
+```bash
+docker compose up -d --build frontend
+```
+
+## 5. Monitoring & Logs
 To check if everything is running correctly:
 ```bash
 docker compose ps
@@ -45,8 +56,9 @@ To view logs:
 docker compose logs -f
 ```
 
-## 5. (Optional) Nginx Reverse Proxy
-To enable HTTPS, it is recommended to use Nginx with Certbot.
+## 6. (Optional) Nginx Reverse Proxy
+To enable HTTPS, it is recommended to use Nginx with Certbot on the host machine.
+If you use this, map port 80 to a different port (like 8080) in `docker-compose.yml` to avoid conflicts with your host Nginx.
 
 Example Nginx config (`/etc/nginx/sites-available/default`):
 ```nginx
