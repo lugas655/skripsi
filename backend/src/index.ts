@@ -16,14 +16,32 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Middleware
-app.use(cors({
-  origin: (origin, callback) => {
-    // Selalu izinkan origin mana pun secara dinamis (mendukung semua IP dan domain)
-    callback(null, true);
-  },
-  credentials: true
-}));
+// Middleware — Explicit CORS (works behind Nginx reverse proxy)
+app.use((req, res, next) => {
+  const allowedOrigins = [
+    'https://ayamsehat.sayadewe.my.id',
+    'http://localhost:5173',
+    'http://localhost:8080',
+    'http://35.202.20.241:8080',
+  ];
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  } else if (!origin) {
+    // Allow requests with no origin (mobile apps, Postman, etc.)
+    res.setHeader('Access-Control-Allow-Origin', '*');
+  }
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+
+  // Handle preflight
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(204);
+    return;
+  }
+  next();
+});
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
