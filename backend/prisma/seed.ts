@@ -6,20 +6,34 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('Seeding data...');
 
-  // 1. Create a Test User
-  const hashedPassword = await bcrypt.hash('password123', 10);
+  // 1. Create a Test User (Lugas)
+  const hashedPasswordLugas = await bcrypt.hash('password123', 10);
   const user = await prisma.user.upsert({
     where: { username: 'lugas' },
-    update: {},
+    update: { role: 'USER' },
     create: {
       username: 'lugas',
-      password: hashedPassword,
+      password: hashedPasswordLugas,
       nama_lengkap: 'Lugas Hermanto',
       avatar: null,
+      role: 'USER',
     },
   });
 
-  console.log('User created:', user.username);
+  // 1.1 Create Admin User (adminku)
+  const hashedPasswordAdmin = await bcrypt.hash('bismillahlancar57', 10);
+  const admin = await prisma.user.upsert({
+    where: { username: 'adminku' },
+    update: { role: 'ADMIN' },
+    create: {
+      username: 'adminku',
+      password: hashedPasswordAdmin,
+      nama_lengkap: 'Administrator Utama',
+      role: 'ADMIN',
+    },
+  });
+
+  console.log('Users created: lugas (USER) and adminku (ADMIN)');
 
   // 2. Create Dummy History Data (15 records)
   const labels = Object.values(LabelPenyakit);

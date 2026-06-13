@@ -8,6 +8,7 @@ import ProfilePage from './pages/ProfilePage';
 import DashboardPage from './pages/DashboardPage';
 import LandingPage from './pages/LandingPage';
 import HistoryDetailPage from './pages/HistoryDetailPage';
+import AdminPage from './pages/AdminPage';
 import TermsPage from './pages/TermsPage';
 import PrivacyPage from './pages/PrivacyPage';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -33,6 +34,11 @@ function App() {
             <Route path="/history" element={<HistoryPage />} />
             <Route path="/history/:id" element={<HistoryDetailPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+          </Route>
+
+          {/* Admin Routes */}
+          <Route element={<ProtectedRoute requireAdmin />}>
+            <Route path="/admin" element={<AdminPage />} />
           </Route>
 
           {/* Fallback Routes */}

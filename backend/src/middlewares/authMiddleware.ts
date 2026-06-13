@@ -5,6 +5,7 @@ interface AuthRequest extends Request {
   user?: {
     id: number;
     username: string;
+    role: string;
   };
 }
 
@@ -25,6 +26,7 @@ export const authMiddleware = (
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret') as {
       id: number;
       username: string;
+      role: string;
     };
     req.user = decoded;
     next();
