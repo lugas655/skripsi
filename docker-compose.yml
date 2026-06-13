@@ -19,11 +19,13 @@ services:
     restart: always
     environment:
       - PORT=8000
+    ports:
+      - "8000:8000"
     volumes:
       - ./ml-service/app/weights:/app/app/weights
     networks:
       - chicken_net
-    # No ports exposed to host for security, handled by Nginx or internal network
+    # Port 8000 exposed to host for Nginx reverse proxy
 
   backend:
     build: ./backend
@@ -36,24 +38,26 @@ services:
     environment:
       - PORT=3000
       - DATABASE_URL=mysql://root:${MYSQL_ROOT_PASSWORD:-root_password_here}@db:3306/chicken_feces_db
-      - ML_SERVICE_URL=http://ml-service:8000
+      - ML_SERVICE_URL=https://mlservice.sayadewe.my.id
       - JWT_SECRET=${JWT_SECRET:-your_production_secret_here}
       - NODE_ENV=production
       - GEMINI_API_KEY=${GEMINI_API_KEY:-your_gemini_api_key_here}
+    ports:
+      - "3000:3000"
     volumes:
       - ./backend/uploads:/app/uploads
     networks:
       - chicken_net
-    # No ports exposed to host for security, access via frontend Nginx or Reverse Proxy
+    # Port 3000 exposed to host for Nginx reverse proxy
 
   frontend:
     build: 
       context: ./frontend
       args:
-        - VITE_API_URL=${VITE_API_URL:-http://localhost:3000/api}
+        - VITE_API_URL=${VITE_API_URL:-https://backends.sayadewe.my.id/api}
     restart: always
     ports:
-      - "80:80"
+      - "8080:80"
     depends_on:
       - backend
     networks:
