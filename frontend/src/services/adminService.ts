@@ -65,6 +65,11 @@ const adminService = {
     return response.data;
   },
 
+  createUser: async (userData: any): Promise<AdminUser> => {
+    const response = await api.post(API_ENDPOINTS.ADMIN_USERS, userData);
+    return response.data.user;
+  },
+
   changePassword: async (id: number, newPassword: string): Promise<void> => {
     await api.patch(API_ENDPOINTS.ADMIN_USER_PASSWORD(id), { newPassword });
   },
