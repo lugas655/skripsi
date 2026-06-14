@@ -24,8 +24,10 @@ const AdminPage: React.FC = () => {
   const [globalFilter, setGlobalFilter] = useState('');
   const [passwordDialog, setPasswordDialog] = useState(false);
   const [healthDialog, setHealthDialog] = useState(false);
+  const [createUserDialog, setCreateUserDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
   const [newPassword, setNewPassword] = useState('');
+  const [newUser, setNewUser] = useState({ username: '', password: '', nama_lengkap: '', role: 'USER' });
   const toast = useRef<Toast>(null);
   const queryClient = useQueryClient();
 
@@ -68,6 +70,21 @@ const AdminPage: React.FC = () => {
   });
 
   // Mutations
+  const createUserMutation = useMutation({
+    mutationFn: adminService.createUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adminUsers'] });
+      queryClient.invalidateQueries({ queryKey: ['adminStats'] });
+      setCreateUserDialog(false);
+      setNewUser({ username: '', password: '', nama_lengkap: '', role: 'USER' });
+      toast.current?.show({ severity: 'success', summary: 'USER_CREATED', detail: 'New personnel entry added successfully.', life: 3000 });
+    },
+    onError: (error: any) => {
+      const message = error.response?.data?.message || 'Error creating user';
+      toast.current?.show({ severity: 'error', summary: 'CREATION_FAILED', detail: message, life: 3000 });
+    }
+  });
+
   const deleteUserMutation = useMutation({
     mutationFn: adminService.deleteUser,
     onSuccess: () => {
@@ -267,17 +284,25 @@ const AdminPage: React.FC = () => {
           {/* TAB: PERSONNEL */}
           <TabPanel header="PERSONNEL" leftIcon="pi pi-users mr-2">
             <div className="clinical-card-table overflow-hidden">
-              <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+              <div className="p-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-50/50">
                 <span className="text-sm font-black text-slate-400 uppercase tracking-widest">Personnel Registry</span>
-                <span className="p-input-icon-left">
-                  <i className="pi pi-search text-slate-400" />
-                  <InputText 
-                    value={globalFilter}
-                    onChange={(e) => setGlobalFilter(e.target.value)} 
-                    placeholder="Search UID or Name..." 
-                    className="clinical-search"
+                <div className="flex gap-3">
+                  <Button 
+                    label="Add Personnel" 
+                    icon="pi pi-plus" 
+                    className="clinical-btn-primary" 
+                    onClick={() => setCreateUserDialog(true)}
                   />
-                </span>
+                  <span className="p-input-icon-left">
+                    <i className="pi pi-search text-slate-400" />
+                    <InputText 
+                      value={globalFilter}
+                      onChange={(e) => setGlobalFilter(e.target.value)} 
+                      placeholder="Search UID or Name..." 
+                      className="clinical-search"
+                    />
+                  </span>
+                </div>
               </div>
               <DataTable 
                 value={users} 
@@ -456,6 +481,61 @@ const AdminPage: React.FC = () => {
               />
               <label htmlFor="newPassword" className="text-slate-400">New_Access_Key</label>
             </span>
+          </div>
+        </Dialog>
+
+        {/* DIALOG: CREATE_USER */}
+        <Dialog 
+          header={<span className="text-slate-800 font-black text-sm tracking-widest uppercase">New Personnel Entry</span>}
+          visible={createUserDialog} 
+          style={{ width: '400px' }} 
+          onHide={() => { setCreateUserDialog(false); setNewUser({ username: '', password: '', nama_lengkap: '', role: 'USER' }); }}
+          className="clinical-dialog"
+          footer={
+            <div className="flex justify-end gap-2 p-4 border-t border-slate-100">
+              <Button label="Cancel" className="p-button-text text-slate-400 font-bold" onClick={() => { setCreateUserDialog(false); setNewUser({ username: '', password: '', nama_lengkap: '', role: 'USER' }); }} />
+              <Button label="Create Personnel" className="clinical-btn-primary py-2 px-6" onClick={() => createUserMutation.mutate(newUser)} loading={createUserMutation.isPending} />
+            </div>
+          }
+        >
+          <div className="py-6 px-2 flex flex-col gap-6">
+            <span className="p-float-label">
+              <InputText 
+                id="newUsername" 
+                value={newUser.username} 
+                onChange={(e) => setNewUser({...newUser, username: e.target.value})} 
+                className="clinical-input w-full"
+              />
+              <label htmlFor="newUsername" className="text-slate-400">UID (Username)</label>
+            </span>
+            <span className="p-float-label">
+              <InputText 
+                id="newFullName" 
+                value={newUser.nama_lengkap} 
+                onChange={(e) => setNewUser({...newUser, nama_lengkap: e.target.value})} 
+                className="clinical-input w-full"
+              />
+              <label htmlFor="newFullName" className="text-slate-400">Full Name</label>
+            </span>
+            <span className="p-float-label">
+              <InputText 
+                id="newUserPassword" 
+                type="password" 
+                value={newUser.password} 
+                onChange={(e) => setNewUser({...newUser, password: e.target.value})} 
+                className="clinical-input w-full"
+              />
+              <label htmlFor="newUserPassword" className="text-slate-400">Access Key (Password)</label>
+            </span>
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-bold text-slate-500 uppercase">Access Level</label>
+              <Dropdown 
+                value={newUser.role} 
+                options={['ADMIN', 'USER']} 
+                onChange={(e) => setNewUser({...newUser, role: e.value})} 
+                className="clinical-input w-full" 
+              />
+            </div>
           </div>
         </Dialog>
 

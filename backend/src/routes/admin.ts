@@ -118,6 +118,52 @@ router.get('/users', async (req: AuthRequest, res: Response, next: NextFunction)
 });
 
 /**
+ * POST /api/admin/users
+ * Create a new user (Admin only)
+ */
+const createUserSchema = z.object({
+  username: z.string().min(3),
+  password: z.string().min(6),
+  nama_lengkap: z.string().min(1),
+  role: z.enum(['ADMIN', 'USER']).optional().default('USER'),
+});
+
+router.post('/users', async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const validatedData = createUserSchema.parse(req.body);
+
+    const existingUser = await prisma.user.findUnique({
+      where: { username: validatedData.username },
+    });
+
+    if (existingUser) {
+      return res.status(400).json({ message: 'Username already exists' });
+    }
+
+    const hashedPassword = await bcrypt.hash(validatedData.password, 10);
+
+    const user = await prisma.user.create({
+      data: {
+        username: validatedData.username,
+        password: hashedPassword,
+        nama_lengkap: validatedData.nama_lengkap,
+        role: validatedData.role,
+      },
+    });
+
+    res.status(201).json({
+      message: 'User created successfully',
+      user: { id: user.id, username: user.username, nama_lengkap: user.nama_lengkap, role: user.role },
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ message: 'Validation failed', errors: error.errors });
+    }
+    next(error);
+  }
+});
+
+/**
  * PATCH /api/admin/users/:id/password
  * Change a user's password
  */
