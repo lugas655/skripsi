@@ -25,6 +25,14 @@ const RegisterPage: React.FC = () => {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (formData.username.length < 3) {
+      toast.current?.show({ severity: 'error', summary: 'Validasi gagal', detail: 'Username minimal harus 3 karakter.', life: 3000 });
+      return;
+    }
+    if (formData.password.length < 6) {
+      toast.current?.show({ severity: 'error', summary: 'Validasi gagal', detail: 'Password minimal harus 6 karakter.', life: 3000 });
+      return;
+    }
     if (formData.password !== formData.confirm_password) {
       toast.current?.show({ severity: 'error', summary: 'Validasi gagal', detail: 'Password dan konfirmasi tidak cocok.', life: 3000 });
       return;
@@ -86,6 +94,7 @@ const RegisterPage: React.FC = () => {
                 required 
               />
             </div>
+            <small className="text-[11px] leading-none" style={{ color: 'var(--col-ink-3)' }}>Min. 3 karakter (harus unik)</small>
           </div>
         </div>
 
@@ -106,6 +115,7 @@ const RegisterPage: React.FC = () => {
                 required 
               />
             </div>
+            <small className="text-[11px] leading-none" style={{ color: 'var(--col-ink-3)' }}>Min. 6 karakter</small>
           </div>
           <div className="flex flex-col gap-1">
             <FieldLabel htmlFor="reg-confirm">Konfirmasi</FieldLabel>
