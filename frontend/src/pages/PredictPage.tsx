@@ -161,6 +161,12 @@ const PredictPage: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
+  React.useEffect(() => {
+    if (cameraActive && videoRef.current && streamRef.current) {
+      videoRef.current.srcObject = streamRef.current;
+    }
+  }, [cameraActive]);
+
   const onUpload = async (event: FileUploadHandlerEvent) => {
     const file = event.files[0];
     handleProcessImage(file);
@@ -197,7 +203,6 @@ const PredictPage: React.FC = () => {
         video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } } 
       });
       streamRef.current = stream;
-      if (videoRef.current) videoRef.current.srcObject = stream;
       setCameraActive(true);
     } catch (err) {
       toast.current?.show({ severity: 'error', summary: 'Kamera Gagal', detail: 'Tidak dapat mengakses kamera. Pastikan izin diberikan.', life: 3000 });
