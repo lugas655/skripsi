@@ -97,16 +97,20 @@ const HistoryPage: React.FC = () => {
     );
   };
   const StatusTpl = (row: Citra) => {
-    const b = getBadgeClass(row.hasilPrediksi?.labelPenyakit);
-    return <span className={`badge ${b.cls}`}><span className="w-1.5 h-1.5 rounded-full bg-current inline-block" />{b.lbl}</span>;
+    const isLowConfidence = (row.hasilPrediksi?.nilaiAkurasi || 0) < 0.70;
+    const b = isLowConfidence 
+      ? { cls: 'badge-warn', lbl: 'Tidak Terdeteksi' }
+      : getBadgeClass(row.hasilPrediksi?.labelPenyakit);
+    return <span className={`badge ${b.cls}`}><span className="w-1.5 h-1.5 rounded-full bg-current inline-block mr-1.5" />{b.lbl}</span>;
   };
   const AccuracyTpl = (row: Citra) => {
     const val = (row.hasilPrediksi?.nilaiAkurasi || 0) * 100;
-    const isH = row.hasilPrediksi?.labelPenyakit === 'HEALTHY';
+    const isLowConfidence = val < 70;
+    const isH = row.hasilPrediksi?.labelPenyakit === 'HEALTHY' && !isLowConfidence;
     return (
       <div className="flex items-center gap-2">
         <div className="flex-1 rounded-full h-1.5 max-w-[48px] hidden sm:block" style={{ background: 'var(--col-border)' }}>
-          <div className="h-full rounded-full" style={{ width: `${val}%`, background: isH ? 'var(--col-healthy)' : 'var(--col-disease)' }} />
+          <div className="h-full rounded-full" style={{ width: `${val}%`, background: isLowConfidence ? 'var(--col-warn)' : isH ? 'var(--col-healthy)' : 'var(--col-disease)' }} />
         </div>
         <span className="diag-number text-sm font-bold" style={{ color: 'var(--col-ink)' }}>{val.toFixed(1)}%</span>
       </div>

@@ -19,7 +19,8 @@ const PrintReport: React.FC<PrintReportProps> = ({ detail }) => {
     }
   };
 
-  const isHealthy = detail.hasilPrediksi?.labelPenyakit === 'HEALTHY';
+  const isLowConfidence = (detail.hasilPrediksi?.nilaiAkurasi || 0) < 0.70;
+  const isHealthy = detail.hasilPrediksi?.labelPenyakit === 'HEALTHY' && !isLowConfidence;
   
   return (
     <div className="print-report font-sans max-w-4xl mx-auto p-8 pt-4 bg-white text-black h-screen overflow-hidden">
@@ -89,13 +90,17 @@ const PrintReport: React.FC<PrintReportProps> = ({ detail }) => {
         <div>
           <h3 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-2 border-b border-gray-200 pb-1">Hasil Analisis AI</h3>
           
-          <div className={`p-3 rounded-2xl border-2 mb-3 ${isHealthy ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+          <div className={`p-3 rounded-2xl border-2 mb-3 ${isLowConfidence ? 'bg-yellow-50 border-yellow-200' : isHealthy ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
             <span className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1 block">Diagnosis Utama</span>
-            <h2 className={`text-2xl font-black m-0 mb-2 ${isHealthy ? 'text-green-700' : 'text-red-700'}`}>
-              {detail.hasilPrediksi?.labelPenyakit}
+            <h2 className={`text-2xl font-black m-0 mb-2 ${isLowConfidence ? 'text-yellow-700' : isHealthy ? 'text-green-700' : 'text-red-700'}`}>
+              {isLowConfidence ? 'Tidak Terdeteksi' : detail.hasilPrediksi?.labelPenyakit}
             </h2>
             <div className="bg-white p-3 rounded-xl border border-gray-200">
-              {detail.hasilPrediksi?.saranAI ? (
+              {isLowConfidence ? (
+                <p className="text-[11px] text-gray-700 m-0 leading-normal font-medium text-justify">
+                  Gambar yang Anda unggah bukan merupakan feses.
+                </p>
+              ) : detail.hasilPrediksi?.saranAI ? (
                 <>
                   <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 mb-1 flex items-center gap-1">
                     ✨ SARAN AI DOCTOR
@@ -121,7 +126,7 @@ const PrintReport: React.FC<PrintReportProps> = ({ detail }) => {
             </div>
             <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
               <div 
-                className={`h-full ${isHealthy ? 'bg-green-500' : 'bg-red-500'}`} 
+                className={`h-full ${isLowConfidence ? 'bg-yellow-500' : isHealthy ? 'bg-green-500' : 'bg-red-500'}`} 
                 style={{ width: `${(detail.hasilPrediksi?.nilaiAkurasi || 0) * 100}%` }}
               ></div>
             </div>
