@@ -49,7 +49,13 @@ const LoadingState = () => (
 
 /* ── Result Card ── */
 const ResultCard: React.FC<{ prediction: PredictResponse['data']; onReset: () => void }> = ({ prediction, onReset }) => {
-  const t = getTheme(prediction.prediksi.labelPenyakit);
+  const isLowConfidence = prediction.prediksi.nilaiAkurasi < 0.70;
+
+  const t = isLowConfidence 
+    ? { color: '#D97706', bg: 'var(--col-warn-pale)', border: '1px solid #fde68a', text: 'var(--col-warn)', label: 'Tidak Terdeteksi', icon: 'pi-question-circle', desc: 'Gambar yang Anda unggah bukan merupakan feses.' }
+    : getTheme(prediction.prediksi.labelPenyakit);
+  
+  const labelText = isLowConfidence ? 'UNKNOWN' : prediction.prediksi.labelPenyakit;
   const pct = (prediction.prediksi.nilaiAkurasi * 100).toFixed(1);
 
   return (
@@ -67,7 +73,7 @@ const ResultCard: React.FC<{ prediction: PredictResponse['data']; onReset: () =>
               {t.label}
             </h2>
             <p className="m-0 mt-1" style={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: t.text, letterSpacing: '0.1em', opacity: 0.7 }}>
-              {prediction.prediksi.labelPenyakit}
+              {labelText}
             </p>
           </div>
           <div style={{ width: 60, height: 60, minWidth: 60, borderRadius: 14, background: 'white', border: t.border, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -78,7 +84,9 @@ const ResultCard: React.FC<{ prediction: PredictResponse['data']; onReset: () =>
         <div className="p-6">
           {/* AI Advice */}
           <div className="rounded-xl p-4 mb-5" style={{ background: t.bg, border: t.border }}>
-            {prediction.prediksi.saranAI ? (
+            {isLowConfidence ? (
+              <p className="m-0 text-sm leading-relaxed font-medium" style={{ color: t.text }}>Gambar yang Anda unggah bukan merupakan feses.</p>
+            ) : prediction.prediksi.saranAI ? (
               <>
                 <p className="diag-label m-0 mb-2" style={{ color: t.text }}>
                   <i className="pi pi-sparkles mr-1" style={{ fontSize: 9 }} /> Saran AI Doctor

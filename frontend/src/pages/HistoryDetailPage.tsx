@@ -81,7 +81,10 @@ const HistoryDetailPage: React.FC = () => {
     </div>
   );
 
-  const t = getTheme(detail.hasilPrediksi?.labelPenyakit || '');
+  const isLowConfidence = (detail.hasilPrediksi?.nilaiAkurasi || 0) < 0.70;
+  const t = isLowConfidence 
+    ? { color: '#D97706', bg: 'var(--col-warn-pale)', border: '1px solid #fde68a', text: 'var(--col-warn)', icon: 'pi-question-circle', label: 'Tidak Terdeteksi' }
+    : getTheme(detail.hasilPrediksi?.labelPenyakit || '');
   const accuracy = ((detail.hasilPrediksi?.nilaiAkurasi || 0) * 100).toFixed(1);
 
   return (
@@ -211,7 +214,7 @@ const HistoryDetailPage: React.FC = () => {
                           Rekomendasi AI Doctor
                         </h4>
                         <p className="m-0 text-base font-medium italic leading-relaxed text-slate-600">
-                          "{detail.hasilPrediksi?.saranAI || getDesc(detail.hasilPrediksi?.labelPenyakit || '')}"
+                          "{isLowConfidence ? 'Gambar yang Anda unggah bukan merupakan feses.' : (detail.hasilPrediksi?.saranAI || getDesc(detail.hasilPrediksi?.labelPenyakit || ''))}"
                         </p>
                       </div>
                     </div>
