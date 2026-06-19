@@ -48,7 +48,7 @@ const LoadingState = () => (
 );
 
 /* ── Result Card ── */
-const ResultCard: React.FC<{ prediction: PredictResponse['data']; onReset: () => void }> = ({ prediction, onReset }) => {
+const ResultCard: React.FC<{ prediction: PredictResponse['data']; onRemove: () => void; fileInfo?: {name:string; preview:string} }> = ({ prediction, onRemove, fileInfo }) => {
   const isLowConfidence = prediction.prediksi.nilaiAkurasi < 0.70;
 
   const t = isLowConfidence 
@@ -59,7 +59,13 @@ const ResultCard: React.FC<{ prediction: PredictResponse['data']; onReset: () =>
   const pct = (prediction.prediksi.nilaiAkurasi * 100).toFixed(1);
 
   return (
-    <div className="flex flex-col gap-4 animate-scale-in">
+    <div className="flex flex-col gap-4 animate-scale-in relative">
+      {fileInfo && (
+        <div className="flex items-center gap-3 p-3 rounded-xl bg-white border border-slate-200">
+          <img src={fileInfo.preview} alt="Preview" className="w-12 h-12 rounded-lg object-cover bg-slate-100" />
+          <span className="text-sm font-semibold text-slate-700 truncate">{fileInfo.name}</span>
+        </div>
+      )}
 
       {/* Hero verdict — signature element */}
       <div className="card overflow-hidden">
@@ -148,21 +154,28 @@ const ResultCard: React.FC<{ prediction: PredictResponse['data']; onReset: () =>
 
       {/* Reset */}
       <button
-        onClick={onReset}
+        onClick={onRemove}
         className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-all hover:-translate-y-0.5"
         style={{ background: 'var(--col-card)', border: '1px solid var(--col-border)', color: 'var(--col-ink-2)', cursor: 'pointer' }}
       >
-        <i className="pi pi-refresh" style={{ fontSize: 13 }} /> Diagnosa Gambar Lain
+        <i className="pi pi-times" style={{ fontSize: 13 }} /> Hapus Hasil Ini
       </button>
     </div>
   );
 };
 
 /* ── Main Page ── */
+interface PredictItem {
+  id: string;
+  fileInfo: { name: string; size: string; preview: string };
+  file: File;
+  loading: boolean;
+  prediction: PredictResponse['data'] | null;
+  error: string | null;
+}
+
 const PredictPage: React.FC = () => {
-  const [prediction, setPrediction] = useState<PredictResponse['data'] | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [fileInfo, setFileInfo] = useState<{ name: string; size: string; preview: string } | null>(null);
+  const [items, setItems] = useState<PredictItem[]>([]);
   const [cameraActive, setCameraActive] = useState(false);
   const toast = useRef<Toast>(null);
   const fileUploadRef = useRef<any>(null);
@@ -176,33 +189,41 @@ const PredictPage: React.FC = () => {
   }, [cameraActive]);
 
   const onUpload = async (event: FileUploadHandlerEvent) => {
-    const file = event.files[0];
-    handleProcessImage(file);
-    event.options.clear();
-  };
-
-  const handleProcessImage = async (file: File) => {
-    const formData = new FormData();
-    formData.append('image', file);
+    const files = event.files;
     
-    const fr = new FileReader();
-    fr.onload = e => setFileInfo({ 
-      name: file.name, 
-      size: `${(file.size / 1024).toFixed(1)} KB`, 
-      preview: e.target?.result as string 
-    });
-    fr.readAsDataURL(file);
+    const newItems: PredictItem[] = await Promise.all(files.map(async (file) => {
+      const preview = await new Promise<string>((resolve) => {
+        const fr = new FileReader();
+        fr.onload = e => resolve(e.target?.result as string);
+        fr.readAsDataURL(file);
+      });
+      return {
+        id: Math.random().toString(36).substr(2, 9),
+        fileInfo: { name: file.name, size: `${(file.size / 1024).toFixed(1)} KB`, preview },
+        file,
+        loading: true,
+        prediction: null,
+        error: null,
+      };
+    }));
 
-    setLoading(true); 
-    setPrediction(null);
-    try {
-      const data = await predictService.predict(formData);
-      setPrediction(data.data);
-      toast.current?.show({ severity: 'success', summary: 'Analisis Selesai', detail: 'AI berhasil mendiagnosis citra.', life: 4000 });
-    } catch (error: any) {
-      toast.current?.show({ severity: 'error', summary: 'Gagal Memproses', detail: error.response?.data?.message || 'Gagal memproses gambar.', life: 5000 });
-      setFileInfo(null);
-    } finally { setLoading(false); }
+    setItems(prev => [...newItems, ...prev]);
+    event.options.clear();
+
+    // Process sequentially to avoid overloading the VPS
+    for (const item of newItems) {
+      const formData = new FormData();
+      formData.append('image', item.file);
+      
+      try {
+        const data = await predictService.predict(formData);
+        setItems(prev => prev.map(p => p.id === item.id ? { ...p, loading: false, prediction: data.data } : p));
+        toast.current?.show({ severity: 'success', summary: 'Analisis Selesai', detail: `${item.fileInfo.name} berhasil didiagnosis.`, life: 3000 });
+      } catch (error: any) {
+        setItems(prev => prev.map(p => p.id === item.id ? { ...p, loading: false, error: error.response?.data?.message || 'Gagal memproses gambar.' } : p));
+        toast.current?.show({ severity: 'error', summary: 'Gagal', detail: `Gagal memproses ${item.fileInfo.name}`, life: 4000 });
+      }
+    }
   };
 
   const startCamera = async () => {
@@ -237,14 +258,16 @@ const PredictPage: React.FC = () => {
       canvas.toBlob((blob) => {
         if (blob) {
           const file = new File([blob], `camera-capture-${Date.now()}.jpg`, { type: 'image/jpeg' });
-          handleProcessImage(file);
+          // Create dummy event to reuse onUpload
+          onUpload({ files: [file], options: { clear: () => {} } } as any);
           stopCamera();
         }
       }, 'image/jpeg', 0.9);
     }
   };
 
-  const handleReset = () => { setPrediction(null); setFileInfo(null); fileUploadRef.current?.clear(); };
+  const handleRemove = (id: string) => setItems(prev => prev.filter(p => p.id !== id));
+  const handleClearAll = () => setItems([]);
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--col-surface)' }}>
@@ -345,41 +368,24 @@ const PredictPage: React.FC = () => {
 
               <FileUpload
                 ref={fileUploadRef}
-                mode="advanced" name="image" customUpload uploadHandler={onUpload}
-                accept="image/*" maxFileSize={5_000_000}
+                mode="advanced" name="images" customUpload uploadHandler={onUpload}
+                accept="image/*" maxFileSize={5_000_000} multiple
                 emptyTemplate={
                   <div className="upload-zone flex flex-col items-center justify-center py-9 rounded-xl text-center cursor-pointer"
                     style={{ border: '2px dashed var(--col-border)', background: 'var(--col-surface)' }}>
                     <div style={{ width: 48, height: 48, borderRadius: 12, background: 'var(--col-card)', border: '1px solid var(--col-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
-                      <i className="pi pi-image" style={{ fontSize: 20, color: 'var(--col-brand)' }} />
+                      <i className="pi pi-images" style={{ fontSize: 20, color: 'var(--col-brand)' }} />
                     </div>
-                    <p className="font-semibold text-sm m-0" style={{ color: 'var(--col-ink-2)', fontFamily: 'var(--font-display)' }}>Pilih atau Seret Foto</p>
-                    <p className="text-xs m-0 mt-1" style={{ color: 'var(--col-ink-4)' }}>Pastikan foto jelas & tidak buram</p>
+                    <p className="font-semibold text-sm m-0" style={{ color: 'var(--col-ink-2)', fontFamily: 'var(--font-display)' }}>Pilih Beberapa Foto Sekaligus</p>
+                    <p className="text-xs m-0 mt-1" style={{ color: 'var(--col-ink-4)' }}>Bisa pilih lebih dari satu foto sekaligus</p>
                   </div>
                 }
                 chooseLabel="Pilih Foto" uploadLabel="Mulai Diagnosis" cancelLabel="Reset"
                 chooseOptions={{ icon: 'pi pi-folder-open', className: '!rounded-xl !text-sm !font-semibold' }}
                 uploadOptions={{ icon: 'pi pi-send', className: '!rounded-xl !text-sm !font-semibold' }}
                 cancelOptions={{ icon: 'pi pi-times', className: '!rounded-xl !text-sm !font-semibold' }}
-                className="w-full" disabled={loading}
+                className="w-full" disabled={items.some(i => i.loading)}
               />
-
-              {fileInfo && (
-                <div className="mt-4 flex flex-col gap-3 p-4 rounded-xl animate-fade-in" style={{ background: 'var(--col-surface)', border: '1px solid var(--col-border)' }}>
-                  <div className="w-full aspect-video rounded-lg overflow-hidden bg-slate-950 flex items-center justify-center border border-slate-800">
-                    <img src={fileInfo.preview} alt="Preview" className="max-w-full max-h-full object-contain" />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold m-0 truncate" style={{ color: 'var(--col-ink)' }}>{fileInfo.name}</p>
-                      <p className="text-[10px] m-0 mt-0.5 uppercase font-bold tracking-wider text-slate-400">{fileInfo.size}</p>
-                    </div>
-                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-green-50 text-[10px] font-bold text-green-700 uppercase tracking-tight">
-                      <i className="pi pi-check-circle" style={{ fontSize: 10 }} /> Siap Dianalisis
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* Tips */}
@@ -406,10 +412,52 @@ const PredictPage: React.FC = () => {
           </div>
 
           {/* Result Panel */}
-          <div className="lg:col-span-7">
-            {!loading && !prediction && <EmptyState />}
-            {loading && <LoadingState />}
-            {prediction && !loading && <ResultCard prediction={prediction} onReset={handleReset} />}
+          <div className="lg:col-span-7 flex flex-col gap-5">
+            {items.length === 0 && <EmptyState />}
+            
+            {items.length > 1 && (
+              <div className="flex justify-between items-center bg-white p-3 rounded-xl border border-slate-200">
+                <span className="text-sm font-semibold text-slate-700">{items.length} Gambar Dianalisis</span>
+                <button onClick={handleClearAll} className="text-xs text-red-600 font-semibold hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors">
+                  Hapus Semua
+                </button>
+              </div>
+            )}
+
+            {items.map(item => (
+              <div key={item.id} className="relative">
+                {item.loading && (
+                  <div className="card flex flex-col items-center justify-center p-8 text-center animate-scale-in relative overflow-hidden">
+                    <div className="absolute inset-0 opacity-10 blur-sm">
+                      <img src={item.fileInfo.preview} alt="" className="w-full h-full object-cover" />
+                    </div>
+                    <div className="relative z-10 flex flex-col items-center">
+                      <div className="spin-ring mb-4" />
+                      <h4 className="m-0 mb-1 text-sm font-bold text-slate-800">Menganalisis {item.fileInfo.name}...</h4>
+                      <p className="m-0 text-xs text-slate-500 mb-4">Vision Transformer sedang memproses citra.</p>
+                      <div className="w-48"><ProgressBar mode="indeterminate" style={{ height: '3px' }} /></div>
+                    </div>
+                  </div>
+                )}
+                {item.error && (
+                  <div className="card p-5 border-l-4 border-red-500 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <img src={item.fileInfo.preview} alt="" className="w-10 h-10 rounded-md object-cover bg-slate-100" />
+                      <div>
+                        <p className="m-0 text-sm font-bold text-slate-800">{item.fileInfo.name}</p>
+                        <p className="m-0 text-xs text-red-500">{item.error}</p>
+                      </div>
+                    </div>
+                    <button onClick={() => handleRemove(item.id)} className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center hover:bg-slate-200 transition-colors">
+                      <i className="pi pi-times text-xs" />
+                    </button>
+                  </div>
+                )}
+                {item.prediction && !item.loading && (
+                  <ResultCard prediction={item.prediction} onRemove={() => handleRemove(item.id)} fileInfo={item.fileInfo} />
+                )}
+              </div>
+            ))}
           </div>
         </div>
       </main>
