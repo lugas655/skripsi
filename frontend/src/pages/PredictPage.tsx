@@ -357,7 +357,7 @@ const PredictPage: React.FC = () => {
                 
                 <button 
                   onClick={startCamera}
-                  disabled={loading}
+                  disabled={items.some(i => i.loading)}
                   className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-green-700 bg-green-50 border border-green-200 hover:bg-green-100 transition-all cursor-pointer disabled:opacity-50"
                   style={{ fontFamily: 'var(--font-display)' }}
                 >
