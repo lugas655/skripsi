@@ -62,7 +62,12 @@ const ResultCard: React.FC<{ prediction: PredictResponse['data']; onRemove: () =
     <div className="flex flex-col gap-4 animate-scale-in relative">
       {fileInfo && (
         <div className="flex items-center gap-3 p-3 rounded-xl bg-white border border-slate-200">
-          <img src={fileInfo.preview} alt="Preview" className="w-12 h-12 rounded-lg object-cover bg-slate-100" />
+          <img
+            src={fileInfo.preview}
+            alt="Preview"
+            style={{ width: 48, height: 48, minWidth: 48, objectFit: 'cover', flexShrink: 0 }}
+            className="rounded-lg bg-slate-100"
+          />
           <span className="text-sm font-semibold text-slate-700 truncate">{fileInfo.name}</span>
         </div>
       )}
@@ -342,7 +347,7 @@ const PredictPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
 
           {/* Upload Panel */}
-          <div className="lg:col-span-5 flex flex-col gap-4">
+          <div className="lg:col-span-5 flex flex-col gap-4" style={{ position: 'sticky', top: 80, alignSelf: 'flex-start' }}>
             <div className="card p-5 animate-fade-up delay-200">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
                 <div className="flex items-center gap-3">
@@ -412,11 +417,10 @@ const PredictPage: React.FC = () => {
           </div>
 
           {/* Result Panel */}
-          <div className="lg:col-span-7 flex flex-col gap-5">
-            {items.length === 0 && <EmptyState />}
-            
+          <div className="lg:col-span-7 flex flex-col" style={{ minHeight: 0 }}>
+            {/* Sticky header when multiple items */}
             {items.length > 1 && (
-              <div className="flex justify-between items-center bg-white p-3 rounded-xl border border-slate-200">
+              <div className="flex justify-between items-center bg-white p-3 rounded-xl border border-slate-200 mb-3 flex-shrink-0">
                 <span className="text-sm font-semibold text-slate-700">{items.length} Gambar Dianalisis</span>
                 <button onClick={handleClearAll} className="text-xs text-red-600 font-semibold hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors">
                   Hapus Semua
@@ -424,40 +428,53 @@ const PredictPage: React.FC = () => {
               </div>
             )}
 
-            {items.map(item => (
-              <div key={item.id} className="relative">
-                {item.loading && (
-                  <div className="card flex flex-col items-center justify-center p-8 text-center animate-scale-in relative overflow-hidden">
-                    <div className="absolute inset-0 opacity-10 blur-sm">
-                      <img src={item.fileInfo.preview} alt="" className="w-full h-full object-cover" />
-                    </div>
-                    <div className="relative z-10 flex flex-col items-center">
-                      <div className="spin-ring mb-4" />
-                      <h4 className="m-0 mb-1 text-sm font-bold text-slate-800">Menganalisis {item.fileInfo.name}...</h4>
-                      <p className="m-0 text-xs text-slate-500 mb-4">Vision Transformer sedang memproses citra.</p>
-                      <div className="w-48"><ProgressBar mode="indeterminate" style={{ height: '3px' }} /></div>
-                    </div>
-                  </div>
-                )}
-                {item.error && (
-                  <div className="card p-5 border-l-4 border-red-500 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <img src={item.fileInfo.preview} alt="" className="w-10 h-10 rounded-md object-cover bg-slate-100" />
-                      <div>
-                        <p className="m-0 text-sm font-bold text-slate-800">{item.fileInfo.name}</p>
-                        <p className="m-0 text-xs text-red-500">{item.error}</p>
+            {/* Scrollable results area */}
+            <div
+              className="flex flex-col gap-5"
+              style={{
+                overflowY: items.length > 0 ? 'auto' : 'visible',
+                maxHeight: items.length > 0 ? 'calc(100vh - 260px)' : undefined,
+                paddingRight: items.length > 1 ? 6 : 0,
+                scrollbarWidth: 'thin',
+              }}
+            >
+              {items.length === 0 && <EmptyState />}
+
+              {items.map(item => (
+                <div key={item.id} className="relative">
+                  {item.loading && (
+                    <div className="card flex flex-col items-center justify-center p-8 text-center animate-scale-in relative overflow-hidden">
+                      <div className="absolute inset-0 opacity-10 blur-sm">
+                        <img src={item.fileInfo.preview} alt="" className="w-full h-full object-cover" />
+                      </div>
+                      <div className="relative z-10 flex flex-col items-center">
+                        <div className="spin-ring mb-4" />
+                        <h4 className="m-0 mb-1 text-sm font-bold text-slate-800">Menganalisis {item.fileInfo.name}...</h4>
+                        <p className="m-0 text-xs text-slate-500 mb-4">Vision Transformer sedang memproses citra.</p>
+                        <div className="w-48"><ProgressBar mode="indeterminate" style={{ height: '3px' }} /></div>
                       </div>
                     </div>
-                    <button onClick={() => handleRemove(item.id)} className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center hover:bg-slate-200 transition-colors">
-                      <i className="pi pi-times text-xs" />
-                    </button>
-                  </div>
-                )}
-                {item.prediction && !item.loading && (
-                  <ResultCard prediction={item.prediction} onRemove={() => handleRemove(item.id)} fileInfo={item.fileInfo} />
-                )}
-              </div>
-            ))}
+                  )}
+                  {item.error && (
+                    <div className="card p-5 border-l-4 border-red-500 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <img src={item.fileInfo.preview} alt="" className="w-10 h-10 rounded-md object-cover bg-slate-100" />
+                        <div>
+                          <p className="m-0 text-sm font-bold text-slate-800">{item.fileInfo.name}</p>
+                          <p className="m-0 text-xs text-red-500">{item.error}</p>
+                        </div>
+                      </div>
+                      <button onClick={() => handleRemove(item.id)} className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center hover:bg-slate-200 transition-colors">
+                        <i className="pi pi-times text-xs" />
+                      </button>
+                    </div>
+                  )}
+                  {item.prediction && !item.loading && (
+                    <ResultCard prediction={item.prediction} onRemove={() => handleRemove(item.id)} fileInfo={item.fileInfo} />
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </main>

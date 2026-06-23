@@ -7,7 +7,7 @@ import { Rating } from 'primereact/rating';
 import { InputTextarea } from 'primereact/inputtextarea';
 import Navbar from '../components/Navbar';
 import { authService } from '../services/authService';
-import { createTestimonial } from '../services/testimonialService';
+import { createTestimonial, getMyTestimonial, updateTestimonial } from '../services/testimonialService';
 import { IMAGE_BASE_URL } from '../api/api';
 import { User } from '../types';
 
@@ -19,6 +19,7 @@ const ProfilePage: React.FC = () => {
   const [reviewRating, setReviewRating] = useState<number>(5);
   const [reviewText, setReviewText] = useState('');
   const [submittingReview, setSubmittingReview] = useState(false);
+  const [isEditingTestimonial, setIsEditingTestimonial] = useState(false);
   const toast = useRef<Toast>(null);
 
   const userStr = localStorage.getItem('user');
@@ -28,6 +29,13 @@ const ProfilePage: React.FC = () => {
     if (user) {
       setNamaLengkap(user.nama_lengkap);
       if (user.avatar) setAvatarPreview(`${IMAGE_BASE_URL}/${user.avatar}`);
+      
+      // Fetch user's existing testimonial
+      getMyTestimonial().then(data => {
+        if (data) {
+          setMyTestimonial(data);
+        }
+      }).catch(err => console.error('Failed to fetch testimonial', err));
     }
   }, []);
 
@@ -57,6 +65,16 @@ const ProfilePage: React.FC = () => {
     } finally { setLoading(false); }
   };
 
+  const [myTestimonial, setMyTestimonial] = useState<any | null>(null);
+
+  const handleEditClick = () => {
+    if (myTestimonial) {
+      setReviewText(myTestimonial.text);
+      setReviewRating(myTestimonial.rating);
+      setIsEditingTestimonial(true);
+    }
+  };
+
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!reviewText.trim()) {
@@ -65,11 +83,20 @@ const ProfilePage: React.FC = () => {
     }
     setSubmittingReview(true);
     try {
-      await createTestimonial({ name: user?.nama_lengkap || 'User', role: 'Pengguna AyamSehat.AI', text: reviewText, rating: reviewRating, avatar: user?.avatar ? `${IMAGE_BASE_URL}/${user.avatar}` : undefined });
-      toast.current?.show({ severity: 'success', summary: 'Terima Kasih!', detail: 'Ulasan berhasil dikirim.' });
+      if (isEditingTestimonial) {
+        const result = await updateTestimonial({ text: reviewText, rating: reviewRating });
+        setMyTestimonial({ ...myTestimonial, text: result.text, rating: result.rating });
+        toast.current?.show({ severity: 'success', summary: 'Diperbarui', detail: 'Ulasan berhasil diperbarui.' });
+        setIsEditingTestimonial(false);
+      } else {
+        const result = await createTestimonial({ name: user?.nama_lengkap || 'User', role: 'Pengguna AyamSehat.AI', text: reviewText, rating: reviewRating, avatar: user?.avatar ? `${IMAGE_BASE_URL}/${user.avatar}` : undefined });
+        setMyTestimonial(result);
+        toast.current?.show({ severity: 'success', summary: 'Terima Kasih!', detail: 'Ulasan berhasil dikirim dan ditampilkan di bawah.' });
+      }
       setReviewText(''); setReviewRating(5);
-    } catch {
-      toast.current?.show({ severity: 'error', summary: 'Gagal', detail: 'Gagal mengirim ulasan' });
+    } catch (error: any) {
+      const msg = error.response?.data?.message || 'Gagal mengirim ulasan';
+      toast.current?.show({ severity: 'error', summary: 'Gagal', detail: msg });
     } finally { setSubmittingReview(false); }
   };
 
@@ -213,61 +240,107 @@ const ProfilePage: React.FC = () => {
               </form>
             </div>
 
-            {/* Review Card */}
-            <div className="card !p-0 overflow-hidden" style={{ boxShadow: 'var(--sh-lg)' }}>
-              {/* Section header */}
-              <div className="px-6 sm:px-8 py-5" style={{ borderBottom: '1px solid var(--col-border)' }}>
-                <h3 className="m-0 text-sm font-bold" style={{ fontFamily: 'var(--font-display)', color: 'var(--col-ink)' }}>
-                  Beri Ulasan
-                </h3>
-                <p className="m-0 mt-0.5 text-xs" style={{ color: 'var(--col-ink-4)' }}>Pengalaman Anda sangat berarti bagi kami</p>
-              </div>
+            {/* Review Card Form */}
+            {(!myTestimonial || isEditingTestimonial) && (
+              <div className="card !p-0 overflow-hidden" style={{ boxShadow: 'var(--sh-lg)' }}>
+                {/* Section header */}
+                <div className="px-6 sm:px-8 py-5" style={{ borderBottom: '1px solid var(--col-border)' }}>
+                  <h3 className="m-0 text-sm font-bold" style={{ fontFamily: 'var(--font-display)', color: 'var(--col-ink)' }}>
+                    {isEditingTestimonial ? 'Edit Ulasan' : 'Beri Ulasan'}
+                  </h3>
+                  <p className="m-0 mt-0.5 text-xs" style={{ color: 'var(--col-ink-4)' }}>Pengalaman Anda sangat berarti bagi kami</p>
+                </div>
 
-              <form onSubmit={handleSubmitReview} className="px-6 sm:px-8 py-6">
-                <div className="flex flex-col gap-5">
-                  {/* Rating */}
-                  <div>
-                    <label className="diag-label block mb-2.5" style={{ color: 'var(--col-ink-4)' }}>Rating Anda</label>
-                    <div className="flex items-center gap-4">
-                      <Rating value={reviewRating} onChange={e => setReviewRating(e.value || 0)} cancel={false} />
-                      <span className="text-sm font-bold px-2.5 py-0.5 rounded-lg" style={{ background: 'var(--col-warn-pale)', color: 'var(--col-warn)', fontFamily: 'var(--font-mono)' }}>
-                        {reviewRating}/5
-                      </span>
+                <form onSubmit={handleSubmitReview} className="px-6 sm:px-8 py-6">
+                  <div className="flex flex-col gap-5">
+                    {/* Rating */}
+                    <div>
+                      <label className="diag-label block mb-2.5" style={{ color: 'var(--col-ink-4)' }}>Rating Anda</label>
+                      <div className="flex items-center gap-4">
+                        <Rating value={reviewRating} onChange={e => setReviewRating(e.value || 0)} cancel={false} />
+                        <span className="text-sm font-bold px-2.5 py-0.5 rounded-lg" style={{ background: 'var(--col-warn-pale)', color: 'var(--col-warn)', fontFamily: 'var(--font-mono)' }}>
+                          {reviewRating}/5
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Review text */}
+                    <div>
+                      <label htmlFor="review-text" className="diag-label block mb-2" style={{ color: 'var(--col-ink-4)' }}>Ulasan / Pengalaman</label>
+                      <InputTextarea
+                        id="review-text"
+                        value={reviewText}
+                        onChange={e => setReviewText(e.target.value)}
+                        rows={4}
+                        className="w-full"
+                        placeholder="Ceritakan pengalaman menggunakan aplikasi ini..."
+                        style={{ resize: 'none' }}
+                      />
                     </div>
                   </div>
 
-                  {/* Review text */}
-                  <div>
-                    <label htmlFor="review-text" className="diag-label block mb-2" style={{ color: 'var(--col-ink-4)' }}>Ulasan / Pengalaman</label>
-                    <InputTextarea
-                      id="review-text"
-                      value={reviewText}
-                      onChange={e => setReviewText(e.target.value)}
-                      rows={4}
-                      className="w-full"
-                      placeholder="Ceritakan pengalaman menggunakan aplikasi ini..."
-                      style={{ resize: 'none' }}
-                    />
+                  {/* Submit button */}
+                  <div className="flex justify-end gap-3 mt-6 pt-5" style={{ borderTop: '1px solid var(--col-border-light)' }}>
+                    {isEditingTestimonial && (
+                      <button
+                        type="button"
+                        onClick={() => setIsEditingTestimonial(false)}
+                        className="px-5 py-2.5 rounded-xl text-sm font-bold transition-all hover:bg-slate-100"
+                        style={{ border: '1px solid var(--col-border)', color: 'var(--col-ink-3)', cursor: 'pointer', fontFamily: 'var(--font-display)' }}
+                      >
+                        Batal
+                      </button>
+                    )}
+                    <button
+                      type="submit"
+                      disabled={submittingReview}
+                      className="flex items-center gap-2.5 px-6 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
+                      style={{ background: 'var(--col-brand)', border: 'none', cursor: 'pointer', boxShadow: '0 4px 14px rgba(21,128,61,0.25)', fontFamily: 'var(--font-display)' }}
+                    >
+                      {submittingReview ? (
+                        <><span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin inline-block" /> Menyimpan...</>
+                      ) : (
+                        <><i className={isEditingTestimonial ? "pi pi-check" : "pi pi-send"} style={{ fontSize: 12 }} /> {isEditingTestimonial ? 'Simpan Ulasan' : 'Kirim Ulasan'}</>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {/* My Submitted Testimonial */}
+            {(myTestimonial && !isEditingTestimonial) && (
+              <div className="card !p-0 overflow-hidden animate-scale-in" style={{ boxShadow: 'var(--sh-lg)', border: '1px solid var(--col-brand)', borderRadius: 16 }}>
+                <div className="px-6 sm:px-8 py-4 flex items-center justify-between" style={{ background: 'var(--col-brand-pale)', borderBottom: '1px solid var(--col-border)' }}>
+                  <div className="flex items-center gap-2">
+                    <i className="pi pi-check-circle" style={{ color: 'var(--col-brand)', fontSize: 15 }} />
+                    <h3 className="m-0 text-sm font-bold" style={{ fontFamily: 'var(--font-display)', color: 'var(--col-brand)' }}>Ulasan Saya Terkirim</h3>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className="text-xs hidden sm:inline" style={{ color: 'var(--col-ink-4)' }}>
+                      {new Date(myTestimonial.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                    </span>
+                    <button
+                      onClick={handleEditClick}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:bg-white"
+                      style={{ background: 'rgba(255,255,255,0.5)', border: '1px solid var(--col-brand-muted)', color: 'var(--col-brand)', cursor: 'pointer' }}
+                    >
+                      <i className="pi pi-pencil" style={{ fontSize: 10 }} /> Edit
+                    </button>
                   </div>
                 </div>
-
-                {/* Submit button */}
-                <div className="flex justify-end mt-6 pt-5" style={{ borderTop: '1px solid var(--col-border-light)' }}>
-                  <button
-                    type="submit"
-                    disabled={submittingReview}
-                    className="flex items-center gap-2.5 px-6 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
-                    style={{ background: 'var(--col-brand)', border: 'none', cursor: 'pointer', boxShadow: '0 4px 14px rgba(21,128,61,0.25)', fontFamily: 'var(--font-display)' }}
-                  >
-                    {submittingReview ? (
-                      <><span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin inline-block" /> Mengirim...</>
-                    ) : (
-                      <><i className="pi pi-send" style={{ fontSize: 12 }} /> Kirim Ulasan</>
-                    )}
-                  </button>
+                <div className="px-6 sm:px-8 py-5">
+                  <div className="flex items-center gap-1 mb-3">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <i key={i} className={`pi ${i < myTestimonial.rating ? 'pi-star-fill' : 'pi-star'}`} style={{ fontSize: 14, color: i < myTestimonial.rating ? '#f59e0b' : '#cbd5e1' }} />
+                    ))}
+                    <span className="ml-2 text-xs font-bold" style={{ color: 'var(--col-ink-4)' }}>{myTestimonial.rating}/5</span>
+                  </div>
+                  <p className="m-0 text-sm italic leading-relaxed" style={{ color: 'var(--col-ink-2)' }}>"{myTestimonial.text}"</p>
+                  <p className="m-0 mt-3 text-xs font-semibold" style={{ color: 'var(--col-ink-4)' }}>— {myTestimonial.name} · {myTestimonial.role}</p>
                 </div>
-              </form>
-            </div>
+              </div>
+            )}
 
           </div>
         </div>

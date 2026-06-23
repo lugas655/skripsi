@@ -52,6 +52,7 @@ export interface AdminTestimonial {
   rating: number;
   avatar: string | null;
   createdAt: string;
+  isFeatured: boolean;
 }
 
 const adminService = {
@@ -121,6 +122,10 @@ const adminService = {
 
   deleteTestimonial: async (id: number): Promise<void> => {
     await api.delete(API_ENDPOINTS.ADMIN_TESTIMONIAL_DELETE(id));
+  },
+
+  toggleTestimonialFeature: async (id: number): Promise<void> => {
+    await api.patch(`/admin/testimonials/${id}/feature`);
   },
 };
 

@@ -361,4 +361,27 @@ router.delete('/testimonials/:id', async (req: AuthRequest, res: Response) => {
   }
 });
 
+/**
+ * PATCH /api/admin/testimonials/:id/feature
+ * Toggle isFeatured status
+ */
+router.patch('/testimonials/:id/feature', async (req: AuthRequest, res: Response) => {
+  try {
+    const testimonial = await prisma.testimonial.findUnique({
+      where: { id: parseInt(req.params.id) },
+    });
+    
+    if (!testimonial) return res.status(404).json({ message: 'Testimonial not found' });
+    
+    const updated = await prisma.testimonial.update({
+      where: { id: parseInt(req.params.id) },
+      data: { isFeatured: !testimonial.isFeatured },
+    });
+    
+    res.json(updated);
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating testimonial' });
+  }
+});
+
 export default router;
