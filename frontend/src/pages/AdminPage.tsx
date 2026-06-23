@@ -15,6 +15,7 @@ import { Image } from 'primereact/image';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Rating } from 'primereact/rating';
 import { Dropdown } from 'primereact/dropdown';
+import { InputSwitch } from 'primereact/inputswitch';
 import { FilterMatchMode } from 'primereact/api';
 import Navbar from '../components/Navbar';
 import adminService, { AdminUser, AdminUpload, AdminTestimonial } from '../services/adminService';
@@ -61,7 +62,7 @@ const AdminPage: React.FC = () => {
   const { data: health, isLoading: healthLoading, refetch: refetchHealth } = useQuery({
     queryKey: ['adminHealth'],
     queryFn: adminService.getHealth,
-    enabled: healthDialog,
+    staleTime: 30_000, // refresh setiap 30 detik
   });
 
   const { data: testimonials, isLoading: testimonialsLoading } = useQuery({
@@ -108,6 +109,14 @@ const AdminPage: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminTestimonials'] });
       toast.current?.show({ severity: 'success', summary: 'LOG_REMOVED', detail: 'Narrative purged.', life: 3000 });
+    },
+  });
+
+  const toggleFeatureMutation = useMutation({
+    mutationFn: adminService.toggleTestimonialFeature,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adminTestimonials'] });
+      toast.current?.show({ severity: 'success', summary: 'UPDATE_SUCCESS', detail: 'Status ulasan diperbarui.', life: 3000 });
     },
   });
 
@@ -183,109 +192,132 @@ const AdminPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans">
+    <div className="min-h-screen font-sans" style={{ background: 'var(--col-surface)' }}>
       <Navbar />
       <Toast ref={toast} />
       <ConfirmDialog />
 
-      {/* Clinical Header */}
-      <div className="bg-white border-b border-slate-200 shadow-sm">
-        <div className="container mx-auto px-6 py-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <div className="w-2 h-6 bg-teal-600 rounded-full"></div>
-              <h1 className="text-2xl font-bold tracking-tight text-slate-800">System <span className="text-teal-700">Ledger</span></h1>
+      {/* Modern Gradient Sub-Header */}
+      <div style={{ background: 'linear-gradient(135deg, var(--col-brand-dark) 0%, var(--col-brand) 100%)' }}>
+        <div className="max-w-7xl mx-auto px-6 py-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div className="flex items-center gap-3">
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(255,255,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <i className="pi pi-shield" style={{ fontSize: 15, color: 'white' }} />
             </div>
-            <p className="text-sm text-slate-500 font-medium ml-4">Authorized Administrative Access — Station 01</p>
+            <div>
+              <h1 className="m-0 font-bold text-white" style={{ fontFamily: 'var(--font-display)', fontSize: '1.1rem' }}>Panel Admin</h1>
+              <p className="m-0 text-xs" style={{ color: 'rgba(167,243,208,0.85)' }}>AyamSehat.AI — Akses Terotorisasi</p>
+            </div>
           </div>
-          <div className="flex items-center gap-3 ml-4 md:ml-0">
-            <Button 
-              label="Diagnostics" 
-              icon="pi pi-activity" 
-              className="p-button-text p-button-sm text-teal-700 font-bold hover:bg-teal-50" 
+          <div className="flex items-center gap-2">
+            <button
               onClick={() => setHealthDialog(true)}
-            />
-            <Button 
-              label="Export Repository" 
-              icon="pi pi-download" 
-              className="clinical-btn-primary" 
+              style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', color: 'white', borderRadius: 10, padding: '6px 14px', fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+            >
+              <i className="pi pi-server" style={{ fontSize: 12 }} /> Diagnostik
+            </button>
+            <button
               onClick={() => adminService.downloadAll()}
-              loading={uploadsLoading}
-            />
+              style={{ background: 'white', border: 'none', color: 'var(--col-brand-dark)', borderRadius: 10, padding: '6px 14px', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+            >
+              <i className="pi pi-download" style={{ fontSize: 12 }} /> Export Data
+            </button>
           </div>
         </div>
       </div>
 
-      <main className="container mx-auto px-6 py-8">
+      <main className="max-w-7xl mx-auto px-6 py-8">
         <TabView className="clinical-tabview">
           
           {/* TAB: OVERVIEW */}
-          <TabPanel header="OVERVIEW" leftIcon="pi pi-th-large mr-2">
+          <TabPanel header="Ringkasan" leftIcon="pi pi-th-large mr-2">
             {statsLoading ? (
               <div className="flex justify-center py-32"><ProgressSpinner strokeWidth="3" /></div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-                
-                {/* Metric Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
+
+                {/* Modern Stat Cards */}
                 <div className="md:col-span-4 flex flex-col gap-4">
-                  <div className="clinical-metric-card">
-                    <span className="clinical-label">Total Personnel</span>
-                    <div className="flex justify-between items-end">
-                      <h3 className="text-4xl font-bold text-slate-800">{stats?.users}</h3>
-                      <i className="pi pi-users text-slate-200 text-3xl"></i>
+                  {[
+                    { label: 'Total Pengguna', val: stats?.users, icon: 'pi-users', grad: 'linear-gradient(135deg,#6366f1,#8b5cf6)' },
+                    { label: 'Total Sampel', val: stats?.totalUploads, icon: 'pi-images', grad: 'linear-gradient(135deg,#0ea5e9,#06b6d4)' },
+                    { label: 'AI Diagnosis', val: stats?.totalPredictions, icon: 'pi-check-circle', grad: 'linear-gradient(135deg,#10b981,#059669)' },
+                  ].map(s => (
+                    <div key={s.label} className="admin-stat-card" style={{ background: 'var(--col-card)' }}>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="m-0 text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--col-ink-4)' }}>{s.label}</p>
+                          <h3 className="m-0 mt-1 text-4xl font-black" style={{ fontFamily: 'var(--font-display)', color: 'var(--col-ink)' }}>{s.val ?? '—'}</h3>
+                        </div>
+                        <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: s.grad }}>
+                          <i className={`pi ${s.icon} text-white`} style={{ fontSize: 20 }} />
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <div className="clinical-metric-card">
-                    <span className="clinical-label">Biological Samples</span>
-                    <div className="flex justify-between items-end">
-                      <h3 className="text-4xl font-bold text-slate-800">{stats?.totalUploads}</h3>
-                      <i className="pi pi-box text-slate-200 text-3xl"></i>
-                    </div>
-                  </div>
-                  <div className="clinical-metric-card">
-                    <span className="clinical-label">AI Verifications</span>
-                    <div className="flex justify-between items-end">
-                      <h3 className="text-4xl font-bold text-slate-800">{stats?.totalPredictions}</h3>
-                      <i className="pi pi-check-circle text-slate-200 text-3xl"></i>
-                    </div>
+                  ))}
+                </div>
+
+                {/* Chart */}
+                <div className="md:col-span-5 admin-stat-card" style={{ background: 'var(--col-card)' }}>
+                  <p className="m-0 mb-4 text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--col-ink-4)' }}>Distribusi Penyakit</p>
+                  <div className="flex justify-center">
+                    <Chart type="doughnut" data={chartData} options={chartOptions} className="w-full max-w-[240px]" />
                   </div>
                 </div>
 
-                {/* Distribution Module */}
-                <Card className="md:col-span-5 clinical-card" title={<span className="text-sm font-bold uppercase tracking-wider text-slate-400">Pathogen Spread</span>}>
-                  <div className="flex justify-center py-6">
-                    <Chart type="doughnut" data={chartData} options={chartOptions} className="w-full max-w-[260px]" />
+                {/* Service Status */}
+                <div className="md:col-span-3 admin-stat-card" style={{ background: 'var(--col-card)' }}>
+                  <p className="m-0 mb-4 text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--col-ink-4)' }}>Status Layanan</p>
+                  <div className="flex flex-col gap-3">
+                    {healthLoading ? (
+                      <div className="flex flex-col gap-3">
+                        {['ML Core', 'Gemini AI', 'Database'].map(name => (
+                          <div key={name} className="flex items-center justify-between py-2" style={{ borderBottom: '1px solid var(--col-border)' }}>
+                            <div className="flex items-center gap-2">
+                              <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: '#94a3b8' }} />
+                              <span className="text-xs font-semibold" style={{ color: 'var(--col-ink-2)' }}>{name}</span>
+                            </div>
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: '#f1f5f9', color: '#94a3b8' }}>Memeriksa...</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      [
+                        { name: 'ML Core', ok: health?.mlService?.status === 'online' },
+                        { name: 'Gemini AI', ok: health?.geminiApi?.status === 'online' },
+                        { name: 'Database', ok: true },
+                      ].map(svc => (
+                        <div key={svc.name} className="flex items-center justify-between py-2" style={{ borderBottom: '1px solid var(--col-border)' }}>
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full" style={{ background: svc.ok ? '#10b981' : '#ef4444' }} />
+                            <span className="text-xs font-semibold" style={{ color: 'var(--col-ink-2)' }}>{svc.name}</span>
+                          </div>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: svc.ok ? '#ecfdf5' : '#fef2f2', color: svc.ok ? '#059669' : '#dc2626' }}>
+                            {svc.ok ? 'Online' : 'Offline'}
+                          </span>
+                        </div>
+                      ))
+                    )}
+                    <button
+                      onClick={() => refetchHealth()}
+                      className="mt-2 w-full py-2 rounded-xl text-xs font-bold transition-all hover:opacity-80 cursor-pointer border-none"
+                      style={{ background: 'var(--col-brand-pale)', color: 'var(--col-brand)' }}
+                    >
+                      <i className="pi pi-sync mr-1" style={{ fontSize: 11 }} /> Refresh Status
+                    </button>
                   </div>
-                </Card>
-
-                {/* Quick Diagnostics */}
-                <Card className="md:col-span-3 clinical-card" title={<span className="text-sm font-bold uppercase tracking-wider text-slate-400">Service Nodes</span>}>
-                  <div className="flex flex-col gap-4 mt-2">
-                    <div className="flex justify-between items-center py-3 border-b border-slate-100">
-                      <span className="text-xs font-bold text-slate-600">ML_CORE</span>
-                      <Tag value={health?.mlService.status === 'online' ? 'STABLE' : 'OFFLINE'} severity={health?.mlService.status === 'online' ? 'success' : 'danger'} className="text-[10px]" />
-                    </div>
-                    <div className="flex justify-between items-center py-3 border-b border-slate-100">
-                      <span className="text-xs font-bold text-slate-600">GEMINI_AI</span>
-                      <Tag value={health?.geminiApi.status === 'online' ? 'STABLE' : 'OFFLINE'} severity={health?.geminiApi.status === 'online' ? 'success' : 'danger'} className="text-[10px]" />
-                    </div>
-                    <div className="flex justify-between items-center py-3">
-                      <span className="text-xs font-bold text-slate-600">DB_PERSIST</span>
-                      <Tag value="STABLE" severity="success" className="text-[10px]" />
-                    </div>
-                    <Button label="Refresh Status" icon="pi pi-sync" className="p-button-text p-button-sm text-teal-700 mt-2 font-bold" onClick={() => refetchHealth()} />
-                  </div>
-                </Card>
+                </div>
 
               </div>
             )}
           </TabPanel>
 
+
           {/* TAB: PERSONNEL */}
-          <TabPanel header="PERSONNEL" leftIcon="pi pi-users mr-2">
+          <TabPanel header="Pengguna" leftIcon="pi pi-users mr-2">
             <div className="clinical-card-table overflow-hidden">
-              <div className="p-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-50/50">
-                <span className="text-sm font-black text-slate-400 uppercase tracking-widest">Personnel Registry</span>
+              <div className="p-5 flex flex-col md:flex-row justify-between items-center gap-4" style={{ borderBottom: '1px solid var(--col-border)', background: 'var(--col-surface)' }}>
+                <span className="text-sm font-bold" style={{ color: 'var(--col-ink-2)', fontFamily: 'var(--font-display)' }}>Daftar Pengguna</span>
                 <div className="flex gap-3">
                   <Button 
                     label="Add Personnel" 
@@ -352,19 +384,19 @@ const AdminPage: React.FC = () => {
           </TabPanel>
 
           {/* TAB: SAMPLES */}
-          <TabPanel header="SAMPLES" leftIcon="pi pi-image mr-2">
+          <TabPanel header="Sampel" leftIcon="pi pi-image mr-2">
             <div className="clinical-card-table overflow-hidden">
-              <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-                <span className="text-sm font-black text-slate-400 uppercase tracking-widest">Biological Repository</span>
-                <Button 
-                  label="Clear Repository Filters" 
-                  icon="pi pi-filter-slash" 
-                  className="p-button-text p-button-sm text-slate-400 text-[10px] font-bold" 
+              <div className="p-5 flex justify-between items-center" style={{ borderBottom: '1px solid var(--col-border)', background: 'var(--col-surface)' }}>
+                <span className="text-sm font-bold" style={{ color: 'var(--col-ink-2)', fontFamily: 'var(--font-display)' }}>Repositori Sampel</span>
+                <button
                   onClick={() => setSampleFilters({
                     'hasilPrediksi.labelPenyakit': { value: null, matchMode: FilterMatchMode.EQUALS },
                     'user.nama_lengkap': { value: null, matchMode: FilterMatchMode.CONTAINS },
                   })}
-                />
+                  style={{ background: 'var(--col-surface)', border: '1px solid var(--col-border)', color: 'var(--col-ink-4)', borderRadius: 8, padding: '5px 12px', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}
+                >
+                  <i className="pi pi-filter-slash" style={{ fontSize: 11 }} /> Reset Filter
+                </button>
               </div>
               <DataTable 
                 value={uploads} 
@@ -426,10 +458,10 @@ const AdminPage: React.FC = () => {
           </TabPanel>
 
           {/* TAB: FEEDBACK */}
-          <TabPanel header="FEEDBACK" leftIcon="pi pi-comments mr-2">
+          <TabPanel header="Testimoni" leftIcon="pi pi-comments mr-2">
             <div className="clinical-card-table overflow-hidden">
-              <div className="p-6 border-b border-slate-100 bg-slate-50/50">
-                <span className="text-sm font-black text-slate-400 uppercase tracking-widest">User Narratives</span>
+              <div className="p-5" style={{ borderBottom: '1px solid var(--col-border)', background: 'var(--col-surface)' }}>
+                <span className="text-sm font-bold" style={{ color: 'var(--col-ink-2)', fontFamily: 'var(--font-display)' }}>Ulasan Pengguna</span>
               </div>
               <DataTable value={testimonials} loading={testimonialsLoading} className="clinical-datatable" paginator rows={10}>
                 <Column field="name" header="OBSERVER" className="font-bold text-slate-700 text-xs" sortable />
@@ -439,11 +471,22 @@ const AdminPage: React.FC = () => {
                 <Column field="rating" header="SCORE" body={(t: AdminTestimonial) => (
                   <Rating value={t.rating} readOnly cancel={false} className="clinical-rating" />
                 )} sortable filter filterPlaceholder="Min Score" />
+                <Column header="TAMPIL" body={(t: AdminTestimonial) => (
+                  <div className="flex items-center gap-2">
+                    <InputSwitch 
+                      checked={t.isFeatured} 
+                      onChange={() => toggleFeatureMutation.mutate(t.id)} 
+                    />
+                    <span className="text-[10px] font-bold text-slate-400">
+                      {t.isFeatured ? 'YA' : 'TIDAK'}
+                    </span>
+                  </div>
+                )} />
                 <Column header="OPS" body={(t: AdminTestimonial) => (
                   <Button icon="pi pi-trash" className="p-button-text p-button-sm text-slate-300 hover:text-red-500" onClick={() => {
                     confirmDialog({
-                      message: 'Permanently purge this narrative from ledger?',
-                      header: 'RECORD DELETION',
+                      message: 'Hapus testimoni ini secara permanen?',
+                      header: 'HAPUS TESTIMONI',
                       icon: 'pi pi-trash',
                       acceptClassName: 'p-button-danger',
                       accept: () => deleteTestimonialMutation.mutate(t.id),
@@ -580,154 +623,134 @@ const AdminPage: React.FC = () => {
       </main>
 
       <style>{`
-        /* CLINICAL PRIMARY BUTTON */
-        .clinical-btn-primary {
-          background: #0D9488 !important;
-          border: none !important;
-          color: white !important;
-          font-weight: 700 !important;
-          font-size: 11px !important;
-          letter-spacing: 0.05em !important;
-          padding: 0.75rem 1.5rem !important;
-          border-radius: 4px !important;
-          text-transform: uppercase !important;
-          box-shadow: 0 4px 6px -1px rgba(13, 148, 136, 0.2) !important;
+        /* ── STAT CARDS ── */
+        .admin-stat-card {
+          border: 1px solid var(--col-border);
+          border-radius: 16px;
+          padding: 1.5rem;
+          box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+          transition: box-shadow 0.2s, transform 0.2s;
         }
-        .clinical-btn-primary:hover {
-          background: #0F766E !important;
-          box-shadow: 0 10px 15px -3px rgba(13, 148, 136, 0.3) !important;
+        .admin-stat-card:hover {
+          box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+          transform: translateY(-2px);
         }
 
-        /* TABVIEW CLEANROOM STYLE */
+        /* ── MODERN TABVIEW ── */
         .clinical-tabview .p-tabview-nav {
-          background: transparent !important;
-          border-bottom: 2px solid #E2E8F0 !important;
+          background: var(--col-card) !important;
+          border: 1px solid var(--col-border) !important;
+          border-radius: 14px !important;
+          padding: 6px !important;
           margin-bottom: 1.5rem;
+          gap: 4px;
         }
         .clinical-tabview .p-tabview-nav li .p-tabview-nav-link {
           background: transparent !important;
           border: none !important;
-          color: #94A3B8 !important;
-          font-weight: 800 !important;
-          font-size: 11px !important;
-          letter-spacing: 0.15em !important;
-          padding: 1.25rem 2rem !important;
-          transition: all 0.2s ease !important;
+          color: var(--col-ink-4) !important;
+          font-weight: 700 !important;
+          font-size: 13px !important;
+          padding: 0.6rem 1.25rem !important;
+          border-radius: 10px !important;
+          transition: all 0.2s !important;
+        }
+        .clinical-tabview .p-tabview-nav li .p-tabview-nav-link:hover {
+          background: var(--col-surface) !important;
+          color: var(--col-ink) !important;
         }
         .clinical-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link {
-          color: #0D9488 !important;
-          box-shadow: inset 0 -2px 0 #0D9488 !important;
+          background: var(--col-brand) !important;
+          color: white !important;
+          box-shadow: 0 4px 12px rgba(16,185,129,0.3) !important;
         }
         .clinical-tabview .p-tabview-panels { background: transparent !important; padding: 0 !important; }
+        .clinical-tabview .p-tabview-nav-btn { display: none !important; }
 
-        /* CARDS & METRICS */
-        .clinical-card {
-          background: white !important;
-          border: 1px solid #E2E8F0 !important;
-          border-radius: 8px !important;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.02) !important;
-        }
-        .clinical-metric-card {
-          background: white;
-          border: 1px solid #E2E8F0;
-          padding: 1.5rem;
-          border-radius: 8px;
-        }
-        .clinical-label {
-          font-size: 10px;
-          font-weight: 800;
-          color: #94A3B8;
-          text-transform: uppercase;
-          letter-spacing: 0.1em;
-          display: block;
-          margin-bottom: 0.5rem;
-        }
-
-        /* DATATABLE CLEANROOM */
+        /* ── TABLE CARD ── */
         .clinical-card-table {
-          background: white;
-          border: 1px solid #E2E8F0;
-          border-radius: 8px;
-          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+          background: var(--col-card);
+          border: 1px solid var(--col-border);
+          border-radius: 16px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+          overflow: hidden;
         }
         .clinical-datatable .p-datatable-thead > tr > th {
-          background: #F8FAFC !important;
-          color: #64748B !important;
-          font-size: 10px !important;
+          background: var(--col-surface) !important;
+          color: var(--col-ink-4) !important;
+          font-size: 11px !important;
           font-weight: 800 !important;
           text-transform: uppercase !important;
-          letter-spacing: 0.1em !important;
-          border-color: #F1F5F9 !important;
-          padding: 1.25rem 1rem !important;
+          letter-spacing: 0.08em !important;
+          border-color: var(--col-border) !important;
+          padding: 1rem !important;
         }
         .clinical-datatable .p-datatable-tbody > tr {
-          background: white !important;
-          color: #334155 !important;
+          background: var(--col-card) !important;
+          color: var(--col-ink) !important;
         }
         .clinical-datatable .p-datatable-tbody > tr > td {
-          border-color: #F8FAFC !important;
-          padding: 1.25rem 1rem !important;
+          border-color: var(--col-border) !important;
+          padding: 1rem !important;
           font-size: 13px !important;
         }
         .clinical-datatable .p-datatable-tbody > tr:hover {
-          background: #F0FDFA !important;
+          background: var(--col-brand-pale) !important;
         }
         .clinical-datatable .p-paginator {
-          background: #F8FAFC !important;
-          border-top: 1px solid #F1F5F9 !important;
-          padding: 1rem !important;
+          background: var(--col-surface) !important;
+          border-top: 1px solid var(--col-border) !important;
+          padding: 0.75rem !important;
         }
 
-        /* INPUTS & DIALOGS */
+        /* ── INPUTS & SEARCH ── */
         .clinical-search {
-          background: white !important;
-          border: 1px solid #E2E8F0 !important;
-          font-size: 12px !important;
-          padding: 0.5rem 1rem 0.5rem 2.5rem !important;
-          border-radius: 6px !important;
-          width: 280px !important;
+          background: var(--col-card) !important;
+          border: 1px solid var(--col-border) !important;
+          font-size: 13px !important;
+          padding: 0.55rem 1rem 0.55rem 2.5rem !important;
+          border-radius: 10px !important;
+          color: var(--col-ink) !important;
+          width: 260px !important;
         }
-        .clinical-dialog {
-          border-radius: 8px !important;
-          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1) !important;
-        }
-        .clinical-dialog .p-dialog-header {
-          background: white !important;
-          border-bottom: 1px solid #F1F5F9 !important;
-          padding: 1.5rem !important;
-        }
-        .clinical-dialog .p-dialog-content { padding: 1.5rem !important; }
         .clinical-input {
-          border: 2px solid #F1F5F9 !important;
-          border-radius: 6px !important;
-          padding: 0.75rem !important;
+          border: 1.5px solid var(--col-border) !important;
+          border-radius: 10px !important;
+          padding: 0.75rem 1rem !important;
           font-family: inherit !important;
+          background: var(--col-surface) !important;
+          color: var(--col-ink) !important;
           transition: all 0.2s !important;
         }
         .clinical-input:focus {
-          border-color: #0D9488 !important;
-          box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.1) !important;
-        }
-        .clinical-dropdown-small {
-          font-size: 11px !important;
-          border-color: #F1F5F9 !important;
+          border-color: var(--col-brand) !important;
+          box-shadow: 0 0 0 3px rgba(16,185,129,0.15) !important;
+          outline: none !important;
         }
 
-        /* IMAGE PREVIEW */
-        .clinical-img-preview img {
-          border-radius: 4px !important;
-          border: 2px solid #F1F5F9 !important;
-          transition: transform 0.2s !important;
+        /* ── DIALOG ── */
+        .clinical-dialog { border-radius: 20px !important; box-shadow: 0 32px 64px -12px rgba(0,0,0,0.15) !important; }
+        .clinical-dialog .p-dialog-header {
+          background: var(--col-card) !important;
+          border-bottom: 1px solid var(--col-border) !important;
+          border-radius: 20px 20px 0 0 !important;
+          padding: 1.5rem !important;
         }
-        .clinical-img-preview:hover img {
-          transform: scale(1.05);
-          border-color: #0D9488 !important;
-        }
+        .clinical-dialog .p-dialog-content { background: var(--col-card) !important; padding: 1.5rem !important; }
+        .clinical-dialog .p-dialog-footer { background: var(--col-card) !important; border-radius: 0 0 20px 20px !important; }
 
-        /* RATING */
-        .clinical-rating .p-rating-item.p-rating-item-active .pi {
-          color: #0D9488 !important;
+        /* ── MISC ── */
+        .clinical-dropdown-small { font-size: 12px !important; border-color: var(--col-border) !important; border-radius: 8px !important; }
+        .clinical-img-preview img { border-radius: 8px !important; border: 2px solid var(--col-border) !important; transition: transform 0.2s !important; }
+        .clinical-img-preview:hover img { transform: scale(1.08); border-color: var(--col-brand) !important; }
+        .clinical-rating .p-rating-item.p-rating-item-active .pi { color: var(--col-brand) !important; }
+        .clinical-btn-primary {
+          background: var(--col-brand) !important; border: none !important; color: white !important;
+          font-weight: 700 !important; font-size: 13px !important;
+          padding: 0.6rem 1.25rem !important; border-radius: 10px !important;
+          box-shadow: 0 4px 12px rgba(16,185,129,0.25) !important;
         }
+        .clinical-btn-primary:hover { background: var(--col-brand-dark) !important; }
       `}</style>
     </div>
   );

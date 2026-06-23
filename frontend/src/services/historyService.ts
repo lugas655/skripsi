@@ -19,8 +19,8 @@ export const historyService = {
     return response.data;
   },
 
-  getAllHistory: async () => {
-    const response = await api.get<PaginatedCitra>(API_ENDPOINTS.HISTORY);
+  getAllHistory: async (limit: number = 1000) => {
+    const response = await api.get<PaginatedCitra>(`${API_ENDPOINTS.HISTORY}?limit=${limit}`);
     return response.data;
   },
 
