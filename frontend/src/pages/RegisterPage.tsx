@@ -158,19 +158,33 @@ const RegisterPage: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 rounded-xl py-3 font-bold text-white transition-all hover:brightness-105 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed shadow-sm"
+            className={`w-full flex items-center justify-center gap-2.5 rounded-xl py-3.5 font-bold transition-all shadow-md overflow-hidden relative ${loading ? 'opacity-90 cursor-wait animate-pulse' : 'hover:brightness-110 active:scale-[0.98]'}`}
             style={{ 
-              background: loading ? 'var(--col-brand-mid)' : 'var(--col-brand)', 
+              background: loading ? 'linear-gradient(90deg, var(--col-brand-mid), var(--col-brand-dark), var(--col-brand-mid))' : 'var(--col-brand)', 
+              backgroundSize: '200% 100%',
               border: 'none', 
-              cursor: 'pointer', 
+              color: 'white',
               fontFamily: 'var(--font-display)', 
-              fontSize: '0.9rem' 
+              fontSize: '1rem',
+              animation: loading ? 'gradientMove 2s linear infinite' : 'none'
             }}
           >
             {loading ? (
-              <><span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin inline-block" /> Memproses...</>
+              <>
+                <style>{`
+                  @keyframes gradientMove { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+                  @keyframes blinkDots { 0%, 20% { opacity: 0; } 40% { opacity: 1; } 100% { opacity: 0; } }
+                `}</style>
+                <i className="pi pi-shield" style={{ fontSize: 16 }} />
+                <span>Membuat Akun</span>
+                <span className="flex gap-1 ml-1">
+                  <span className="w-1.5 h-1.5 bg-white rounded-full" style={{ animation: 'blinkDots 1.4s infinite 0s' }}></span>
+                  <span className="w-1.5 h-1.5 bg-white rounded-full" style={{ animation: 'blinkDots 1.4s infinite 0.2s' }}></span>
+                  <span className="w-1.5 h-1.5 bg-white rounded-full" style={{ animation: 'blinkDots 1.4s infinite 0.4s' }}></span>
+                </span>
+              </>
             ) : (
-              <><i className="pi pi-user-plus" style={{ fontSize: 14 }} /> Buat Akun</>
+              <><i className="pi pi-user-plus" style={{ fontSize: 16 }} /> Buat Akun</>
             )}
           </button>
         </div>

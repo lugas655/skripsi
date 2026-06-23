@@ -223,7 +223,23 @@ const TestimonialSection = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {loading ? (
             [...Array(3)].map((_, i) => (
-              <div key={i} className="card p-8"><div className="flex gap-1 mb-5">{[...Array(5)].map((_, j) => <Skeleton key={j} shape="circle" size="1rem" />)}</div><Skeleton height="1rem" className="mb-2" /><Skeleton height="1rem" className="mb-2" /><Skeleton height="1rem" width="60%" className="mb-6" /><div className="flex items-center gap-3"><Skeleton shape="circle" size="2.5rem" /><div><Skeleton width="6rem" height="1rem" className="mb-1" /><Skeleton width="4rem" height="0.75rem" /></div></div></div>
+              <div key={i} className="card p-6 sm:p-8 flex flex-col justify-between" style={{ border: '1px solid var(--col-border-light)' }}>
+                <div>
+                  <div className="flex gap-1.5 mb-5">
+                    {[...Array(5)].map((_, j) => <Skeleton key={j} shape="circle" width="14px" height="14px" />)}
+                  </div>
+                  <Skeleton height="1rem" className="mb-3" borderRadius="8px" />
+                  <Skeleton height="1rem" className="mb-3" borderRadius="8px" />
+                  <Skeleton height="1rem" width="70%" className="mb-8" borderRadius="8px" />
+                </div>
+                <div className="flex items-center gap-3 pt-4" style={{ borderTop: '1px solid var(--col-border-light)' }}>
+                  <Skeleton shape="circle" width="40px" height="40px" />
+                  <div className="flex flex-col gap-1.5 flex-1">
+                    <Skeleton width="50%" height="0.9rem" borderRadius="6px" />
+                    <Skeleton width="30%" height="0.7rem" borderRadius="4px" />
+                  </div>
+                </div>
+              </div>
             ))
           ) : (
             testimonials.map((t) => (

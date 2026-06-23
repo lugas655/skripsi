@@ -196,24 +196,58 @@ const HistoryPage: React.FC = () => {
             </div>
           </div>
 
-          <DataTable
-            value={filtered} paginator rows={10} loading={isLoading} dataKey="id"
-            emptyMessage={
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <i className="pi pi-inbox text-3xl mb-3" style={{ color: 'var(--col-border)' }} />
-                <p className="text-sm font-semibold m-0" style={{ color: 'var(--col-ink-4)' }}>Tidak ada data ditemukan</p>
-                <p className="text-xs m-0 mt-1" style={{ color: 'var(--col-ink-4)', opacity: 0.6 }}>Coba ubah filter atau kata kunci pencarian</p>
+          {isLoading ? (
+            <div className="p-5 flex flex-col gap-5">
+              {/* Skeleton Header */}
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-2 hidden sm:flex">
+                <Skeleton width="68px" height="1rem" />
+                <Skeleton width="140px" height="1rem" />
+                <Skeleton width="150px" height="1rem" />
+                <Skeleton width="130px" height="1rem" />
+                <Skeleton width="76px" height="1rem" />
               </div>
-            }
-            responsiveLayout="stack" breakpoint="768px"
-            rowsPerPageOptions={[5, 10, 25, 50]} sortMode="single" removableSort className="text-sm"
-          >
-            <Column header="Sampel"     body={ImageTpl}    style={{ width: '68px' }} />
-            <Column header="Tanggal"    body={DateTpl}     field="tanggalUnggah"               sortable style={{ minWidth: '140px' }} />
-            <Column header="Diagnosis"  body={StatusTpl}   field="hasilPrediksi.labelPenyakit" sortable style={{ minWidth: '150px' }} />
-            <Column header="Confidence" body={AccuracyTpl} field="hasilPrediksi.nilaiAkurasi"  sortable style={{ minWidth: '130px' }} />
-            <Column header=""           body={ActionTpl}   style={{ width: '76px' }} />
-          </DataTable>
+              {/* Skeleton Rows */}
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-2">
+                  <div className="flex items-center gap-4 w-full sm:w-auto">
+                    <Skeleton width="44px" height="44px" borderRadius="12px" />
+                    <div className="flex flex-col gap-1.5 w-full sm:w-[140px]">
+                      <Skeleton width="70%" height="1rem" />
+                      <Skeleton width="40%" height="0.75rem" />
+                    </div>
+                  </div>
+                  <Skeleton width="120px" height="1.5rem" borderRadius="1rem" className="hidden sm:block" />
+                  <div className="flex items-center gap-2 hidden sm:flex w-[130px]">
+                    <Skeleton width="100%" height="6px" borderRadius="3px" />
+                    <Skeleton width="30px" height="1rem" />
+                  </div>
+                  <div className="flex gap-2 self-end sm:self-auto">
+                    <Skeleton width="32px" height="32px" borderRadius="8px" />
+                    <Skeleton width="32px" height="32px" borderRadius="8px" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <DataTable
+              value={filtered} paginator rows={10} dataKey="id"
+              emptyMessage={
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <i className="pi pi-inbox text-3xl mb-3" style={{ color: 'var(--col-border)' }} />
+                  <p className="text-sm font-semibold m-0" style={{ color: 'var(--col-ink-4)' }}>Tidak ada data ditemukan</p>
+                  <p className="text-xs m-0 mt-1" style={{ color: 'var(--col-ink-4)', opacity: 0.6 }}>Coba ubah filter atau kata kunci pencarian</p>
+                </div>
+              }
+              responsiveLayout="stack" breakpoint="768px"
+              rowsPerPageOptions={[5, 10, 25, 50]} sortMode="single" removableSort className="text-sm"
+            >
+              <Column header="Sampel"     body={ImageTpl}    style={{ width: '68px' }} />
+              <Column header="Tanggal"    body={DateTpl}     field="tanggalUnggah"               sortable style={{ minWidth: '140px' }} />
+              <Column header="Diagnosis"  body={StatusTpl}   field="hasilPrediksi.labelPenyakit" sortable style={{ minWidth: '150px' }} />
+              <Column header="Confidence" body={AccuracyTpl} field="hasilPrediksi.nilaiAkurasi"  sortable style={{ minWidth: '130px' }} />
+              <Column header=""           body={ActionTpl}   style={{ width: '76px' }} />
+            </DataTable>
+          )}
         </div>
       </main>
     </div>
