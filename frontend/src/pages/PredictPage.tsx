@@ -12,7 +12,7 @@ interface DTheme { color: string; bg: string; border: string; text: string; labe
 const getTheme = (label: string): DTheme => {
   const l = label.toUpperCase();
   const map: Record<string, DTheme> = {
-    HEALTHY:    { color: '#16A34A', bg: 'var(--col-healthy-pale)',  border: '1px solid #bbf7d0', text: 'var(--col-healthy)',  label: 'Sehat',             icon: 'pi-check-circle',        desc: 'Kondisi feses menunjukkan parameter kesehatan optimal. Pertahankan ventilasi & kualitas air minum.' },
+    HEALTHY:    { color: '#2563EB', bg: 'var(--col-healthy-pale)',  border: '1px solid #BFDBFE', text: 'var(--col-healthy)',  label: 'Sehat',             icon: 'pi-check-circle',        desc: 'Kondisi feses menunjukkan parameter kesehatan optimal. Pertahankan ventilasi & kualitas air minum.' },
     COCCIDIOSIS:{ color: '#DC2626', bg: 'var(--col-disease-pale)',  border: '1px solid #fecaca', text: 'var(--col-disease)',  label: 'Koksidiosis',       icon: 'pi-exclamation-triangle', desc: 'Terdeteksi Koksidiosis. Ganti alas kandang dan konsultasikan koksidiostat dengan dokter hewan.' },
     NEWCASTLE:  { color: '#D97706', bg: 'var(--col-warn-pale)',     border: '1px solid #fde68a', text: 'var(--col-warn)',     label: 'Newcastle Disease', icon: 'pi-exclamation-circle',   desc: 'Bahaya: Newcastle Disease terdeteksi. Lakukan isolasi total dan lapor petugas kesehatan hewan.' },
     SALMONELLA: { color: '#2563EB', bg: 'var(--col-info-pale)',     border: '1px solid #bfdbfe', text: 'var(--col-info)',     label: 'Salmonella',        icon: 'pi-shield',               desc: 'Indikasi Salmonella. Bersihkan tempat pakan/minum dan berikan antibiotik yang sesuai.' },
@@ -24,10 +24,10 @@ const getTheme = (label: string): DTheme => {
 const EmptyState = () => (
   <div className="card flex flex-col items-center justify-center p-12 text-center min-h-80" style={{ border: '2px dashed var(--col-border)', background: 'transparent', boxShadow: 'none' }}>
     <div style={{ width: 56, height: 56, borderRadius: 14, background: 'var(--col-surface)', border: '1px solid var(--col-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
-      <i className="pi pi-search" style={{ fontSize: 22, color: 'var(--col-border)' }} />
+      <i className="pi pi-search" style={{ fontSize: 22, color: 'var(--col-ink-4)' }} />
     </div>
-    <h3 className="m-0 mb-1" style={{ fontFamily: 'var(--font-display)', fontSize: '0.9rem', color: 'var(--col-ink-4)' }}>Menunggu Analisis</h3>
-    <p className="m-0 text-xs max-w-xs" style={{ color: 'var(--col-ink-4)', opacity: 0.6 }}>
+    <h3 className="m-0 mb-1" style={{ fontFamily: 'var(--font-display)', fontSize: '0.9rem', color: 'var(--col-ink-3)' }}>Menunggu Analisis</h3>
+    <p className="m-0 text-xs max-w-xs" style={{ color: 'var(--col-ink-4)' }}>
       Unggah foto feses ayam di panel kiri, lalu klik "Mulai Diagnosis".
     </p>
   </div>
@@ -61,14 +61,14 @@ const ResultCard: React.FC<{ prediction: PredictResponse['data']; onRemove: () =
   return (
     <div className="flex flex-col gap-4 animate-scale-in relative">
       {fileInfo && (
-        <div className="flex items-center gap-3 p-3 rounded-xl bg-white border border-slate-200">
+        <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'var(--col-card)', border: '1px solid var(--col-border)' }}>
           <img
             src={fileInfo.preview}
             alt="Preview"
-            style={{ width: 48, height: 48, minWidth: 48, objectFit: 'cover', flexShrink: 0 }}
-            className="rounded-lg bg-slate-100"
+            className="rounded-lg"
+            style={{ width: 48, height: 48, minWidth: 48, objectFit: 'cover', flexShrink: 0, border: '1px solid var(--col-border-light)' }}
           />
-          <span className="text-sm font-semibold text-slate-700 truncate">{fileInfo.name}</span>
+          <span className="text-sm font-semibold truncate" style={{ color: 'var(--col-ink-2)' }}>{fileInfo.name}</span>
         </div>
       )}
 
@@ -307,7 +307,7 @@ const PredictPage: React.FC = () => {
               onClick={capturePhoto}
               className="w-20 h-20 rounded-full bg-white border-[6px] border-white/30 cursor-pointer flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-2xl"
             >
-              <div className="w-14 h-14 rounded-full bg-green-600 flex items-center justify-center">
+              <div className="w-14 h-14 rounded-full bg-blue-600 flex items-center justify-center">
                 <i className="pi pi-camera text-white text-2xl" />
               </div>
             </button>
@@ -315,16 +315,16 @@ const PredictPage: React.FC = () => {
         </div>
       )}
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-16">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-14">
 
         {/* Header */}
-        <div className="mb-7 animate-fade-up">
+        <div className="mb-4 animate-fade-up">
           <h1 className="m-0" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.75rem', color: 'var(--col-ink)' }}>Diagnosis AI</h1>
           <p className="m-0 mt-1 text-sm" style={{ color: 'var(--col-ink-4)' }}>Deteksi penyakit ayam melalui analisis citra feses menggunakan Vision Transformer</p>
         </div>
 
         {/* How it works */}
-        <div className="rounded-2xl p-5 mb-7 grid grid-cols-1 sm:grid-cols-3 gap-4 animate-fade-up delay-100"
+        <div className="rounded-2xl p-5 mb-5 grid grid-cols-1 sm:grid-cols-3 gap-4 animate-fade-up delay-100"
           style={{ background: 'linear-gradient(135deg, var(--col-brand-dark) 0%, var(--col-brand) 100%)' }}>
           {[
             { icon: 'pi-upload',       title: 'Unggah Foto',       sub: 'JPG, PNG, WEBP · maks. 5 MB' },
@@ -337,7 +337,7 @@ const PredictPage: React.FC = () => {
               </div>
               <div>
                 <p className="m-0 text-sm font-semibold text-white" style={{ fontFamily: 'var(--font-display)' }}>{s.title}</p>
-                <p className="m-0 text-[10px]" style={{ color: 'rgba(134,239,172,0.8)' }}>{s.sub}</p>
+                <p className="m-0 text-[10px]" style={{ color: 'rgba(147,197,253,0.8)' }}>{s.sub}</p>
               </div>
             </div>
           ))}
@@ -363,7 +363,7 @@ const PredictPage: React.FC = () => {
                 <button 
                   onClick={startCamera}
                   disabled={items.some(i => i.loading)}
-                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-green-700 bg-green-50 border border-green-200 hover:bg-green-100 transition-all cursor-pointer disabled:opacity-50"
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 hover:bg-blue-100 transition-all cursor-pointer disabled:opacity-50"
                   style={{ fontFamily: 'var(--font-display)' }}
                 >
                   <i className="pi pi-camera" style={{ fontSize: 12 }} />
@@ -420,9 +420,9 @@ const PredictPage: React.FC = () => {
           <div className="lg:col-span-7 flex flex-col" style={{ minHeight: 0 }}>
             {/* Sticky header when multiple items */}
             {items.length > 1 && (
-              <div className="flex justify-between items-center bg-white p-3 rounded-xl border border-slate-200 mb-3 flex-shrink-0">
-                <span className="text-sm font-semibold text-slate-700">{items.length} Gambar Dianalisis</span>
-                <button onClick={handleClearAll} className="text-xs text-red-600 font-semibold hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors">
+              <div className="flex justify-between items-center p-3 rounded-xl border mb-3 flex-shrink-0" style={{ background: 'var(--col-card)', border: '1px solid var(--col-border)' }}>
+                <span className="text-sm font-semibold" style={{ color: 'var(--col-ink-2)' }}>{items.length} Gambar Dianalisis</span>
+                <button onClick={handleClearAll} className="text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors" style={{ color: 'var(--col-disease)', background: 'var(--col-disease-pale)', border: 'none', cursor: 'pointer' }}>
                   Hapus Semua
                 </button>
               </div>
@@ -449,22 +449,22 @@ const PredictPage: React.FC = () => {
                       </div>
                       <div className="relative z-10 flex flex-col items-center">
                         <div className="spin-ring mb-4" />
-                        <h4 className="m-0 mb-1 text-sm font-bold text-slate-800">Menganalisis {item.fileInfo.name}...</h4>
-                        <p className="m-0 text-xs text-slate-500 mb-4">Vision Transformer sedang memproses citra.</p>
+                        <h4 className="m-0 mb-1 text-sm font-bold" style={{ color: 'var(--col-ink)' }}>Menganalisis {item.fileInfo.name}...</h4>
+                        <p className="m-0 text-xs mb-4" style={{ color: 'var(--col-ink-4)' }}>Vision Transformer sedang memproses citra.</p>
                         <div className="w-48"><ProgressBar mode="indeterminate" style={{ height: '3px' }} /></div>
                       </div>
                     </div>
                   )}
                   {item.error && (
-                    <div className="card p-5 border-l-4 border-red-500 flex items-center justify-between">
+                    <div className="card p-5 flex items-center justify-between" style={{ borderLeft: '4px solid var(--col-disease)' }}>
                       <div className="flex items-center gap-3">
-                        <img src={item.fileInfo.preview} alt="" className="w-10 h-10 rounded-md object-cover bg-slate-100" />
+                        <img src={item.fileInfo.preview} alt="" className="w-10 h-10 rounded-md object-cover" style={{ background: 'var(--col-surface)', border: '1px solid var(--col-border)' }} />
                         <div>
-                          <p className="m-0 text-sm font-bold text-slate-800">{item.fileInfo.name}</p>
-                          <p className="m-0 text-xs text-red-500">{item.error}</p>
+                          <p className="m-0 text-sm font-bold" style={{ color: 'var(--col-ink)' }}>{item.fileInfo.name}</p>
+                          <p className="m-0 text-xs" style={{ color: 'var(--col-disease)' }}>{item.error}</p>
                         </div>
                       </div>
-                      <button onClick={() => handleRemove(item.id)} className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center hover:bg-slate-200 transition-colors">
+                      <button onClick={() => handleRemove(item.id)} className="w-8 h-8 rounded-full flex items-center justify-center transition-colors" style={{ background: 'var(--col-surface)', color: 'var(--col-ink-4)', border: '1px solid var(--col-border)' }}>
                         <i className="pi pi-times text-xs" />
                       </button>
                     </div>

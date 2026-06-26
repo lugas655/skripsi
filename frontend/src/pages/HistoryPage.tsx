@@ -107,12 +107,13 @@ const HistoryPage: React.FC = () => {
     const val = (row.hasilPrediksi?.nilaiAkurasi || 0) * 100;
     const isLowConfidence = val < 70;
     const isH = row.hasilPrediksi?.labelPenyakit === 'HEALTHY' && !isLowConfidence;
+    const barColor = isLowConfidence ? 'var(--col-warn)' : isH ? 'var(--col-healthy)' : 'var(--col-disease)';
     return (
-      <div className="flex items-center gap-2">
-        <div className="flex-1 rounded-full h-1.5 max-w-[48px] hidden sm:block" style={{ background: 'var(--col-border)' }}>
-          <div className="h-full rounded-full" style={{ width: `${val}%`, background: isLowConfidence ? 'var(--col-warn)' : isH ? 'var(--col-healthy)' : 'var(--col-disease)' }} />
+      <div className="flex items-center gap-2.5">
+        <div className="flex-1 rounded-full overflow-hidden hidden sm:block" style={{ height: 6, width: 52, background: 'var(--col-border-light)' }}>
+          <div className="h-full rounded-full transition-all" style={{ width: `${val}%`, background: barColor }} />
         </div>
-        <span className="diag-number text-sm font-bold" style={{ color: 'var(--col-ink)' }}>{val.toFixed(1)}%</span>
+        <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '0.875rem', color: 'var(--col-ink)', letterSpacing: '-0.01em' }}>{val.toFixed(1)}%</span>
       </div>
     );
   };
@@ -139,10 +140,10 @@ const HistoryPage: React.FC = () => {
     <div className="min-h-screen" style={{ background: 'var(--col-surface)' }}>
       <Navbar /><Toast ref={toast} /><ConfirmDialog />
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-16">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-14">
 
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-7 animate-fade-up">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-4 animate-fade-up">
           <div>
             <h1 className="m-0" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.75rem', color: 'var(--col-ink)' }}>Riwayat Diagnosa</h1>
             <p className="m-0 mt-1 text-sm" style={{ color: 'var(--col-ink-4)' }}>Semua riwayat analisis citra yang pernah dilakukan</p>
@@ -150,7 +151,7 @@ const HistoryPage: React.FC = () => {
           <button
             onClick={() => navigate('/predict')}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white shrink-0 transition-all hover:-translate-y-0.5"
-            style={{ background: 'var(--col-brand)', border: 'none', cursor: 'pointer', boxShadow: '0 4px 12px rgba(21,128,61,0.3)', fontFamily: 'var(--font-display)' }}
+            style={{ background: 'var(--col-brand)', border: 'none', cursor: 'pointer', boxShadow: '0 4px 12px rgba(37,99,235,0.3)', fontFamily: 'var(--font-display)' }}
           >
             <i className="pi pi-plus" style={{ fontSize: 13 }} /> Diagnosa Baru
           </button>
@@ -159,17 +160,17 @@ const HistoryPage: React.FC = () => {
         {/* Summary mini cards */}
         <div className="grid grid-cols-3 gap-4 mb-6 animate-fade-up delay-100">
           {[
-            { label: 'Total Data',      val: counts.total,    icon: 'pi-database',          color: 'var(--col-info)',    pale: 'var(--col-info-pale)'    },
-            { label: 'Sehat',           val: counts.healthy,  icon: 'pi-check-circle',      color: 'var(--col-healthy)', pale: 'var(--col-healthy-pale)' },
-            { label: 'Perlu Perhatian', val: counts.diseased, icon: 'pi-exclamation-circle', color: 'var(--col-disease)', pale: 'var(--col-disease-pale)' },
+            { label: 'Total Data',      val: counts.total,    icon: 'pi-database',           color: 'var(--col-info)',    pale: 'var(--col-info-pale)'    },
+            { label: 'Sehat',           val: counts.healthy,  icon: 'pi-check-circle',       color: 'var(--col-healthy)', pale: 'var(--col-healthy-pale)' },
+            { label: 'Perlu Perhatian', val: counts.diseased, icon: 'pi-exclamation-circle',  color: 'var(--col-disease)', pale: 'var(--col-disease-pale)' },
           ].map((c, i) => (
-            <div key={i} className="card p-4 flex items-center gap-3">
-              <div style={{ width: 34, height: 34, minWidth: 34, borderRadius: 9, background: c.pale, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <i className={`pi ${c.icon}`} style={{ fontSize: 13, color: c.color }} />
+            <div key={i} className="card p-4 flex items-center gap-3.5">
+              <div style={{ width: 38, height: 38, minWidth: 38, borderRadius: 10, background: c.pale, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <i className={`pi ${c.icon}`} style={{ fontSize: 15, color: c.color }} />
               </div>
               <div>
-                <p className="diag-label m-0">{c.label}</p>
-                <p className="diag-number m-0" style={{ fontSize: '1.25rem', color: c.color }}>{c.val}</p>
+                <p className="diag-label m-0 mb-0.5">{c.label}</p>
+                <p className="m-0" style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.375rem', color: c.color, letterSpacing: '-0.03em', lineHeight: 1 }}>{c.val}</p>
               </div>
             </div>
           ))}
@@ -187,39 +188,41 @@ const HistoryPage: React.FC = () => {
             </div>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
               <Dropdown value={statusFilter} options={FILTER_OPTIONS} onChange={e => setStatusFilter(e.value)}
-                placeholder="Filter Status" className="!rounded-xl !border-slate-200 !text-sm w-full sm:w-44" />
+                placeholder="Filter Status" className="!rounded-xl !text-sm w-full sm:w-44"
+                style={{ border: '1.5px solid var(--col-border)' }} />
               <span className="p-input-icon-left w-full sm:w-auto">
-                <i className="pi pi-search !text-slate-400" style={{ fontSize: 12 }} />
+                <i className="pi pi-search" style={{ fontSize: 12, color: 'var(--col-ink-4)' }} />
                 <InputText value={globalFilter} onChange={e => setGlobalFilter(e.target.value)}
-                  placeholder="Cari diagnosis..." className="!rounded-xl !text-sm !pl-9 w-full sm:w-52" />
+                  placeholder="Cari diagnosis..." className="!rounded-xl !text-sm !pl-9 w-full sm:w-52"
+                  style={{ border: '1.5px solid var(--col-border)' }} />
               </span>
             </div>
           </div>
 
           {isLoading ? (
-            <div className="p-5 flex flex-col gap-5">
+          <div className="p-5 flex flex-col gap-4">
               {/* Skeleton Header */}
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-2 hidden sm:flex">
-                <Skeleton width="68px" height="1rem" />
-                <Skeleton width="140px" height="1rem" />
-                <Skeleton width="150px" height="1rem" />
-                <Skeleton width="130px" height="1rem" />
-                <Skeleton width="76px" height="1rem" />
+              <div className="flex items-center justify-between pb-3 mb-1 hidden sm:flex" style={{ borderBottom: '1px solid var(--col-border-light)' }}>
+                <div className="skeleton h-2.5 rounded" style={{ width: 68 }} />
+                <div className="skeleton h-2.5 rounded" style={{ width: 140 }} />
+                <div className="skeleton h-2.5 rounded" style={{ width: 150 }} />
+                <div className="skeleton h-2.5 rounded" style={{ width: 130 }} />
+                <div className="skeleton h-2.5 rounded" style={{ width: 76 }} />
               </div>
               {/* Skeleton Rows */}
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-2">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-1">
                   <div className="flex items-center gap-4 w-full sm:w-auto">
                     <Skeleton width="44px" height="44px" borderRadius="12px" />
                     <div className="flex flex-col gap-1.5 w-full sm:w-[140px]">
-                      <Skeleton width="70%" height="1rem" />
-                      <Skeleton width="40%" height="0.75rem" />
+                      <Skeleton width="70%" height="0.875rem" />
+                      <Skeleton width="40%" height="0.7rem" />
                     </div>
                   </div>
                   <Skeleton width="120px" height="1.5rem" borderRadius="1rem" className="hidden sm:block" />
-                  <div className="flex items-center gap-2 hidden sm:flex w-[130px]">
+                  <div className="flex items-center gap-2 hidden sm:flex" style={{ width: 130 }}>
                     <Skeleton width="100%" height="6px" borderRadius="3px" />
-                    <Skeleton width="30px" height="1rem" />
+                    <Skeleton width="30px" height="0.875rem" />
                   </div>
                   <div className="flex gap-2 self-end sm:self-auto">
                     <Skeleton width="32px" height="32px" borderRadius="8px" />

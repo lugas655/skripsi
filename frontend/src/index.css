@@ -13,28 +13,28 @@
   --font-display: 'Instrument Sans', 'Inter', system-ui, sans-serif;
   --font-mono: 'Space Mono', 'Courier New', monospace;
 
-  /* Brand — Forest Green */
-  --col-brand:       #15803D; /* green-700 */
-  --col-brand-dark:  #14532D; /* green-900 — canopy */
-  --col-brand-deep:  #052e16; /* green-950 — deep forest */
-  --col-brand-mid:   #16A34A; /* green-600 */
-  --col-brand-light: #86EFAC; /* green-300 */
-  --col-brand-pale:  #F0FDF4; /* green-50 */
-  --col-brand-muted: #DCFCE7; /* green-100 */
+  /* Brand — Ocean Blue */
+  --col-brand:       #2563EB; /* blue-600 */
+  --col-brand-dark:  #1D4ED8; /* blue-700 */
+  --col-brand-deep:  #1E3A8A; /* blue-900 */
+  --col-brand-mid:   #3B82F6; /* blue-500 */
+  --col-brand-light: #93C5FD; /* blue-300 */
+  --col-brand-pale:  #DBEAFE; /* blue-100 */
+  --col-brand-muted: #BFDBFE; /* blue-200 */
 
   /* Surface & Ink */
-  --col-surface:  #F7F9F7;   /* warm off-white with green tint */
+  --col-surface:  #EEF4FF;   /* blue-tinted — screenshot friendly */
   --col-card:     #FFFFFF;
-  --col-ink:      #0F172A;   /* slate-900 */
-  --col-ink-2:    #334155;   /* slate-700 */
-  --col-ink-3:    #64748B;   /* slate-500 */
-  --col-ink-4:    #94A3B8;   /* slate-400 */
-  --col-border:   #E2E8E0;   /* warm border */
-  --col-border-light: #F1F5EF;
+  --col-ink:      #0A0F1E;
+  --col-ink-2:    #1E293B;   /* slate-800 */
+  --col-ink-3:    #475569;   /* slate-600 */
+  --col-ink-4:    #64748B;   /* slate-500 */
+  --col-border:   #BFDBFE;   /* blue-200 — jelas & kontras */
+  --col-border-light: #DBEAFE; /* blue-100 */
 
   /* Status */
-  --col-healthy:      #16A34A;
-  --col-healthy-pale: #DCFCE7;
+  --col-healthy:      #2563EB;
+  --col-healthy-pale: #EFF6FF;
   --col-disease:      #DC2626;
   --col-disease-pale: #FEF2F2;
   --col-warn:         #D97706;
@@ -50,12 +50,12 @@
   --r-2xl:  24px;
   --r-full: 9999px;
 
-  /* Shadows */
-  --sh-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --sh-sm: 0 1px 3px 0 rgb(0 0 0 / 0.07), 0 1px 2px -1px rgb(0 0 0 / 0.05);
-  --sh-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.04);
-  --sh-lg: 0 10px 15px -3px rgb(0 0 0 / 0.07), 0 4px 6px -4px rgb(0 0 0 / 0.04);
-  --sh-xl: 0 20px 25px -5px rgb(0 0 0 / 0.08), 0 8px 10px -6px rgb(0 0 0 / 0.04);
+  /* Shadows — diperkuat untuk screenshot */
+  --sh-xs: 0 1px 3px 0 rgb(0 0 0 / 0.09);
+  --sh-sm: 0 2px 6px 0 rgb(0 0 0 / 0.10), 0 1px 3px -1px rgb(0 0 0 / 0.07);
+  --sh-md: 0 6px 14px -2px rgb(0 0 0 / 0.12), 0 3px 6px -3px rgb(0 0 0 / 0.07);
+  --sh-lg: 0 12px 24px -4px rgb(0 0 0 / 0.12), 0 5px 8px -5px rgb(0 0 0 / 0.07);
+  --sh-xl: 0 24px 40px -8px rgb(0 0 0 / 0.14), 0 10px 14px -8px rgb(0 0 0 / 0.07);
 }
 
 /* ======================================
@@ -212,7 +212,7 @@ i.pi {
    SKELETON LOADER
 ====================================== */
 .skeleton {
-  background: linear-gradient(90deg, #f1f5f1 25%, #e2e8e2 50%, #f1f5f1 75%);
+  background: linear-gradient(90deg, #dbeafe 25%, #bfdbfe 50%, #dbeafe 75%);
   background-size: 1000px 100%;
   animation: shimmer 1.8s infinite linear;
   border-radius: var(--r-md);
