@@ -92,7 +92,7 @@ const DashboardPage: React.FC = () => {
     { label: 'Total Analisis', value: stats?.totalDiagnoses || 0, icon: 'pi-database',           color: 'var(--col-info)',    pale: 'var(--col-info-pale)' },
     { label: 'Kondisi Sehat',  value: healthyCount,               icon: 'pi-check-circle',       color: 'var(--col-healthy)', pale: 'var(--col-healthy-pale)', trend: '+Today' },
     { label: 'Kondisi Sakit',  value: sickCount,                  icon: 'pi-exclamation-circle', color: 'var(--col-disease)', pale: 'var(--col-disease-pale)' },
-    { label: 'Status Sistem',  value: hs.label,                   icon: hs.icon,                 color: hs.color,             pale: hs.pale },
+    { label: 'Status Fases',   value: hs.label,                   icon: hs.icon,                 color: hs.color,             pale: hs.pale },
   ];
 
   const greeting = () => {
