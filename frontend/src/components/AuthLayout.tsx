@@ -23,7 +23,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
       {/* ── Left Panel: Deep Forest ── */}
       <div
         className="hidden lg:flex lg:w-[52%] relative flex-col justify-between p-14 overflow-hidden"
-        style={{ background: 'linear-gradient(160deg, #052e16 0%, #14532d 50%, #15803d 100%)' }}
+        style={{ background: 'linear-gradient(160deg, #0f172a 0%, #1e3a8a 50%, #1d4ed8 100%)' }}
       >
         {/* Grid pattern overlay */}
         <div

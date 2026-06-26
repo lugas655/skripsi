@@ -12,12 +12,12 @@ import { User } from '../types';
 interface StatCardProps { label: string; value: string | number; icon: string; color: string; pale: string; trend?: string; index: number; }
 const StatCard: React.FC<StatCardProps> = ({ label, value, icon, color, pale, trend, index }) => (
   <div
-    className={`card card-hover p-5 animate-fade-up delay-${(index + 1) * 100}`}
-    style={{ borderRadius: 'var(--r-xl)' }}
+    className={`card card-hover animate-fade-up delay-${(index + 1) * 100}`}
+    style={{ borderRadius: 'var(--r-xl)', padding: '1.125rem 1.25rem' }}
   >
-    <div className="flex items-start justify-between mb-4">
-      <div style={{ width: 38, height: 38, minWidth: 38, borderRadius: 10, background: pale, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-        <i className={`pi ${icon}`} style={{ fontSize: 15, color }} />
+    <div className="flex items-start justify-between mb-3">
+      <div style={{ width: 40, height: 40, minWidth: 40, borderRadius: 11, background: pale, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        <i className={`pi ${icon}`} style={{ fontSize: 16, color }} />
       </div>
       {trend && (
         <span className="text-[10px] font-bold px-2 py-1 rounded-full" style={{ background: 'var(--col-brand-muted)', color: 'var(--col-brand-dark)' }}>
@@ -26,7 +26,7 @@ const StatCard: React.FC<StatCardProps> = ({ label, value, icon, color, pale, tr
       )}
     </div>
     <p className="diag-label m-0 mb-1">{label}</p>
-    <p className="diag-number m-0" style={{ fontSize: '1.75rem', color: 'var(--col-ink)' }}>{value}</p>
+    <p className="m-0" style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.75rem', color: 'var(--col-ink)', letterSpacing: '-0.03em', lineHeight: 1 }}>{value}</p>
   </div>
 );
 
@@ -65,11 +65,11 @@ const DashboardPage: React.FC = () => {
 
   const doughnutData = {
     labels: ['Sehat', 'Sakit'],
-    datasets: [{ data: [healthyCount || 1, sickCount], backgroundColor: ['#16A34A', '#DC2626'], borderWidth: 0 }],
+    datasets: [{ data: [healthyCount || 1, sickCount], backgroundColor: ['#2563EB', '#DC2626'], borderWidth: 0 }],
   };
   const doughnutOptions = {
-    cutout: '74%',
-    plugins: { legend: { display: false }, tooltip: { backgroundColor: '#0F172A', padding: 12 } },
+    cutout: '72%',
+    plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1E293B', padding: 10, bodyFont: { size: 13 }, titleFont: { size: 11 } } },
     maintainAspectRatio: false,
   };
 
@@ -80,10 +80,10 @@ const DashboardPage: React.FC = () => {
   };
   const barOptions: any = {
     indexAxis: 'y',
-    plugins: { legend: { display: false } },
+    plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1E293B', padding: 10 } },
     scales: {
       x: { grid: { display: false }, ticks: { display: false }, border: { display: false } },
-      y: { grid: { display: false }, ticks: { color: 'var(--col-ink-3)', font: { size: 11, weight: '600' } }, border: { display: false } },
+      y: { grid: { display: false }, ticks: { color: 'var(--col-ink-2)', font: { size: 11, weight: '600' }, padding: 4 }, border: { display: false } },
     },
     maintainAspectRatio: false,
   };
@@ -104,10 +104,10 @@ const DashboardPage: React.FC = () => {
     <div className="min-h-screen" style={{ background: 'var(--col-surface)' }}>
       <Navbar />
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-16">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-14">
 
         {/* ── Header ── */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 animate-fade-up">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-4 animate-fade-up">
           <div>
             <p className="m-0 text-sm font-semibold mb-0.5" style={{ color: 'var(--col-brand)', fontFamily: 'var(--font-mono)' }}>
               {greeting()}, {user?.nama_lengkap?.split(' ')[0] || 'Peternak'} 👋
@@ -129,7 +129,7 @@ const DashboardPage: React.FC = () => {
             <button
               onClick={() => navigate('/predict')}
               className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
-              style={{ background: 'var(--col-brand)', border: 'none', cursor: 'pointer', boxShadow: '0 4px 12px rgba(21,128,61,0.3)', fontFamily: 'var(--font-display)' }}
+              style={{ background: 'var(--col-brand)', border: 'none', cursor: 'pointer', boxShadow: '0 4px 12px rgba(37,99,235,0.3)', fontFamily: 'var(--font-display)' }}
             >
               <i className="pi pi-plus" style={{ fontSize: 13 }} /> Diagnosa Baru
             </button>
@@ -137,7 +137,7 @@ const DashboardPage: React.FC = () => {
         </div>
 
         {/* ── Stat Cards ── */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-7">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
           {loading ? Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />) :
             statCards.map((s, i) => <StatCard key={i} {...s} index={i} />)}
         </div>
@@ -210,15 +210,18 @@ const DashboardPage: React.FC = () => {
             {/* Advisory */}
             <div
               className="rounded-2xl p-5 animate-fade-up delay-300"
-              style={{ background: 'linear-gradient(135deg, var(--col-brand-dark) 0%, var(--col-brand) 100%)', color: 'white' }}
+              style={{ background: 'linear-gradient(135deg, var(--col-brand-deep) 0%, var(--col-brand-dark) 60%, var(--col-brand) 100%)', color: 'white' }}
             >
               <div className="flex items-center gap-2.5 mb-3">
-                <div style={{ width: 32, height: 32, minWidth: 32, borderRadius: 9, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <i className="pi pi-sparkles" style={{ fontSize: 13, color: 'white' }} />
+                <div style={{ width: 34, height: 34, minWidth: 34, borderRadius: 10, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.2)' }}>
+                  <i className="pi pi-lightbulb" style={{ fontSize: 15, color: '#BFDBFE' }} />
                 </div>
-                <span className="diag-label" style={{ color: 'rgba(134,239,172,0.8)' }}>Saran AI</span>
+                <div>
+                  <span className="diag-label" style={{ color: 'rgba(147,197,253,0.9)' }}>Saran AI</span>
+                  <p className="m-0 text-[10px]" style={{ color: 'rgba(255,255,255,0.4)' }}>Rekomendasi berbasis data</p>
+                </div>
               </div>
-              <h4 className="m-0 mb-2 text-sm font-semibold" style={{ fontFamily: 'var(--font-display)', color: 'white' }}>Pemantauan Aktif</h4>
+              <h4 className="m-0 mb-2 text-sm font-bold" style={{ fontFamily: 'var(--font-display)', color: 'white' }}>Pemantauan Aktif</h4>
               <p className="m-0 mb-4 text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.75)' }}>
                 {stats && sickCount > 0
                   ? `Ditemukan ${sickCount} kasus perlu perhatian. Segera lakukan isolasi dan konsultasi dokter hewan.`
@@ -226,16 +229,17 @@ const DashboardPage: React.FC = () => {
               </p>
               <button
                 onClick={() => navigate('/history')}
-                className="flex items-center gap-1.5 text-sm font-semibold bg-transparent border-none text-white cursor-pointer hover:underline p-0"
+                className="flex items-center gap-1.5 text-sm font-semibold cursor-pointer hover:opacity-80 transition-opacity p-0"
+                style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 9, padding: '7px 14px', color: 'white' }}
               >
                 Lihat Riwayat <i className="pi pi-arrow-right" style={{ fontSize: 11 }} />
               </button>
             </div>
           </div>
 
-          {/* Right: Activity Feed */}
+            {/* Right: Activity Feed */}
           <div className="xl:col-span-2">
-            <div className="card h-full animate-fade-up delay-200" style={{ display: 'flex', flexDirection: 'column' }}>
+            <div className="card animate-fade-up delay-200" style={{ display: 'flex', flexDirection: 'column', height: 'fit-content' }}>
               <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid var(--col-border)' }}>
                 <div>
                   <h3 className="m-0 text-sm font-semibold" style={{ fontFamily: 'var(--font-display)', color: 'var(--col-ink)' }}>Aktivitas Terbaru</h3>
@@ -243,19 +247,19 @@ const DashboardPage: React.FC = () => {
                 </div>
                 <button
                   onClick={() => navigate('/history')}
-                  className="flex items-center gap-1.5 text-sm font-semibold bg-transparent border-none cursor-pointer hover:underline p-0"
+                  className="flex items-center gap-1.5 text-sm font-semibold bg-transparent border-none cursor-pointer p-0 hover:opacity-70 transition-opacity"
                   style={{ color: 'var(--col-brand)' }}
                 >
                   Lihat Semua <i className="pi pi-external-link" style={{ fontSize: 11 }} />
                 </button>
               </div>
 
-              <div className="p-4 overflow-y-auto flex-1" style={{ maxHeight: 520 }}>
+              <div className="p-3">
                 {loading ? (
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {Array.from({ length: 5 }).map((_, i) => (
                       <div key={i} className="flex items-center gap-3 p-3">
-                        <div className="skeleton w-12 h-12 rounded-xl shrink-0" />
+                        <div className="skeleton w-11 h-11 rounded-xl shrink-0" />
                         <div className="flex-1 space-y-2"><div className="skeleton h-3.5 w-32 rounded" /><div className="skeleton h-2.5 w-48 rounded" /></div>
                         <div className="skeleton h-7 w-14 rounded-lg" />
                       </div>
@@ -277,7 +281,7 @@ const DashboardPage: React.FC = () => {
                     </button>
                   </div>
                 ) : (
-                  <div className="space-y-1">
+                  <div>
                     {stats.recentChecks.map((item, idx) => {
                       const isHealthy = item.hasilPrediksi?.labelPenyakit === 'HEALTHY';
                       const accuracy = ((item.hasilPrediksi?.nilaiAkurasi || 0) * 100).toFixed(1);
@@ -285,34 +289,38 @@ const DashboardPage: React.FC = () => {
                       const label = item.hasilPrediksi?.labelPenyakit;
                       const badgeColor = isHealthy ? 'badge-healthy' : label === 'NEWCASTLE' ? 'badge-warn' : label === 'SALMONELLA' ? 'badge-info' : 'badge-disease';
                       return (
-                        <div
-                          key={idx}
-                          className="activity-row group flex items-center gap-3.5 p-3 rounded-xl"
-                          style={{ border: '1px solid transparent' }}
-                          onClick={() => navigate(`/history/${item.id}`)}
-                        >
-                          <div className="relative shrink-0">
-                            <img src={`${IMAGE_BASE_URL}/${item.namaFile}`} alt="Sample" className="w-11 h-11 rounded-xl object-cover" style={{ border: '2px solid var(--col-border)' }} />
-                            <span
-                              className="absolute -bottom-1 -right-1 border-2 border-white flex items-center justify-center rounded-full"
-                              style={{ width: 17, height: 17, background: isHealthy ? 'var(--col-healthy)' : 'var(--col-disease)' }}
-                            >
-                              <i className={`pi ${isHealthy ? 'pi-check' : 'pi-times'}`} style={{ fontSize: 6, color: 'white' }} />
-                            </span>
+                        <div key={idx}>
+                          <div
+                            className="activity-row group flex items-center gap-3.5 p-3 rounded-xl cursor-pointer"
+                            onClick={() => navigate(`/history/${item.id}`)}
+                          >
+                            <div className="relative shrink-0">
+                              <img src={`${IMAGE_BASE_URL}/${item.namaFile}`} alt="Sample" className="w-11 h-11 rounded-xl object-cover" style={{ border: '2px solid var(--col-border)' }} />
+                              <span
+                                className="absolute -bottom-1 -right-1 border-2 border-white flex items-center justify-center rounded-full"
+                                style={{ width: 17, height: 17, background: isHealthy ? 'var(--col-healthy)' : 'var(--col-disease)' }}
+                              >
+                                <i className={`pi ${isHealthy ? 'pi-check' : 'pi-times'}`} style={{ fontSize: 6, color: 'white' }} />
+                              </span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <span className={`badge ${badgeColor} mb-0.5 inline-flex`}>{label || 'Pending'}</span>
+                              <p className="m-0 text-xs" style={{ color: 'var(--col-ink-4)' }}>
+                                {date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                {' · '}{date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              </p>
+                            </div>
+                            <div className="text-right shrink-0">
+                              <p className="m-0 font-bold" style={{ fontFamily: 'var(--font-display)', fontSize: '1rem', color: isHealthy ? 'var(--col-healthy)' : 'var(--col-disease)', letterSpacing: '-0.02em' }}>
+                                {accuracy}%
+                              </p>
+                              <p className="m-0 text-[10px]" style={{ color: 'var(--col-ink-4)' }}>akurasi</p>
+                            </div>
+                            <i className="pi pi-chevron-right text-xs group-hover:translate-x-0.5 transition-transform" style={{ color: 'var(--col-border)' }} />
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <span className={`badge ${badgeColor} mb-0.5 inline-flex`}>{label || 'Pending'}</span>
-                            <p className="m-0 text-xs" style={{ color: 'var(--col-ink-4)' }}>
-                              {date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
-                              {' · '}{date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                            </p>
-                          </div>
-                          <div className="text-right shrink-0">
-                            <p className="diag-number m-0" style={{ fontSize: '1.125rem', color: isHealthy ? 'var(--col-healthy)' : 'var(--col-disease)' }}>
-                              {accuracy}%
-                            </p>
-                          </div>
-                          <i className="pi pi-chevron-right text-xs group-hover:translate-x-0.5 transition-transform" style={{ color: 'var(--col-border)' }} />
+                          {idx < stats.recentChecks.length - 1 && (
+                            <div style={{ height: 1, background: 'var(--col-border-light)', margin: '0 12px' }} />
+                          )}
                         </div>
                       );
                     })}

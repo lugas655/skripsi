@@ -18,8 +18,8 @@ const HeroSection = () => {
     <section id="beranda" className="relative pt-24 pb-16 lg:pt-48 lg:pb-32 overflow-hidden" style={{ background: 'var(--col-surface)' }}>
       {/* Background decoration */}
       <div className="absolute top-0 right-0 w-1/2 h-full rounded-bl-[100px]" style={{ background: 'linear-gradient(to bottom left, var(--col-brand-pale), transparent)', zIndex: 0 }} />
-      <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob" style={{ background: 'var(--col-brand-muted)' }} />
-      <div className="absolute top-48 -left-24 w-72 h-72 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000" style={{ background: '#bbf7d0' }} />
+      <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl opacity-60 animate-blob" style={{ background: 'var(--col-brand-muted)' }} />
+      <div className="absolute top-48 -left-24 w-72 h-72 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-2000" style={{ background: '#BFDBFE' }} />
 
       <div className="max-w-6xl mx-auto px-5 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center relative z-10">
         {/* Left Content */}
@@ -135,7 +135,7 @@ const HowItWorksSection = () => {
   ];
 
   return (
-    <section id="cara-kerja" className="py-20 sm:py-24" style={{ background: 'var(--col-ink)', color: 'white' }}>
+    <section id="cara-kerja" className="py-20 sm:py-24" style={{ background: 'linear-gradient(160deg, #0f172a 0%, #1e3a8a 60%, #1d4ed8 100%)', color: 'white' }}>
       <div className="max-w-6xl mx-auto px-5">
         <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
           <h2 className="diag-label mb-3" style={{ color: 'var(--col-brand-light)' }}>Alur Sistem</h2>
@@ -144,15 +144,15 @@ const HowItWorksSection = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 sm:gap-8 relative">
           {/* Connecting Line */}
-          <div className="hidden md:block absolute top-10 left-[12%] right-[12%] h-px" style={{ background: 'var(--col-ink-2)' }} />
+          <div className="hidden md:block absolute top-10 left-[12%] right-[12%] h-px" style={{ background: 'rgba(59,130,246,0.25)' }} />
 
           {steps.map((step, idx) => (
             <div key={idx} className="relative z-10 flex flex-col items-center text-center">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mb-5 sm:mb-6 shadow-xl" style={{ background: 'var(--col-ink-2)', border: '5px solid var(--col-ink)' }}>
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mb-5 sm:mb-6 shadow-xl" style={{ background: 'rgba(255,255,255,0.10)', border: '2px solid rgba(59,130,246,0.35)' }}>
                 <span className="diag-number text-xl sm:text-2xl" style={{ color: 'var(--col-brand-light)' }}>{step.num}</span>
               </div>
-              <h4 className="text-lg font-bold mb-2.5 m-0" style={{ fontFamily: 'var(--font-display)' }}>{step.title}</h4>
-              <p className="text-sm leading-relaxed m-0" style={{ color: 'var(--col-ink-4)' }}>{step.desc}</p>
+              <h4 className="text-lg font-bold mb-2.5 m-0" style={{ fontFamily: 'var(--font-display)', color: 'white' }}>{step.title}</h4>
+              <p className="text-sm leading-relaxed m-0" style={{ color: '#BFDBFE' }}>{step.desc}</p>
             </div>
           ))}
         </div>

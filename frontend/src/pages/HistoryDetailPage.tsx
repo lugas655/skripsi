@@ -13,7 +13,7 @@ import { Citra } from '../types';
 
 const getTheme = (label: string) => {
   const l = label?.toUpperCase();
-  if (l === 'HEALTHY')     return { color: '#16A34A', bg: 'var(--col-healthy-pale)', border: '1px solid #bbf7d0', text: 'var(--col-healthy)', icon: 'pi-check-circle',        label: 'Sehat'        };
+  if (l === 'HEALTHY')     return { color: '#2563EB', bg: 'var(--col-healthy-pale)', border: '1px solid #BFDBFE', text: 'var(--col-healthy)', icon: 'pi-check-circle',        label: 'Sehat'        };
   if (l === 'COCCIDIOSIS') return { color: '#DC2626', bg: 'var(--col-disease-pale)', border: '1px solid #fecaca', text: 'var(--col-disease)', icon: 'pi-exclamation-triangle', label: 'Koksidiosis'  };
   if (l === 'NEWCASTLE')   return { color: '#D97706', bg: 'var(--col-warn-pale)',    border: '1px solid #fde68a', text: 'var(--col-warn)',    icon: 'pi-exclamation-circle',   label: 'Newcastle'    };
   if (l === 'SALMONELLA')  return { color: '#2563EB', bg: 'var(--col-info-pale)',    border: '1px solid #bfdbfe', text: 'var(--col-info)',    icon: 'pi-shield',               label: 'Salmonella'   };
@@ -58,7 +58,7 @@ const HistoryDetailPage: React.FC = () => {
   if (isLoading) return (
     <div className="min-h-screen" style={{ background: 'var(--col-surface)' }}>
       <Navbar />
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-8">
         <div className="flex items-center gap-4 mb-8"><Skeleton shape="circle" size="2.5rem" /><div><Skeleton width="14rem" height="2rem" className="mb-2" /><Skeleton width="8rem" height="0.875rem" /></div></div>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div className="lg:col-span-5"><Skeleton width="100%" height="28rem" borderRadius="1.25rem" /></div>
@@ -71,7 +71,7 @@ const HistoryDetailPage: React.FC = () => {
   if (!detail) return (
     <div className="min-h-screen" style={{ background: 'var(--col-surface)' }}>
       <Navbar />
-      <div className="max-w-6xl mx-auto px-4 py-20 text-center">
+      <div className="max-w-6xl mx-auto px-4 pt-10 pb-20 text-center">
         <h2 style={{ fontFamily: 'var(--font-display)', color: 'var(--col-ink)' }}>Data tidak ditemukan</h2>
         <button onClick={() => navigate('/history')} className="mt-4 px-5 py-2.5 rounded-xl text-white font-semibold"
           style={{ background: 'var(--col-brand)', border: 'none', cursor: 'pointer' }}>
@@ -93,22 +93,22 @@ const HistoryDetailPage: React.FC = () => {
       <div className="print-only"><PrintReport detail={detail} /></div>
       <div className="web-only min-h-screen pb-20" style={{ background: 'var(--col-surface)' }}>
         <Navbar />
-        <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 animate-fade-up">
+        <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-14 animate-fade-up">
 
           {/* Header Area */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-4">
             <div>
               <h1 className="m-0" style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.875rem', color: 'var(--col-ink)', letterSpacing: '-0.03em', lineHeight: 1 }}>
                 Laporan Diagnosa
               </h1>
               <div className="flex flex-col gap-2 mt-4">
-                <p className="m-0 text-xs font-medium text-slate-400 flex items-center gap-1.5">
+                <p className="m-0 text-xs font-medium flex items-center gap-1.5" style={{ color: 'var(--col-ink-4)' }}>
                   <i className="pi pi-calendar" style={{ fontSize: 10 }} />
                   Dibuat pada {new Date(detail.tanggalUnggah).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })} pukul {new Date(detail.tanggalUnggah).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
                 </p>
-                <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-slate-100 text-[10px] font-black uppercase tracking-wider text-slate-500 border border-slate-200 w-fit">
-                  <span className="text-slate-400 font-bold opacity-60">NO. REFERENSI:</span>
-                  <span className="text-slate-700 tracking-[0.15em]">#{detail.id.toString().padStart(5, '0')}</span>
+                <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider w-fit" style={{ background: 'var(--col-surface)', border: '1px solid var(--col-border)', color: 'var(--col-ink-3)' }}>
+                  <span className="font-bold" style={{ color: 'var(--col-ink-4)' }}>NO. REFERENSI:</span>
+                  <span className="tracking-[0.15em]" style={{ color: 'var(--col-ink-2)' }}>#{detail.id.toString().padStart(5, '0')}</span>
                 </span>
               </div>
             </div>
@@ -116,15 +116,15 @@ const HistoryDetailPage: React.FC = () => {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => window.print()}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all hover:bg-slate-50 border border-slate-200 bg-white text-slate-600 cursor-pointer shadow-sm"
-                style={{ fontFamily: 'var(--font-display)' }}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all hover:-translate-y-0.5 cursor-pointer"
+                style={{ background: 'var(--col-card)', border: '1px solid var(--col-border)', color: 'var(--col-ink-2)', fontFamily: 'var(--font-display)', boxShadow: 'var(--sh-sm)' }}
               >
                 <i className="pi pi-print" style={{ fontSize: 12 }} />
                 Cetak PDF
               </button>
               <button
                 onClick={() => navigate('/predict')}
-                className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:brightness-110 cursor-pointer shadow-md shadow-green-900/10"
+                className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:brightness-110 cursor-pointer shadow-md shadow-blue-900/10"
                 style={{ background: 'var(--col-brand)', border: 'none', fontFamily: 'var(--font-display)' }}
               >
                 <i className="pi pi-plus" style={{ fontSize: 12 }} />
@@ -163,19 +163,19 @@ const HistoryDetailPage: React.FC = () => {
                 </div>
                 
                 {/* Technical Specs */}
-                <div className="p-6 bg-white">
-                  <h3 className="diag-label mb-4 text-slate-400 flex items-center gap-2">
+                <div className="p-6" style={{ background: 'var(--col-card)' }}>
+                  <h3 className="diag-label mb-4 flex items-center gap-2" style={{ color: 'var(--col-ink-4)' }}>
                     <i className="pi pi-info-circle" />
                     Spesifikasi Teknis
                   </h3>
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
+                    <div className="p-3.5 rounded-2xl" style={{ background: 'var(--col-surface)', border: '1px solid var(--col-border)' }}>
                       <p className="diag-label m-0 mb-1">Nama Berkas</p>
-                      <p className="m-0 text-xs font-bold text-slate-600 truncate" title={detail.namaFile}>{detail.namaFile}</p>
+                      <p className="m-0 text-xs font-bold truncate" style={{ color: 'var(--col-ink-2)' }} title={detail.namaFile}>{detail.namaFile}</p>
                     </div>
-                    <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
+                    <div className="p-3.5 rounded-2xl" style={{ background: 'var(--col-surface)', border: '1px solid var(--col-border)' }}>
                       <p className="diag-label m-0 mb-1">Model AI</p>
-                      <p className="m-0 text-xs font-bold text-slate-600">ViT-Base Patch16</p>
+                      <p className="m-0 text-xs font-bold" style={{ color: 'var(--col-ink-2)' }}>ViT-Base Patch16</p>
                     </div>
                   </div>
                 </div>
@@ -187,7 +187,7 @@ const HistoryDetailPage: React.FC = () => {
 
               {/* Main Analysis Card */}
               <div className="card !p-0 overflow-hidden shadow-xl shadow-slate-200/50">
-                <div className="p-8 border-b border-slate-100 flex items-start justify-between">
+                <div className="px-8 pt-8 pb-3 border-b border-slate-100 flex items-start justify-between">
                   <div className="space-y-1">
                     <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider mb-2" style={{ background: t.bg, color: t.text }}>
                       <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: t.color }} />
@@ -203,7 +203,7 @@ const HistoryDetailPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="p-8 space-y-8 bg-white">
+                <div className="px-8 pt-4 pb-6 space-y-6 bg-white">
                   {/* AI Insight Box */}
                   <div className="relative group">
                     <div className="absolute -inset-1 bg-gradient-to-r from-slate-100 to-slate-50 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
@@ -222,7 +222,7 @@ const HistoryDetailPage: React.FC = () => {
 
                   {/* Probability Breakdown */}
                   <div>
-                    <h4 className="m-0 mb-5 text-xs font-black uppercase tracking-[0.2em] text-slate-400 flex items-center gap-2">
+                    <h4 className="m-0 mb-5 text-xs font-black uppercase tracking-[0.2em] flex items-center gap-2" style={{ color: 'var(--col-ink-4)' }}>
                       <i className="pi pi-chart-bar" />
                       Distribusi Probabilitas Penyakit
                     </h4>
@@ -231,14 +231,14 @@ const HistoryDetailPage: React.FC = () => {
                         const th = getTheme(lbl);
                         const isMain = lbl === detail.hasilPrediksi?.labelPenyakit;
                         return (
-                          <div key={lbl} className={`p-4 rounded-2xl border transition-all ${isMain ? 'shadow-md scale-[1.02]' : 'bg-slate-50/50'}`} 
-                            style={{ borderColor: isMain ? th.color : 'var(--col-border)', background: isMain ? 'white' : undefined }}>
+                          <div key={lbl} className={`p-4 rounded-2xl border transition-all ${isMain ? 'shadow-md scale-[1.02]' : ''}`} 
+                            style={{ borderColor: isMain ? th.color : 'var(--col-border)', background: isMain ? 'white' : 'var(--col-surface)' }}>
                             <div className="flex justify-between items-center mb-2.5">
-                              <span className={`text-[11px] font-black uppercase tracking-wider ${isMain ? '' : 'text-slate-400'}`} style={{ color: isMain ? th.text : undefined }}>{th.label}</span>
+                              <span className={`text-[11px] font-black uppercase tracking-wider`} style={{ color: isMain ? th.text : 'var(--col-ink-4)' }}>{th.label}</span>
                               <span className="font-mono text-sm font-bold" style={{ color: isMain ? th.text : 'var(--col-ink-3)' }}>{((prob as number) * 100).toFixed(1)}%</span>
                             </div>
-                            <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-                              <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${(prob as number) * 100}%`, background: isMain ? th.color : '#CBD5E1' }} />
+                            <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: 'var(--col-border-light)' }}>
+                              <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${(prob as number) * 100}%`, background: isMain ? th.color : 'var(--col-border)' }} />
                             </div>
                           </div>
                         );
@@ -248,7 +248,7 @@ const HistoryDetailPage: React.FC = () => {
                 </div>
                 
                 {/* Danger zone footer */}
-                <div className="p-6 bg-slate-50 border-t border-slate-100 flex justify-center">
+                <div className="p-6 border-t flex justify-center" style={{ background: 'var(--col-surface)', borderColor: 'var(--col-border)' }}>
                    <button
                     onClick={confirmDelete}
                     className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest text-red-500 hover:bg-red-50 transition-all border-none bg-transparent cursor-pointer"
