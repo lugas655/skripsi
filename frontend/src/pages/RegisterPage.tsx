@@ -13,7 +13,16 @@ const RegisterPage: React.FC = () => {
   const toast = useRef<Toast>(null);
   const navigate = useNavigate();
 
-  React.useEffect(() => { if (localStorage.getItem('token')) navigate('/dashboard'); }, [navigate]);
+  React.useEffect(() => {
+    const token = localStorage.getItem('token');
+    const userStr = localStorage.getItem('user');
+    if (token && userStr) {
+      const user = JSON.parse(userStr);
+      navigate(user.role === 'ADMIN' ? '/admin' : '/dashboard');
+    } else if (token) {
+      navigate('/dashboard');
+    }
+  }, [navigate]);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
