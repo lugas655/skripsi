@@ -13,7 +13,14 @@ const LoginPage: React.FC = () => {
   const navigate = useNavigate();
 
   React.useEffect(() => {
-    if (localStorage.getItem('token')) navigate('/dashboard');
+    const token = localStorage.getItem('token');
+    const userStr = localStorage.getItem('user');
+    if (token && userStr) {
+      const user = JSON.parse(userStr);
+      navigate(user.role === 'ADMIN' ? '/admin' : '/dashboard');
+    } else if (token) {
+      navigate('/dashboard');
+    }
   }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -23,8 +30,8 @@ const LoginPage: React.FC = () => {
       const data = await authService.login({ username, password });
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
-      toast.current?.show({ severity: 'success', summary: 'Berhasil masuk', detail: 'Mengalihkan ke dashboard...', life: 2000 });
-      setTimeout(() => navigate('/dashboard'), 1000);
+      toast.current?.show({ severity: 'success', summary: 'Berhasil masuk', detail: 'Mengalihkan...', life: 2000 });
+      setTimeout(() => navigate(data.user.role === 'ADMIN' ? '/admin' : '/dashboard'), 1000);
     } catch (error: any) {
       toast.current?.show({ severity: 'error', summary: 'Login gagal', detail: error.response?.data?.message || 'Username atau password tidak sesuai.', life: 3000 });
     } finally { setLoading(false); }
