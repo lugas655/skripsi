@@ -1,197 +1,300 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/landing/Navbar';
 import Footer from '../components/landing/Footer';
 
+// ─── Types ────────────────────────────────────────────────────────────────────
+interface Section {
+  id: string;
+  title: string;
+  icon: string;
+  shortTitle: string;
+}
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+const SECTIONS: Section[] = [
+  { id: 'penerimaan', title: '1. Penerimaan ketentuan', icon: 'pi-check-circle', shortTitle: 'Penerimaan' },
+  { id: 'layanan', title: '2. Layanan deteksi AI & disclaimer', icon: 'pi-microchip', shortTitle: 'Layanan AI' },
+  { id: 'tanggung-jawab', title: '3. Tanggung jawab pengguna', icon: 'pi-user', shortTitle: 'Tanggung jawab' },
+  { id: 'batasan', title: '4. Batasan penggunaan', icon: 'pi-ban', shortTitle: 'Batasan' },
+  { id: 'kontak', title: '5. Kontak legal', icon: 'pi-envelope', shortTitle: 'Kontak legal' },
+];
+
+const RESPONSIBILITIES = [
+  'Menjamin keakuratan data profil dan legalitas akun yang didaftarkan.',
+  'Menjaga kerahasiaan kredensial akses (username & password) agar tidak disalahgunakan pihak lain.',
+  'Mengunggah citra yang asli, jelas, dan diambil dari unit ternak milik sendiri atau di bawah manajemen legal pengguna.',
+  'Tidak menggunakan platform untuk tujuan penipuan atau klaim asuransi ternak yang tidak sah.',
+];
+
+const RESTRICTIONS = [
+  'Melakukan scraping atau pengambilan data massal secara otomatis.',
+  'Melakukan reverse engineering pada model AI atau sistem API.',
+  'Mengunggah konten berbahaya, virus, atau malware ke platform.',
+  'Menjual kembali akses layanan tanpa izin tertulis dari manajemen.',
+];
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+const SectionHead: React.FC<{ icon: string; title: string; color?: string }> = ({
+  icon, title, color = 'text-blue-500',
+}) => (
+  <div className="flex items-center gap-2.5 mb-3">
+    <i className={`pi ${icon} ${color}`} style={{ fontSize: 15 }} />
+    <h2 className="m-0 text-[15px] font-semibold text-slate-800">{title}</h2>
+  </div>
+);
+
+const ContentCard: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <div className="bg-white border border-slate-200 rounded-xl p-5">
+    {children}
+  </div>
+);
+
+const InfoBox: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
+  <div className="bg-slate-50 border border-slate-100 rounded-lg p-4">
+    <span className="block text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+      {label}
+    </span>
+    <p className="m-0 text-[13px] leading-relaxed text-slate-600">{children}</p>
+  </div>
+);
+
+// ─── Main Component ────────────────────────────────────────────────────────────
 const TermsPage: React.FC = () => {
-  const sections = [
-    { id: 'penerimaan', title: 'Penerimaan Ketentuan', icon: 'pi-check-circle' },
-    { id: 'layanan', title: 'Layanan Deteksi AI', icon: 'pi-microchip' },
-    { id: 'tanggung-jawab', title: 'Tanggung Jawab Pengguna', icon: 'pi-user' },
-    { id: 'batasan', title: 'Batasan Penggunaan', icon: 'pi-ban' },
-    { id: 'kontak', title: 'Kontak Legal', icon: 'pi-envelope' },
-  ];
+  const [activeId, setActiveId] = useState<string>('penerimaan');
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const offsets = SECTIONS.map(s => {
+        const el = document.getElementById(s.id);
+        return { id: s.id, top: el ? el.getBoundingClientRect().top : Infinity };
+      });
+      const visible = offsets.filter(o => o.top <= 160);
+      if (visible.length > 0) setActiveId(visible[visible.length - 1].id);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollTo = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setActiveId(id);
+  };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F8FAFC]">
+    <div className="min-h-screen flex flex-col" style={{ background: '#f8fafc' }}>
       <Navbar />
-      
-      {/* Decorative Header Area */}
-      <div className="pt-32 pb-20 bg-white border-b border-slate-200 overflow-hidden relative">
-        <div className="absolute top-0 right-0 w-1/3 h-full opacity-5 pointer-events-none">
-          <svg viewBox="0 0 100 100" className="w-full h-full text-green-600">
-             <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
-               <path d="M 10 0 L 0 0 0 10" fill="none" stroke="currentColor" strokeWidth="0.5"/>
-             </pattern>
-             <rect width="100" height="100" fill="url(#grid)" />
-          </svg>
-        </div>
 
-        <div className="max-w-5xl mx-auto px-6 relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-50 border border-green-100 text-green-700 text-[11px] font-bold uppercase tracking-wider mb-4">
-            Legalitas & Kebijakan
+      {/* ── Header ── */}
+      <div className="border-b border-slate-200 bg-white" style={{ paddingTop: '7rem', paddingBottom: '1.75rem' }}>
+        <div className="max-w-5xl mx-auto px-6">
+          <div
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold mb-3"
+            style={{ background: '#eff6ff', color: '#1d4ed8', border: '0.5px solid #bfdbfe' }}
+          >
+            <i className="pi pi-shield" style={{ fontSize: 10 }} />
+            Legalitas &amp; kebijakan
           </div>
-          <h1 className="text-4xl md:text-5xl font-black mb-4 tracking-tight" style={{ fontFamily: 'var(--font-display)', color: 'var(--col-ink)' }}>
-            Syarat & <span className="text-green-600">Ketentuan</span>
+
+          <h1
+            className="text-4xl md:text-5xl font-black mb-3"
+            style={{ color: '#0f172a', letterSpacing: '-0.03em' }}
+          >
+            Syarat &amp; <span className="text-blue-600">ketentuan</span>
           </h1>
-          <div className="flex flex-wrap items-center gap-4 text-slate-500 text-sm font-medium">
-            <span className="flex items-center gap-1.5">
-              <i className="pi pi-calendar" style={{ fontSize: 12 }} />
-              Pembaruan Terakhir: 13 Juni 2026
-            </span>
-            <span className="w-1 h-1 rounded-full bg-slate-300 hidden md:block" />
-            <span className="flex items-center gap-1.5">
-              <i className="pi pi-clock" style={{ fontSize: 12 }} />
-              Waktu Baca: 5 Menit
-            </span>
+
+          <div className="flex flex-wrap items-center gap-4">
+            {[
+              { icon: 'pi-calendar', text: 'Diperbarui 13 Juni 2026' },
+              { icon: 'pi-clock', text: 'Waktu baca 5 menit' },
+              { icon: 'pi-file', text: 'Versi 2.1' },
+            ].map((m, i) => (
+              <React.Fragment key={m.text}>
+                {i > 0 && <span style={{ width: 4, height: 4, borderRadius: "50%", background: "#cbd5e1", display: "inline-block", flexShrink: 0 }} className="hidden md:block" />}
+                <span className="flex items-center gap-1.5 text-[13px] text-slate-500">
+                  <i className={`pi ${m.icon}`} style={{ fontSize: 12 }} />
+                  {m.text}
+                </span>
+              </React.Fragment>
+            ))}
           </div>
         </div>
       </div>
 
-      <main className="flex-grow py-12">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col lg:flex-row gap-12">
-          
-          {/* Sidebar Navigation */}
-          <aside className="lg:w-1/4 hidden lg:block">
-            <div className="sticky top-28 space-y-1">
-              <p className="diag-label px-3 mb-4 text-slate-400">Navigasi Pasal</p>
-              {sections.map((s) => (
-                <a 
-                  key={s.id} 
-                  href={`#${s.id}`}
-                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-600 hover:bg-white hover:text-green-700 hover:shadow-sm transition-all no-underline group"
+      {/* ── Body ── */}
+      <main className="flex-grow">
+        <div className="max-w-5xl mx-auto px-6 py-7 flex flex-col lg:flex-row gap-8">
+
+          {/* Sidebar */}
+          <aside className="lg:w-52 flex-shrink-0 hidden lg:block">
+            <div className="sticky top-28">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 px-3 mb-2">
+                Navigasi pasal
+              </p>
+              <nav className="flex flex-col gap-0.5" aria-label="Navigasi pasal">
+                {SECTIONS.map(s => (
+                  <button
+                    key={s.id}
+                    onClick={() => scrollTo(s.id)}
+                    className={[
+                      'flex items-center gap-2 px-3 py-2 rounded-lg text-[13px] font-medium border-none cursor-pointer text-left w-full transition-all duration-150',
+                      activeId === s.id
+                        ? 'bg-blue-50 text-blue-700'
+                        : 'bg-transparent text-slate-500 hover:bg-slate-100 hover:text-slate-700',
+                    ].join(' ')}
+                  >
+                    <i className={`pi ${s.icon}`} style={{ fontSize: 13, width: 14 }} />
+                    {s.shortTitle}
+                  </button>
+                ))}
+              </nav>
+              <div className="mt-5 pt-5 border-t border-slate-200">
+                <Link
+                  to="/register"
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-blue-600 text-white text-[13px] font-semibold no-underline hover:bg-blue-700 transition-colors"
                 >
-                  <i className={`pi ${s.icon} text-slate-400 group-hover:text-green-600`} style={{ fontSize: 14 }} />
-                  {s.title}
-                </a>
-              ))}
-              <div className="mt-8 pt-8 border-t border-slate-200">
-                <Link to="/register" className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-bold text-white bg-green-700 hover:bg-green-800 transition-all no-underline shadow-md shadow-green-900/10">
-                  Mulai Gunakan AI
+                  Mulai gunakan AI
                   <i className="pi pi-arrow-right" style={{ fontSize: 11 }} />
                 </Link>
               </div>
             </div>
           </aside>
 
-          {/* Content Area */}
-          <div className="lg:w-3/4 space-y-12">
-            
+          {/* Content */}
+          <div className="flex-1 min-w-0 flex flex-col gap-5">
+
+            {/* 1. Penerimaan */}
             <section id="penerimaan" className="scroll-mt-32">
-              <div className="flex items-center gap-2 mb-3">
-                <i className="pi pi-check-circle text-green-600" style={{ fontSize: 16 }} />
-                <h2 className="text-xl font-black m-0" style={{ fontFamily: 'var(--font-display)', color: 'var(--col-ink)' }}>
-                  1. Penerimaan Ketentuan
-                </h2>
-              </div>
-              <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200 text-slate-600 leading-relaxed space-y-4">
-                <p>
-                  AyamSehat.AI ("Platform") adalah layanan analisis kesehatan unggas berbasis kecerdasan buatan. Dengan mendaftar, mengakses, atau menggunakan platform ini, Anda menyatakan bahwa Anda telah membaca, memahami, dan setuju untuk terikat oleh Syarat dan Ketentuan ini.
+              <SectionHead icon="pi-check-circle" title="1. Penerimaan ketentuan" />
+              <ContentCard>
+                <p className="m-0 text-[13px] leading-relaxed text-slate-600">
+                  AyamSehat.AI adalah layanan analisis kesehatan unggas berbasis kecerdasan buatan. Dengan mendaftar, mengakses, atau menggunakan platform ini, Anda menyatakan telah membaca, memahami, dan setuju terikat oleh syarat dan ketentuan ini.
                 </p>
-                <p>
-                  Jika Anda menggunakan platform ini atas nama entitas bisnis atau peternakan, Anda menyatakan bahwa Anda memiliki otoritas legal untuk mengikat entitas tersebut pada ketentuan ini.
+                <p className="m-0 mt-3 text-[13px] leading-relaxed text-slate-600">
+                  Jika Anda menggunakan platform atas nama entitas bisnis atau peternakan, Anda menyatakan memiliki otoritas legal untuk mengikat entitas tersebut pada ketentuan ini.
                 </p>
-              </div>
+              </ContentCard>
             </section>
 
+            <div className="h-px bg-slate-100" />
+
+            {/* 2. Layanan AI */}
             <section id="layanan" className="scroll-mt-32">
-              <div className="flex items-center gap-2 mb-3">
-                <i className="pi pi-microchip text-blue-600" style={{ fontSize: 16 }} />
-                <h2 className="text-xl font-black m-0" style={{ fontFamily: 'var(--font-display)', color: 'var(--col-ink)' }}>
-                  2. Layanan Deteksi AI & Disclaimer
-                </h2>
-              </div>
-              <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200 text-slate-600 leading-relaxed">
-                <p className="mb-4 text-sm md:text-base">
+              <SectionHead icon="pi-microchip" title="2. Layanan deteksi AI & disclaimer" />
+              <ContentCard>
+                <p className="m-0 text-[13px] leading-relaxed text-slate-600">
                   AyamSehat.AI menyediakan alat bantu deteksi berbasis Vision Transformer (ViT). Anda memahami sepenuhnya bahwa:
                 </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-2">Sifat Analisis</span>
-                    <p className="text-sm m-0">Hasil analisis AI bersifat <strong>informatif dan prediktif</strong>, bukan merupakan diagnosis medis Veteriner yang bersifat final.</p>
-                  </div>
-                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-2">Rekomendasi Ahli</span>
-                    <p className="text-sm m-0">Pengguna sangat disarankan untuk melakukan konsultasi dengan <strong>Dokter Hewan Profesional</strong> sebelum mengambil tindakan medis berat.</p>
-                  </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+                  <InfoBox label="Sifat analisis">
+                    Hasil analisis AI bersifat <strong>informatif dan prediktif</strong>, bukan diagnosis medis veteriner yang final.
+                  </InfoBox>
+                  <InfoBox label="Rekomendasi ahli">
+                    Sangat disarankan konsultasi dengan <strong>dokter hewan profesional</strong> sebelum tindakan medis berat.
+                  </InfoBox>
                 </div>
-                <div className="mt-6 p-4 rounded-xl bg-amber-50 border border-amber-100 flex gap-3">
-                  <i className="pi pi-exclamation-triangle text-amber-600 mt-0.5" style={{ fontSize: 14 }} />
-                  <p className="text-sm m-0 text-amber-800 font-medium leading-relaxed">
-                    Platform tidak bertanggung jawab atas kerugian finansial, kematian ternak, atau kerusakan aset yang disebabkan oleh pengambilan keputusan sepihak berdasarkan hasil prediksi sistem.
+                <div
+                  className="flex items-start gap-3 rounded-lg p-3.5 mt-3"
+                  style={{ background: '#fffbeb', border: '0.5px solid #fde68a' }}
+                >
+                  <i className="pi pi-exclamation-triangle flex-shrink-0 mt-0.5" style={{ fontSize: 13, color: '#b45309' }} />
+                  <p className="m-0 text-[13px] leading-relaxed" style={{ color: '#92400e' }}>
+                    Platform tidak bertanggung jawab atas kerugian finansial, kematian ternak, atau kerusakan aset akibat pengambilan keputusan sepihak berdasarkan prediksi sistem.
                   </p>
                 </div>
-              </div>
+              </ContentCard>
             </section>
 
+            <div className="h-px bg-slate-100" />
+
+            {/* 3. Tanggung jawab */}
             <section id="tanggung-jawab" className="scroll-mt-32">
-              <div className="flex items-center gap-2 mb-3">
-                <i className="pi pi-user text-purple-600" style={{ fontSize: 16 }} />
-                <h2 className="text-xl font-black m-0" style={{ fontFamily: 'var(--font-display)', color: 'var(--col-ink)' }}>
-                  3. Tanggung Jawab Pengguna
-                </h2>
-              </div>
-              <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200 text-slate-600 leading-relaxed space-y-4">
-                <ul className="list-none p-0 m-0 space-y-4">
-                  {[
-                    'Menjamin keakuratan data profil dan legalitas akun yang didaftarkan.',
-                    'Menjaga kerahasiaan kredensial akses (username & password) agar tidak disalahgunakan oleh pihak lain.',
-                    'Mengunggah citra (gambar) yang asli, jelas, dan diambil dari unit ternak milik sendiri atau yang di bawah manajemen legal pengguna.',
-                    'Tidak menggunakan platform untuk tujuan penipuan atau klaim asuransi ternak yang tidak sah.'
-                  ].map((text, i) => (
-                    <li key={i} className="flex gap-3">
-                      <span className="w-5 h-5 rounded-full bg-slate-100 text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">{i+1}</span>
-                      <span className="text-sm md:text-base">{text}</span>
+              <SectionHead icon="pi-user" title="3. Tanggung jawab pengguna" color="text-purple-500" />
+              <ContentCard>
+                <ul className="m-0 p-0 list-none flex flex-col gap-2.5">
+                  {RESPONSIBILITIES.map((text, i) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <span
+                        className="flex-shrink-0 mt-0.5"
+                        style={{
+                          width: 22,
+                          height: 22,
+                          minWidth: 22,
+                          borderRadius: '50%',
+                          background: '#f1f5f9',
+                          border: '0.5px solid #e2e8f0',
+                          color: '#64748b',
+                          fontSize: 11,
+                          fontWeight: 600,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        {i + 1}
+                      </span>
+                      <p className="m-0 text-[13px] leading-relaxed text-slate-600">{text}</p>
                     </li>
                   ))}
                 </ul>
-              </div>
+              </ContentCard>
             </section>
 
+            <div className="h-px bg-slate-100" />
+
+            {/* 4. Batasan */}
             <section id="batasan" className="scroll-mt-32">
-              <div className="flex items-center gap-2 mb-3">
-                <i className="pi pi-ban text-red-600" style={{ fontSize: 16 }} />
-                <h2 className="text-xl font-black m-0" style={{ fontFamily: 'var(--font-display)', color: 'var(--col-ink)' }}>
-                  4. Batasan Penggunaan
-                </h2>
-              </div>
-              <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-200 text-slate-600 leading-relaxed">
-                <p className="text-sm md:text-base">Anda secara tegas dilarang untuk:</p>
-                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {[
-                    'Melakukan scraping atau pengambilan data massal secara otomatis.',
-                    'Melakukan reverse engineering pada model AI atau sistem API.',
-                    'Mengunggah konten berbahaya, virus, atau malware.',
-                    'Menjual kembali akses layanan tanpa izin tertulis dari manajemen AyamSehat.AI.'
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-center gap-2 p-2.5 rounded-lg border border-slate-100 hover:border-red-100 transition-colors">
-                      <i className="pi pi-times-circle text-red-400" style={{ fontSize: 12 }} />
-                      <span className="text-xs md:text-sm font-medium">{item}</span>
+              <SectionHead icon="pi-ban" title="4. Batasan penggunaan" color="text-red-500" />
+              <ContentCard>
+                <p className="m-0 mb-3 text-[13px] text-slate-600">Anda secara tegas dilarang untuk:</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  {RESTRICTIONS.map((item, i) => (
+                    <div
+                      key={i}
+                      className="flex items-start gap-2.5 p-3 rounded-lg border border-slate-100 bg-slate-50 hover:border-red-100 transition-colors"
+                    >
+                      <i className="pi pi-times-circle text-red-400 flex-shrink-0 mt-0.5" style={{ fontSize: 13 }} />
+                      <p className="m-0 text-[13px] leading-relaxed text-slate-600">{item}</p>
                     </div>
                   ))}
                 </div>
-              </div>
+              </ContentCard>
             </section>
 
+            <div className="h-px bg-slate-100" />
+
+            {/* 5. Kontak */}
             <section id="kontak" className="scroll-mt-32">
-              <div className="p-10 rounded-3xl bg-slate-900 text-white relative overflow-hidden shadow-xl">
-                <div className="relative z-10">
-                  <h2 className="text-2xl font-black mb-4" style={{ fontFamily: 'var(--font-display)' }}>Butuh Klarifikasi Legal?</h2>
-                  <p className="text-slate-400 mb-8 max-w-md">
-                    Tim legal kami siap membantu jika Anda memiliki pertanyaan khusus mengenai syarat, ketentuan, atau kerjasama lisensi.
+              <SectionHead icon="pi-envelope" title="5. Kontak legal" />
+              <div
+                className="rounded-xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-5"
+                style={{ background: '#f8fafc', border: '0.5px solid #e2e8f0' }}
+              >
+                <div>
+                  <h3 className="text-[15px] font-semibold text-slate-800 mb-1.5">
+                    Butuh klarifikasi legal?
+                  </h3>
+                  <p className="m-0 text-[13px] text-slate-500 leading-relaxed max-w-sm">
+                    Tim legal kami siap membantu jika ada pertanyaan khusus mengenai syarat, ketentuan, atau kerjasama lisensi.
                   </p>
-                  <div className="flex flex-wrap gap-4">
-                    <a href="mailto:legal@ayamsehat.ai" className="px-6 py-3 rounded-xl bg-white text-slate-900 font-bold text-sm no-underline hover:bg-slate-100 transition-all flex items-center gap-2">
-                      <i className="pi pi-envelope" />
-                      Email Tim Legal
-                    </a>
-                    <Link to="/" className="px-6 py-3 rounded-xl bg-slate-800 text-white font-bold text-sm no-underline hover:bg-slate-700 transition-all border border-slate-700">
-                      Beranda
-                    </Link>
-                  </div>
                 </div>
-                {/* Background glow */}
-                <div className="absolute -bottom-24 -right-24 w-64 h-64 rounded-full bg-green-500/20 blur-[80px]" />
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <a
+                    href="mailto:legal@ayamsehat.ai"
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white text-[13px] font-semibold no-underline hover:bg-blue-700 transition-colors"
+                  >
+                    <i className="pi pi-envelope" style={{ fontSize: 12 }} />
+                    Email tim legal
+                  </a>
+                  <Link
+                    to="/"
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-slate-300 text-slate-700 text-[13px] font-semibold no-underline hover:bg-slate-50 transition-colors"
+                  >
+                    Beranda
+                  </Link>
+                </div>
               </div>
             </section>
 
