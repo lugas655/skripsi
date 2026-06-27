@@ -13,20 +13,20 @@ import { Citra } from '../types';
 
 const getTheme = (label: string) => {
   const l = label?.toUpperCase();
-  if (l === 'HEALTHY')     return { color: '#2563EB', bg: 'var(--col-healthy-pale)', border: '1px solid #BFDBFE', text: 'var(--col-healthy)', icon: 'pi-check-circle',        label: 'Sehat'        };
-  if (l === 'COCCIDIOSIS') return { color: '#DC2626', bg: 'var(--col-disease-pale)', border: '1px solid #fecaca', text: 'var(--col-disease)', icon: 'pi-exclamation-triangle', label: 'Koksidiosis'  };
-  if (l === 'NEWCASTLE')   return { color: '#D97706', bg: 'var(--col-warn-pale)',    border: '1px solid #fde68a', text: 'var(--col-warn)',    icon: 'pi-exclamation-circle',   label: 'Newcastle'    };
-  if (l === 'SALMONELLA')  return { color: '#2563EB', bg: 'var(--col-info-pale)',    border: '1px solid #bfdbfe', text: 'var(--col-info)',    icon: 'pi-shield',               label: 'Salmonella'   };
+  if (l === 'HEALTHY') return { color: '#2563EB', bg: 'var(--col-healthy-pale)', border: '1px solid #BFDBFE', text: 'var(--col-healthy)', icon: 'pi-check-circle', label: 'Sehat' };
+  if (l === 'COCCIDIOSIS') return { color: '#DC2626', bg: 'var(--col-disease-pale)', border: '1px solid #fecaca', text: 'var(--col-disease)', icon: 'pi-exclamation-triangle', label: 'Koksidiosis' };
+  if (l === 'NEWCASTLE') return { color: '#D97706', bg: 'var(--col-warn-pale)', border: '1px solid #fde68a', text: 'var(--col-warn)', icon: 'pi-exclamation-circle', label: 'Newcastle' };
+  if (l === 'SALMONELLA') return { color: '#2563EB', bg: 'var(--col-info-pale)', border: '1px solid #bfdbfe', text: 'var(--col-info)', icon: 'pi-shield', label: 'Salmonella' };
   return { color: '#64748B', bg: '#F8FAFC', border: '1px solid #E2E8F0', text: '#475569', icon: 'pi-question-circle', label: label };
 };
 
 const getDesc = (label: string) => {
   switch (label?.toUpperCase()) {
-    case 'HEALTHY':     return 'Kondisi feses ayam menunjukkan parameter kesehatan yang optimal.';
+    case 'HEALTHY': return 'Kondisi feses ayam menunjukkan parameter kesehatan yang optimal.';
     case 'COCCIDIOSIS': return 'Terdeteksi Koksidiosis. Segera ganti alas kandang dan konsultasikan koksidiostat.';
-    case 'NEWCASTLE':   return 'Bahaya: Newcastle Disease terdeteksi. Lakukan isolasi total segera.';
-    case 'SALMONELLA':  return 'Indikasi Salmonella. Bersihkan tempat pakan dan berikan antibiotik.';
-    default:            return 'Data analisis tidak tersedia.';
+    case 'NEWCASTLE': return 'Bahaya: Newcastle Disease terdeteksi. Lakukan isolasi total segera.';
+    case 'SALMONELLA': return 'Indikasi Salmonella. Bersihkan tempat pakan dan berikan antibiotik.';
+    default: return 'Data analisis tidak tersedia.';
   }
 };
 
@@ -82,7 +82,7 @@ const HistoryDetailPage: React.FC = () => {
   );
 
   const isLowConfidence = (detail.hasilPrediksi?.nilaiAkurasi || 0) < 0.70;
-  const t = isLowConfidence 
+  const t = isLowConfidence
     ? { color: '#D97706', bg: 'var(--col-warn-pale)', border: '1px solid #fde68a', text: 'var(--col-warn)', icon: 'pi-question-circle', label: 'Tidak Terdeteksi' }
     : getTheme(detail.hasilPrediksi?.labelPenyakit || '');
   const accuracy = ((detail.hasilPrediksi?.nilaiAkurasi || 0) * 100).toFixed(1);
@@ -141,7 +141,7 @@ const HistoryDetailPage: React.FC = () => {
                 <div className="relative aspect-square overflow-hidden bg-slate-100">
                   <img src={`${IMAGE_BASE_URL}/${detail.namaFile}`} alt="Evidence"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" />
-                  
+
                   {/* Glassmorphism Overlay */}
                   <div className="absolute inset-x-4 bottom-4">
                     <div className="backdrop-blur-md bg-white/70 border border-white/50 p-4 rounded-2xl shadow-2xl flex items-center justify-between">
@@ -161,7 +161,7 @@ const HistoryDetailPage: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Technical Specs */}
                 <div className="p-6" style={{ background: 'var(--col-card)' }}>
                   <h3 className="diag-label mb-4 flex items-center gap-2" style={{ color: 'var(--col-ink-4)' }}>
@@ -231,7 +231,7 @@ const HistoryDetailPage: React.FC = () => {
                         const th = getTheme(lbl);
                         const isMain = lbl === detail.hasilPrediksi?.labelPenyakit;
                         return (
-                          <div key={lbl} className={`p-4 rounded-2xl border transition-all ${isMain ? 'shadow-md scale-[1.02]' : ''}`} 
+                          <div key={lbl} className={`p-4 rounded-2xl border transition-all ${isMain ? 'shadow-md scale-[1.02]' : ''}`}
                             style={{ borderColor: isMain ? th.color : 'var(--col-border)', background: isMain ? 'white' : 'var(--col-surface)' }}>
                             <div className="flex justify-between items-center mb-2.5">
                               <span className={`text-[11px] font-black uppercase tracking-wider`} style={{ color: isMain ? th.text : 'var(--col-ink-4)' }}>{th.label}</span>
@@ -246,10 +246,10 @@ const HistoryDetailPage: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Danger zone footer */}
                 <div className="p-6 border-t flex justify-center" style={{ background: 'var(--col-surface)', borderColor: 'var(--col-border)' }}>
-                   <button
+                  <button
                     onClick={confirmDelete}
                     className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest text-red-500 hover:bg-red-50 transition-all border-none bg-transparent cursor-pointer"
                   >

@@ -54,14 +54,31 @@ const DashboardPage: React.FC = () => {
   const healthyCount = stats?.labelCounts['HEALTHY'] || 0;
   const sickCount = stats ? stats.totalDiagnoses - healthyCount : 0;
 
-  const healthStatus = () => {
-    if (!stats || stats.totalDiagnoses === 0) return { label: 'Siap', color: 'var(--col-info)', pale: 'var(--col-info-pale)', icon: 'pi-info-circle' };
-    const ratio = (healthyCount / stats.totalDiagnoses) * 100;
-    if (ratio > 80) return { label: 'Optimal', color: 'var(--col-healthy)', pale: 'var(--col-healthy-pale)', icon: 'pi-check-circle' };
-    if (ratio > 50) return { label: 'Waspada', color: 'var(--col-warn)', pale: 'var(--col-warn-pale)', icon: 'pi-exclamation-triangle' };
-    return { label: 'Kritis', color: 'var(--col-disease)', pale: 'var(--col-disease-pale)', icon: 'pi-times-circle' };
+  const dominantDisease = () => {
+    if (!stats || sickCount === 0) return { label: 'Aman', color: 'var(--col-healthy)', pale: 'var(--col-healthy-pale)', icon: 'pi-shield' };
+    
+    let maxLabel = '';
+    let maxCount = 0;
+    
+    Object.entries(stats.labelCounts).forEach(([label, count]) => {
+      if (label !== 'HEALTHY' && count > maxCount) {
+        maxCount = count;
+        maxLabel = label;
+      }
+    });
+
+    if (!maxLabel) return { label: 'Aman', color: 'var(--col-healthy)', pale: 'var(--col-healthy-pale)', icon: 'pi-shield' };
+
+    const formattedLabel = maxLabel.charAt(0) + maxLabel.slice(1).toLowerCase().replace(/_/g, ' ');
+
+    return { 
+      label: formattedLabel, 
+      color: 'var(--col-disease)', 
+      pale: 'var(--col-disease-pale)', 
+      icon: 'pi-exclamation-triangle' 
+    };
   };
-  const hs = healthStatus();
+  const dd = dominantDisease();
 
   const doughnutData = {
     labels: ['Sehat', 'Sakit'],
@@ -92,7 +109,7 @@ const DashboardPage: React.FC = () => {
     { label: 'Total Analisis', value: stats?.totalDiagnoses || 0, icon: 'pi-database',           color: 'var(--col-info)',    pale: 'var(--col-info-pale)' },
     { label: 'Kondisi Sehat',  value: healthyCount,               icon: 'pi-check-circle',       color: 'var(--col-healthy)', pale: 'var(--col-healthy-pale)', trend: '+Today' },
     { label: 'Kondisi Sakit',  value: sickCount,                  icon: 'pi-exclamation-circle', color: 'var(--col-disease)', pale: 'var(--col-disease-pale)' },
-    { label: 'Status Fases',   value: hs.label,                   icon: hs.icon,                 color: hs.color,             pale: hs.pale },
+    { label: 'Waspada Penyakit', value: dd.label,                 icon: dd.icon,                 color: dd.color,             pale: dd.pale },
   ];
 
   const greeting = () => {
