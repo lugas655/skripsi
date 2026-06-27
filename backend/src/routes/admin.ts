@@ -70,7 +70,7 @@ router.get('/health', async (req: AuthRequest, res: Response) => {
   const mlStart = Date.now();
   try {
     const mlUrl = process.env.ML_SERVICE_URL || 'http://localhost:8000';
-    await axios.get(`${mlUrl}/`, { timeout: 3000 });
+    await axios.get(`${mlUrl}/health`, { timeout: 3000 });
     health.mlService = { status: 'online', latency: Date.now() - mlStart };
   } catch (e) {
     health.mlService = { status: 'offline', latency: 0 };
