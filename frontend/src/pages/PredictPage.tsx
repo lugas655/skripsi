@@ -47,124 +47,200 @@ const LoadingState = () => (
   </div>
 );
 
+/* ── Confidence Ring (SVG) ── */
+const ConfidenceRing: React.FC<{ value: number; color: string; size?: number }> = ({ value, color, size = 90 }) => {
+  const r = (size - 10) / 2;
+  const circ = 2 * Math.PI * r;
+  const offset = circ - (value / 100) * circ;
+  return (
+    <div style={{ position: 'relative', width: size, height: size, flexShrink: 0 }}>
+      <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="var(--col-border)" strokeWidth={6} />
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth={6}
+          strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
+          style={{ transition: 'stroke-dashoffset 1s ease' }} />
+      </svg>
+      <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '1.15rem', fontWeight: 800, color, lineHeight: 1 }}>{value.toFixed(1)}%</span>
+      </div>
+    </div>
+  );
+};
+
 /* ── Result Card ── */
 const ResultCard: React.FC<{ prediction: PredictResponse['data']; onRemove: () => void; fileInfo?: {name:string; preview:string} }> = ({ prediction, onRemove, fileInfo }) => {
+  const [showProbs, setShowProbs] = React.useState(false);
   const isLowConfidence = prediction.prediksi.nilaiAkurasi < 0.70;
 
   const t = isLowConfidence 
-    ? { color: '#D97706', bg: 'var(--col-warn-pale)', border: '1px solid #fde68a', text: 'var(--col-warn)', label: 'Tidak Terdeteksi', icon: 'pi-question-circle', desc: 'Gambar yang Anda unggah bukan merupakan feses.' }
+    ? { color: '#D97706', bg: '#FFFBEB', border: '1px solid #fde68a', text: '#92400E', label: 'Tidak Terdeteksi', icon: 'pi-question-circle', desc: 'Gambar yang Anda unggah bukan merupakan feses, atau kualitas gambar terlalu rendah.' }
     : getTheme(prediction.prediksi.labelPenyakit);
   
   const labelText = isLowConfidence ? 'UNKNOWN' : prediction.prediksi.labelPenyakit;
-  const pct = (prediction.prediksi.nilaiAkurasi * 100).toFixed(1);
+  const pctVal = prediction.prediksi.nilaiAkurasi * 100;
 
   return (
-    <div className="flex flex-col gap-4 animate-scale-in relative">
-      {fileInfo && (
-        <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'var(--col-card)', border: '1px solid var(--col-border)' }}>
-          <img
-            src={fileInfo.preview}
-            alt="Preview"
-            className="rounded-lg"
-            style={{ width: 48, height: 48, minWidth: 48, objectFit: 'cover', flexShrink: 0, border: '1px solid var(--col-border-light)' }}
-          />
-          <span className="text-sm font-semibold truncate" style={{ color: 'var(--col-ink-2)' }}>{fileInfo.name}</span>
-        </div>
-      )}
+    <div className="animate-scale-in" style={{ marginBottom: 12 }}>
+      <div style={{ borderRadius: 16, overflow: 'hidden', background: 'var(--col-card)', border: '1px solid var(--col-border)', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
 
-      {/* Hero verdict — signature element */}
-      <div className="card overflow-hidden">
-        {/* Color banner */}
-        <div className="px-6 py-5 flex items-center justify-between" style={{ background: t.bg, borderBottom: t.border }}>
-          <div>
-            <p className="diag-label m-0 mb-2" style={{ color: t.text }}>
-              <i className="pi pi-sparkles mr-1" style={{ fontSize: 9 }} /> Hasil Diagnosa AI
-            </p>
-            <h2 className="m-0" style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '2.25rem', color: t.color, lineHeight: 1 }}>
-              {t.label}
-            </h2>
-            <p className="m-0 mt-1" style={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: t.text, letterSpacing: '0.1em', opacity: 0.7 }}>
-              {labelText}
-            </p>
-          </div>
-          <div style={{ width: 60, height: 60, minWidth: 60, borderRadius: 14, background: 'white', border: t.border, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <i className={`pi ${t.icon}`} style={{ fontSize: 26, color: t.color }} />
-          </div>
-        </div>
+        {/* ─ Accent strip ─ */}
+        <div style={{ height: 5, background: `linear-gradient(90deg, ${t.color}, ${t.color}88)` }} />
 
-        <div className="p-6">
-          {/* AI Advice */}
-          <div className="rounded-xl p-4 mb-5" style={{ background: t.bg, border: t.border }}>
-            {isLowConfidence ? (
-              <p className="m-0 text-sm leading-relaxed font-medium" style={{ color: t.text }}>Gambar yang Anda unggah bukan merupakan feses.</p>
-            ) : prediction.prediksi.saranAI ? (
-              <>
-                <p className="diag-label m-0 mb-2" style={{ color: t.text }}>
-                  <i className="pi pi-sparkles mr-1" style={{ fontSize: 9 }} /> Saran AI Doctor
+        {/* ─ Hero section ─ */}
+        <div style={{ padding: '20px 20px 0' }}>
+          <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+            {/* Image preview */}
+            {fileInfo && (
+              <img
+                src={fileInfo.preview} alt="Preview"
+                onClick={() => window.open(fileInfo.preview, '_blank')}
+                style={{ width: 64, height: 64, minWidth: 64, borderRadius: 14, objectFit: 'cover', border: `2px solid ${t.color}30`, cursor: 'pointer', transition: 'transform .2s' }}
+                onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.08)')}
+                onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}
+                title="Klik untuk memperbesar"
+              />
+            )}
+            {/* Title */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                <i className={`pi ${t.icon}`} style={{ fontSize: 14, color: t.color }} />
+                <span style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: t.text }}>Hasil Diagnosa</span>
+              </div>
+              <h2 style={{ margin: 0, fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.5rem', color: t.color, lineHeight: 1.15 }}>
+                {t.label}
+              </h2>
+              {fileInfo && (
+                <p style={{ margin: '4px 0 0', fontSize: '0.7rem', color: 'var(--col-ink-4)', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {fileInfo.name}
                 </p>
-                <p className="m-0 text-sm leading-relaxed font-medium italic" style={{ color: t.text }}>"{prediction.prediksi.saranAI}"</p>
-              </>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* ─ Confidence + Time row ─ */}
+        <div style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 16 }}>
+          <ConfidenceRing value={pctVal} color={t.color} size={80} />
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ padding: '10px 14px', borderRadius: 12, background: 'var(--col-surface)', border: '1px solid var(--col-border)' }}>
+              <span style={{ fontSize: '0.65rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--col-ink-4)', display: 'block', marginBottom: 2 }}>Kepercayaan AI</span>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.95rem', fontWeight: 700, color: t.color }}>{pctVal.toFixed(1)}%</span>
+            </div>
+            <div style={{ padding: '10px 14px', borderRadius: 12, background: 'var(--col-surface)', border: '1px solid var(--col-border)' }}>
+              <span style={{ fontSize: '0.65rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--col-ink-4)', display: 'block', marginBottom: 2 }}>Waktu Analisis</span>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.95rem', fontWeight: 700, color: 'var(--col-ink)' }}>{prediction.prediksi.waktuProses.toFixed(2)}s</span>
+            </div>
+          </div>
+        </div>
+
+        {/* ─ Divider ─ */}
+        <div style={{ height: 1, background: 'var(--col-border)', margin: '0 20px' }} />
+
+        {/* ─ AI Advice ─ */}
+        <div style={{ padding: '16px 20px' }}>
+          <div style={{ borderRadius: 14, padding: '16px 18px', background: t.bg, border: t.border, position: 'relative', overflow: 'hidden' }}>
+            {/* Decorative watermark */}
+            <i className={`pi ${t.icon}`} style={{ position: 'absolute', right: -8, bottom: -8, fontSize: 64, color: t.color, opacity: 0.06, transform: 'rotate(15deg)' }} />
+            
+            {isLowConfidence ? (
+              <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', position: 'relative', zIndex: 1 }}>
+                <div style={{ width: 32, height: 32, borderRadius: 10, background: `${t.color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <i className="pi pi-exclamation-triangle" style={{ fontSize: 15, color: t.color }} />
+                </div>
+                <div>
+                  <p style={{ margin: '0 0 4px', fontWeight: 700, fontSize: '0.8rem', color: t.color }}>Peringatan</p>
+                  <p style={{ margin: 0, fontSize: '0.8rem', lineHeight: 1.6, color: t.text }}>
+                    Gambar yang Anda unggah kemungkinan bukan feses ayam, atau kualitas terlalu rendah untuk dianalisis. Coba unggah foto yang lebih jelas.
+                  </p>
+                </div>
+              </div>
             ) : (
-              <p className="m-0 text-sm leading-relaxed" style={{ color: t.text }}>{t.desc}</p>
+              <div style={{ position: 'relative', zIndex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                  <div style={{ width: 28, height: 28, borderRadius: 8, background: `${t.color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <i className="pi pi-verified" style={{ fontSize: 13, color: t.color }} />
+                  </div>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: t.color }}>Rekomendasi AI</span>
+                </div>
+                <p style={{ margin: 0, fontSize: '0.8rem', lineHeight: 1.7, color: t.text, fontWeight: 500 }}>
+                  {prediction.prediksi.saranAI || t.desc}
+                </p>
+              </div>
             )}
           </div>
+        </div>
 
-          {/* Confidence bar — diagnostic readout */}
-          <div className="mb-5">
-            <div className="flex justify-between items-center mb-2">
-              <span className="diag-label">Tingkat Kepercayaan</span>
-              <span className="diag-number" style={{ fontSize: '1.5rem', color: t.color }}>{pct}%</span>
-            </div>
-            <ProgressBar value={prediction.prediksi.nilaiAkurasi * 100} showValue={false} style={{ height: '6px' }} color={t.color} />
-          </div>
+        {/* ─ Expandable probability section ─ */}
+        {prediction.prediksi.allProbs && !isLowConfidence && (
+          <div style={{ padding: '0 20px 16px' }}>
+            <button
+              onClick={() => setShowProbs(p => !p)}
+              style={{
+                width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '10px 14px', borderRadius: 12, border: '1px solid var(--col-border)',
+                background: 'var(--col-surface)', cursor: 'pointer', transition: 'background .15s',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'var(--col-border)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'var(--col-surface)')}
+            >
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--col-ink-3)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <i className="pi pi-chart-bar" style={{ fontSize: 12 }} /> Detail Probabilitas
+              </span>
+              <i className={`pi pi-chevron-${showProbs ? 'up' : 'down'}`} style={{ fontSize: 11, color: 'var(--col-ink-4)' }} />
+            </button>
 
-          {/* Metrics */}
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { label: 'Waktu Proses', val: `${prediction.prediksi.waktuProses.toFixed(2)}s` },
-              { label: 'Model AI', val: 'ViT Base' },
-            ].map(m => (
-              <div key={m.label} className="rounded-xl p-3.5" style={{ background: 'var(--col-surface)', border: '1px solid var(--col-border)' }}>
-                <p className="diag-label m-0 mb-1">{m.label}</p>
-                <p className="diag-number m-0" style={{ fontSize: '1.125rem', color: 'var(--col-ink)' }}>{m.val}</p>
+            {showProbs && (
+              <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 6, animation: 'fadeIn .25s ease' }}>
+                {Object.entries(prediction.prediksi.allProbs)
+                  .sort(([, a], [, b]) => (b as number) - (a as number))
+                  .map(([lbl, prob]) => {
+                    const th = getTheme(lbl);
+                    const isTop = lbl === prediction.prediksi.labelPenyakit;
+                    const probVal = (prob as number) * 100;
+                    return (
+                      <div key={lbl} style={{
+                        display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px',
+                        borderRadius: 10, background: isTop ? th.bg : 'var(--col-surface)',
+                        border: isTop ? th.border : '1px solid var(--col-border)',
+                      }}>
+                        <i className={`pi ${th.icon}`} style={{ fontSize: 13, color: th.color, width: 18, textAlign: 'center' as const }} />
+                        <span style={{ flex: 1, fontSize: '0.75rem', fontWeight: 600, color: isTop ? th.color : 'var(--col-ink-2)' }}>{th.label}</span>
+                        <div style={{ width: 80 }}>
+                          <div style={{ height: 4, borderRadius: 2, background: 'var(--col-border)', overflow: 'hidden' }}>
+                            <div style={{ height: '100%', width: `${probVal}%`, borderRadius: 2, background: th.color, transition: 'width .6s ease' }} />
+                          </div>
+                        </div>
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', fontWeight: 700, color: isTop ? th.color : 'var(--col-ink-3)', minWidth: 42, textAlign: 'right' as const }}>{probVal.toFixed(1)}%</span>
+                      </div>
+                    );
+                  })}
               </div>
-            ))}
+            )}
           </div>
+        )}
+
+        {/* ─ CTA ─ */}
+        <div style={{ padding: '0 20px 20px' }}>
+          <button
+            onClick={() => {
+              const el = document.querySelector('.p-fileupload');
+              if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              else window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            style={{
+              width: '100%', padding: '13px 0', borderRadius: 14, border: 'none',
+              background: `linear-gradient(135deg, ${t.color}, ${t.color}cc)`,
+              color: 'white', fontSize: '0.85rem', fontWeight: 700, fontFamily: 'var(--font-display)',
+              cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              transition: 'transform .15s, box-shadow .15s', boxShadow: `0 4px 14px ${t.color}30`,
+            }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = `0 6px 20px ${t.color}40`; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = `0 4px 14px ${t.color}30`; }}
+          >
+            <i className="pi pi-camera" style={{ fontSize: 15 }} /> Diagnosa Foto Lain
+          </button>
         </div>
       </div>
-
-      {/* Probability distribution */}
-      {prediction.prediksi.allProbs && (
-        <div className="card p-5">
-          <h4 className="m-0 mb-4 flex items-center gap-2 text-sm font-semibold" style={{ fontFamily: 'var(--font-display)', color: 'var(--col-ink)' }}>
-            <i className="pi pi-chart-bar" style={{ color: 'var(--col-brand)' }} /> Distribusi Probabilitas
-          </h4>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {Object.entries(prediction.prediksi.allProbs).map(([lbl, prob]) => {
-              const th = getTheme(lbl);
-              const isTop = lbl === prediction.prediksi.labelPenyakit;
-              return (
-                <div key={lbl} className="rounded-xl p-3.5" style={{ background: isTop ? th.bg : 'var(--col-surface)', border: isTop ? th.border : '1px solid var(--col-border)' }}>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs font-semibold" style={{ color: isTop ? th.text : 'var(--col-ink-3)' }}>{th.label}</span>
-                    <span className="diag-number text-xs font-bold" style={{ color: isTop ? th.text : 'var(--col-ink)' }}>{((prob as number) * 100).toFixed(1)}%</span>
-                  </div>
-                  <ProgressBar value={(prob as number) * 100} showValue={false} style={{ height: '4px' }} color={th.color} />
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Reset */}
-      <button
-        onClick={onRemove}
-        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-all hover:-translate-y-0.5"
-        style={{ background: 'var(--col-card)', border: '1px solid var(--col-border)', color: 'var(--col-ink-2)', cursor: 'pointer' }}
-      >
-        <i className="pi pi-times" style={{ fontSize: 13 }} /> Hapus Hasil Ini
-      </button>
     </div>
   );
 };
@@ -432,8 +508,8 @@ const PredictPage: React.FC = () => {
             <div
               className="flex flex-col gap-5"
               style={{
-                overflowY: items.length > 0 ? 'auto' : 'visible',
-                maxHeight: items.length > 0 ? 'calc(100vh - 260px)' : undefined,
+                overflowY: items.length > 1 ? 'auto' : 'visible',
+                maxHeight: items.length > 1 ? 'calc(100vh - 260px)' : undefined,
                 paddingRight: items.length > 1 ? 6 : 0,
                 scrollbarWidth: 'thin',
               }}
