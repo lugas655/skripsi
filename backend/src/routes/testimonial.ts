@@ -1,9 +1,9 @@
 import { Router, Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { z } from 'zod';
+import prisma from '../prisma';
 import { authMiddleware } from '../middlewares/authMiddleware';
 
 const router = Router();
-const prisma = new PrismaClient();
 
 interface AuthRequest extends Request {
   user?: {
@@ -52,25 +52,48 @@ router.get('/mine', authMiddleware, async (req: AuthRequest, res: Response) => {
   }
 });
 
+// Zod validation schemas
+const createTestimonialSchema = z.object({
+  text: z.string().min(10, 'Ulasan minimal 10 karakter').max(500, 'Ulasan maksimal 500 karakter'),
+  rating: z.number().int().min(1).max(5),
+});
+
+const updateTestimonialSchema = z.object({
+  text: z.string().min(10, 'Ulasan minimal 10 karakter').max(500, 'Ulasan maksimal 500 karakter'),
+  rating: z.number().int().min(1).max(5),
+});
+
 // Create testimonial
 router.post('/', authMiddleware, async (req: AuthRequest, res: Response) => {
-  const { name, role, text, rating, avatar } = req.body;
   const userId = req.user?.id;
-  
+  if (!userId) return res.status(401).json({ message: 'Unauthorized' });
+
   try {
-    if (userId) {
-      // Check if user already has a testimonial
-      const existing = await prisma.testimonial.findFirst({ where: { userId } });
-      if (existing) {
-        return res.status(400).json({ message: 'User already has a testimonial. Please update instead.' });
-      }
+    const validatedData = createTestimonialSchema.parse(req.body);
+
+    // Check if user already has a testimonial
+    const existing = await prisma.testimonial.findFirst({ where: { userId } });
+    if (existing) {
+      return res.status(400).json({ message: 'User already has a testimonial. Please update instead.' });
     }
 
+    // Fetch user data from DB to prevent spoofing name/role
+    const user = await prisma.user.findUnique({ where: { id: userId }, select: { nama_lengkap: true } });
+
     const testimonial = await prisma.testimonial.create({
-      data: { name, role, text, rating, avatar, userId }
+      data: {
+        name: user?.nama_lengkap || 'Pengguna',
+        role: 'Pengguna AyamSehat.AI',
+        text: validatedData.text,
+        rating: validatedData.rating,
+        userId,
+      }
     });
     res.status(201).json(testimonial);
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ message: 'Validation failed', errors: error.errors });
+    }
     console.error('Error creating testimonial:', error);
     res.status(400).json({ message: 'Bad request' });
   }
@@ -78,11 +101,11 @@ router.post('/', authMiddleware, async (req: AuthRequest, res: Response) => {
 
 // Update my testimonial
 router.put('/mine', authMiddleware, async (req: AuthRequest, res: Response) => {
-  const { text, rating } = req.body;
   const userId = req.user?.id;
-  
+  if (!userId) return res.status(401).json({ message: 'Unauthorized' });
+
   try {
-    if (!userId) return res.status(401).json({ message: 'Unauthorized' });
+    const validatedData = updateTestimonialSchema.parse(req.body);
 
     const existing = await prisma.testimonial.findFirst({ where: { userId } });
     if (!existing) {
@@ -91,11 +114,14 @@ router.put('/mine', authMiddleware, async (req: AuthRequest, res: Response) => {
 
     const updated = await prisma.testimonial.update({
       where: { id: existing.id },
-      data: { text, rating }
+      data: { text: validatedData.text, rating: validatedData.rating }
     });
     
     res.json(updated);
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ message: 'Validation failed', errors: error.errors });
+    }
     console.error('Error updating testimonial:', error);
     res.status(400).json({ message: 'Bad request' });
   }
