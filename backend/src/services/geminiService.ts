@@ -8,23 +8,31 @@ export const generateAdvice = async (label: string, confidence: number): Promise
     return getDefaultAdvice(label);
   }
 
-  try {
-    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+  let labelIndo = label;
+  if (label.toUpperCase() === 'HEALTHY') labelIndo = 'Sehat';
+  if (label.toUpperCase() === 'NEWCASTLE') labelIndo = 'Newcastle Disease (Tetelo)';
 
-    let labelIndo = label;
-    if (label.toUpperCase() === 'HEALTHY') labelIndo = 'Sehat';
-    if (label.toUpperCase() === 'NEWCASTLE') labelIndo = 'Newcastle Disease (Tetelo)';
+  const prompt = `Kamu adalah dokter hewan ahli unggas yang profesional. Sistem mendeteksi kondisi feses ayam adalah "${labelIndo}" dengan keyakinan ${(confidence * 100).toFixed(1)}%. Berikan saran penanganan atau pencegahan yang singkat, praktis, dan profesional dalam bahasa Indonesia. Maksimal 3 kalimat saja. Jangan gunakan salam pembuka/penutup.`;
 
-    const prompt = `Kamu adalah dokter hewan ahli unggas yang profesional. Sistem mendeteksi kondisi feses ayam adalah "${labelIndo}" dengan keyakinan ${(confidence * 100).toFixed(1)}%. Berikan saran penanganan atau pencegahan yang singkat, praktis, dan profesional dalam bahasa Indonesia. Maksimal 3 kalimat saja. Jangan gunakan salam pembuka/penutup.`;
-
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text().trim();
-    return text;
-  } catch (error) {
-    console.error("Gemini AI Error:", error);
-    return getDefaultAdvice(label);
+  const modelsToTry = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"];
+  
+  for (const modelName of modelsToTry) {
+    try {
+      const model = genAI.getGenerativeModel({ model: modelName });
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      return response.text().trim();
+    } catch (error: any) {
+      console.warn(`[WARN] Gemini AI Error with model ${modelName}:`, error.message);
+      if (modelName !== modelsToTry[modelsToTry.length - 1]) {
+        // Delay 1 second before trying next model
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    }
   }
+
+  console.error("[ERROR] All Gemini models failed, using default advice.");
+  return getDefaultAdvice(label);
 };
 
 const getDefaultAdvice = (label: string): string => {
