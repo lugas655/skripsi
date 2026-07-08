@@ -14,7 +14,7 @@ export const generateAdvice = async (label: string, confidence: number): Promise
 
   const prompt = `Kamu adalah dokter hewan ahli unggas yang profesional. Sistem mendeteksi kondisi feses ayam adalah "${labelIndo}" dengan keyakinan ${(confidence * 100).toFixed(1)}%. Berikan saran penanganan atau pencegahan yang singkat, praktis, dan profesional dalam bahasa Indonesia. Maksimal 3 kalimat saja. Jangan gunakan salam pembuka/penutup.`;
 
-  const modelName = "gemini-flash-latest";
+  const modelName = "gemini-3-flash-preview";
   const maxRetries = 3;
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
