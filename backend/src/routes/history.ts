@@ -18,28 +18,22 @@ interface AuthRequest extends Request {
 router.get('/stats', authMiddleware, async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const userId = Number(req.user!.id);
-    console.log(`[DEBUG] Fetching stats for userId: ${userId}`);
 
-    const totalDiagnoses = await prisma.citra.count({
-      where: { userId },
-    });
-
-    const labelCounts = await prisma.hasilPrediksi.groupBy({
-      by: ['labelPenyakit'],
-      where: {
-        citra: { userId },
-      },
-      _count: {
-        labelPenyakit: true,
-      },
-    });
-
-    const recentChecks = await prisma.citra.findMany({
-      where: { userId },
-      include: { hasilPrediksi: true },
-      orderBy: { tanggalUnggah: 'desc' },
-      take: 5,
-    });
+    // Parallelize all 3 queries for better performance
+    const [totalDiagnoses, labelCounts, recentChecks] = await Promise.all([
+      prisma.citra.count({ where: { userId } }),
+      prisma.hasilPrediksi.groupBy({
+        by: ['labelPenyakit'],
+        where: { citra: { userId } },
+        _count: { labelPenyakit: true },
+      }),
+      prisma.citra.findMany({
+        where: { userId },
+        include: { hasilPrediksi: true },
+        orderBy: { tanggalUnggah: 'desc' },
+        take: 5,
+      }),
+    ]);
 
     res.json({
       totalDiagnoses,
@@ -139,9 +133,12 @@ router.delete('/:id', authMiddleware, async (req: AuthRequest, res: Response, ne
       prisma.citra.delete({ where: { id } }),
     ]);
 
-    // Async file deletion after DB commit
-    const filePath = path.join(__dirname, '../../uploads', citra.namaFile);
-    if (await fs.promises.access(filePath).then(() => true).catch(() => false)) {
+    // Async file deletion after DB commit — with path traversal protection
+    const uploadsDir = path.resolve(__dirname, '../../uploads');
+    const filePath = path.resolve(uploadsDir, path.basename(citra.namaFile));
+    if (!filePath.startsWith(uploadsDir)) {
+      console.error(`[SECURITY] Path traversal attempt blocked: ${citra.namaFile}`);
+    } else if (await fs.promises.access(filePath).then(() => true).catch(() => false)) {
       try {
         await fs.promises.unlink(filePath);
       } catch (err) {

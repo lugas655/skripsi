@@ -167,7 +167,7 @@ const ProfilePage: React.FC = () => {
       .then(s => setHistoryCount(s.totalDiagnoses))
       .catch(console.error);
 
-    historyService.getAllHistory()
+    historyService.getAllHistory(5)
       .then(h => {
         if (h && h.data && h.data.length > 0) {
           const acts = h.data.slice(0, 4).map((item: any) => ({
@@ -233,11 +233,8 @@ const ProfilePage: React.FC = () => {
         setIsEditingTestimonial(false);
       } else {
         const result = await createTestimonial({
-          name: user?.nama_lengkap || 'User',
-          role: 'Pengguna AyamSehat.AI',
           text: reviewText,
           rating: reviewRating,
-          avatar: user?.avatar ? `${IMAGE_BASE_URL}/${user.avatar}` : undefined,
         });
         setMyTestimonial(result);
         toast.current?.show({ severity: 'success', summary: 'Terima Kasih!', detail: 'Ulasan berhasil dikirim.' });

@@ -40,7 +40,7 @@ const HistoryPage: React.FC = () => {
 
   const { data: paginated, isLoading } = useQuery<PaginatedCitra>({
     queryKey: ['history'],
-    queryFn: () => historyService.getAllHistory(),
+    queryFn: () => historyService.getAllHistory(1000), // Ambil semua data agar sinkron
   });
   const history = paginated?.data;
 

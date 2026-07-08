@@ -81,7 +81,8 @@ const adminService = {
 
   getUploads: async (): Promise<AdminUpload[]> => {
     const response = await api.get(API_ENDPOINTS.ADMIN_UPLOADS);
-    return response.data;
+    // Backend returns paginated: { page, limit, total, data: [...] }
+    return response.data.data || response.data;
   },
 
   downloadFile: async (id: number, filename: string): Promise<void> => {

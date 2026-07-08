@@ -21,8 +21,8 @@ export const getMyTestimonial = async (): Promise<Testimonial | null> => {
   return response.data;
 };
 
-export const createTestimonial = async (data: Partial<Testimonial>): Promise<Testimonial> => {
-  const response = await api.post('/testimonials', data);
+export const createTestimonial = async (data: { text: string; rating: number }): Promise<Testimonial> => {
+  const response = await api.post('/testimonials', { text: data.text, rating: data.rating });
   return response.data;
 };
 

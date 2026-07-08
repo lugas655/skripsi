@@ -1,5 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../prisma';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
@@ -15,7 +15,9 @@ interface AuthRequest extends Request {
 }
 
 const router = Router();
-const prisma = new PrismaClient();
+
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) throw new Error('FATAL: JWT_SECRET environment variable is not set');
 
 const registerSchema = z.object({
   username: z.string().min(3),
@@ -76,7 +78,7 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
 
     const token = jwt.sign(
       { id: user.id, username: user.username, role: user.role },
-      process.env.JWT_SECRET || 'secret',
+      JWT_SECRET,
       { expiresIn: '1d' }
     );
 

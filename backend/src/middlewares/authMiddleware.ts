@@ -9,6 +9,9 @@ interface AuthRequest extends Request {
   };
 }
 
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) throw new Error('FATAL: JWT_SECRET environment variable is not set');
+
 export const authMiddleware = (
   req: AuthRequest,
   res: Response,
@@ -23,7 +26,7 @@ export const authMiddleware = (
   const token = authHeader.split(' ')[1];
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret') as {
+    const decoded = jwt.verify(token, JWT_SECRET) as {
       id: number;
       username: string;
       role: string;

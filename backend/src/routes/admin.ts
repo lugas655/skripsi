@@ -29,18 +29,16 @@ interface AuthRequest extends Request {
  */
 router.get('/stats', async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const [userCount, citraCount, predictionCount] = await Promise.all([
+    // Parallelize all 4 queries for better performance
+    const [userCount, citraCount, predictionCount, diseaseStats] = await Promise.all([
       prisma.user.count(),
       prisma.citra.count(),
       prisma.hasilPrediksi.count(),
+      prisma.hasilPrediksi.groupBy({
+        by: ['labelPenyakit'],
+        _count: { id: true },
+      }),
     ]);
-
-    const diseaseStats = await prisma.hasilPrediksi.groupBy({
-      by: ['labelPenyakit'],
-      _count: {
-        id: true,
-      },
-    });
 
     res.json({
       users: userCount,
@@ -174,7 +172,17 @@ const changePasswordSchema = z.object({
 router.patch('/users/:id/password', async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const userId = parseInt(req.params.id);
+    if (isNaN(userId)) {
+      return res.status(400).json({ message: 'Invalid ID format' });
+    }
+
     const { newPassword } = changePasswordSchema.parse(req.body);
+
+    // Verify user exists
+    const existingUser = await prisma.user.findUnique({ where: { id: userId } });
+    if (!existingUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
@@ -227,10 +235,11 @@ router.delete('/users/:id', async (req: AuthRequest, res: Response, next: NextFu
         where: { id: userId },
       });
 
-      // 5. Cleanup files from disk (optional but recommended)
+      // 5. Cleanup files from disk
       for (const citra of citras) {
-        const filePath = path.join(__dirname, '../../uploads', citra.namaFile);
-        if (fs.existsSync(filePath)) {
+        const uploadsDir = path.resolve(__dirname, '../../uploads');
+        const filePath = path.resolve(uploadsDir, path.basename(citra.namaFile));
+        if (filePath.startsWith(uploadsDir) && fs.existsSync(filePath)) {
           fs.unlinkSync(filePath);
         }
       }
@@ -248,19 +257,40 @@ router.delete('/users/:id', async (req: AuthRequest, res: Response, next: NextFu
  */
 router.get('/uploads', async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const uploads = await prisma.citra.findMany({
-      include: {
-        user: {
-          select: {
-            username: true,
-            nama_lengkap: true,
+    // Pagination to prevent memory issues on large datasets
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = Math.min(parseInt(req.query.limit as string) || 50, 100);
+    const skip = (page - 1) * limit;
+
+    const [uploads, total] = await Promise.all([
+      prisma.citra.findMany({
+        select: {
+          id: true,
+          userId: true,
+          namaFile: true,
+          ukuranFile: true,
+          tanggalUnggah: true,
+          user: {
+            select: {
+              username: true,
+              nama_lengkap: true,
+            },
+          },
+          hasilPrediksi: {
+            select: {
+              labelPenyakit: true,
+              nilaiAkurasi: true,
+              saranAI: true,
+            },
           },
         },
-        hasilPrediksi: true,
-      },
-      orderBy: { tanggalUnggah: 'desc' },
-    });
-    res.json(uploads);
+        orderBy: { tanggalUnggah: 'desc' },
+        skip,
+        take: limit,
+      }),
+      prisma.citra.count(),
+    ]);
+    res.json({ page, limit, total, data: uploads });
   } catch (error) {
     next(error);
   }
@@ -273,6 +303,10 @@ router.get('/uploads', async (req: AuthRequest, res: Response, next: NextFunctio
 router.get('/uploads/download/:id', async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const citraId = parseInt(req.params.id);
+    if (isNaN(citraId)) {
+      return res.status(400).json({ message: 'Invalid ID format' });
+    }
+
     const citra = await prisma.citra.findUnique({
       where: { id: citraId },
     });
@@ -281,7 +315,13 @@ router.get('/uploads/download/:id', async (req: AuthRequest, res: Response, next
       return res.status(404).json({ message: 'File not found' });
     }
 
-    const filePath = path.join(__dirname, '../../uploads', citra.namaFile);
+    // Path traversal protection
+    const uploadsDir = path.resolve(__dirname, '../../uploads');
+    const filePath = path.resolve(uploadsDir, path.basename(citra.namaFile));
+    if (!filePath.startsWith(uploadsDir)) {
+      return res.status(400).json({ message: 'Invalid file path' });
+    }
+
     if (!fs.existsSync(filePath)) {
       return res.status(404).json({ message: 'File not found on server' });
     }
@@ -319,9 +359,10 @@ router.get('/uploads/download-all', async (req: AuthRequest, res: Response, next
     archive.pipe(res);
 
     for (const citra of citras) {
-      const filePath = path.join(__dirname, '../../uploads', citra.namaFile);
-      if (fs.existsSync(filePath)) {
-        archive.file(filePath, { name: citra.namaFile });
+      const uploadsDir = path.resolve(__dirname, '../../uploads');
+      const filePath = path.resolve(uploadsDir, path.basename(citra.namaFile));
+      if (filePath.startsWith(uploadsDir) && fs.existsSync(filePath)) {
+        archive.file(filePath, { name: path.basename(citra.namaFile) });
       }
     }
 
@@ -352,9 +393,17 @@ router.get('/testimonials', async (req: AuthRequest, res: Response) => {
  */
 router.delete('/testimonials/:id', async (req: AuthRequest, res: Response) => {
   try {
-    await prisma.testimonial.delete({
-      where: { id: parseInt(req.params.id) },
-    });
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: 'Invalid ID format' });
+    }
+
+    const existing = await prisma.testimonial.findUnique({ where: { id } });
+    if (!existing) {
+      return res.status(404).json({ message: 'Testimonial not found' });
+    }
+
+    await prisma.testimonial.delete({ where: { id } });
     res.json({ message: 'Testimonial deleted' });
   } catch (error) {
     res.status(500).json({ message: 'Error deleting testimonial' });
@@ -367,14 +416,16 @@ router.delete('/testimonials/:id', async (req: AuthRequest, res: Response) => {
  */
 router.patch('/testimonials/:id/feature', async (req: AuthRequest, res: Response) => {
   try {
-    const testimonial = await prisma.testimonial.findUnique({
-      where: { id: parseInt(req.params.id) },
-    });
-    
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: 'Invalid ID format' });
+    }
+
+    const testimonial = await prisma.testimonial.findUnique({ where: { id } });
     if (!testimonial) return res.status(404).json({ message: 'Testimonial not found' });
     
     const updated = await prisma.testimonial.update({
-      where: { id: parseInt(req.params.id) },
+      where: { id },
       data: { isFeatured: !testimonial.isFeatured },
     });
     
