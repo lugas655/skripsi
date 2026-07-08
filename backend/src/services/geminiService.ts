@@ -8,35 +8,26 @@ export const generateAdvice = async (label: string, confidence: number): Promise
     return getDefaultAdvice(label);
   }
 
-  let labelIndo = label;
-  if (label.toUpperCase() === 'HEALTHY') labelIndo = 'Sehat';
-  if (label.toUpperCase() === 'NEWCASTLE') labelIndo = 'Newcastle Disease (Tetelo)';
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
-  const prompt = `Kamu adalah dokter hewan ahli unggas yang profesional. Sistem mendeteksi kondisi feses ayam adalah "${labelIndo}" dengan keyakinan ${(confidence * 100).toFixed(1)}%. Berikan saran penanganan atau pencegahan yang singkat, praktis, dan profesional dalam bahasa Indonesia. Maksimal 3 kalimat saja. Jangan gunakan salam pembuka/penutup.`;
+    let labelIndo = label;
+    if (label.toUpperCase() === 'HEALTHY') labelIndo = 'Sehat';
+    if (label.toUpperCase() === 'NEWCASTLE') labelIndo = 'Newcastle Disease (Tetelo)';
 
-  const modelName = "gemini-flash-latest";
-  const maxRetries = 3;
-  
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      const model = genAI.getGenerativeModel({ model: modelName });
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      return response.text().trim();
-    } catch (error: any) {
-      console.warn(`[WARN] Gemini AI Error (Attempt ${attempt}/${maxRetries}):`, error.message);
-      
-      if (attempt < maxRetries) {
-        // Exponential backoff: wait 2s, then 4s
-        const delay = attempt * 2000;
-        console.log(`[INFO] Waiting ${delay}ms before retrying...`);
-        await new Promise(resolve => setTimeout(resolve, delay));
-      }
-    }
+    const prompt = `Kamu adalah dokter hewan ahli unggas yang profesional. Sistem mendeteksi kondisi feses ayam adalah "${labelIndo}" dengan keyakinan ${(confidence * 100).toFixed(1)}%. Berikan saran penanganan atau pencegahan yang singkat, praktis, dan profesional dalam bahasa Indonesia. Maksimal 3 kalimat saja. Jangan gunakan salam pembuka/penutup.`;
+
+    console.log(`[DEBUG] Sending prompt to Gemini: ${labelIndo}`);
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text().trim();
+    
+    console.log(`[DEBUG] Gemini AI Response: ${text}`);
+    return text;
+  } catch (error) {
+    console.error("Gemini AI Error:", error);
+    return getDefaultAdvice(label);
   }
-
-  console.error("[ERROR] Gemini API failed after multiple retries, using default advice.");
-  return getDefaultAdvice(label);
 };
 
 const getDefaultAdvice = (label: string): string => {
